@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxPageButtonMapper">
+    
+    <resultMap type="TxwxPageButton" id="PageButtonResult">
+        <result property="buttonId"    column="button_id"    />
+        <result property="pageCode"    column="page_code"    />
+        <result property="buttonType"    column="button_type"    />
+        <result property="buttonText"    column="button_text"    />
+        <result property="backgroundColor"    column="background_color"    />
+        <result property="jumpUrl"    column="jump_url"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="isShow"    column="is_show"    />
+        <result property="isPublish"    column="is_publish"    />
+        <result property="state"    column="state"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectPageButtonVo">
+        select button_id, page_code, button_type, button_text, background_color, jump_url, image_url, is_show, is_publish, state, sort_order, create_by, create_time, update_by, update_time, remark, saved_by, saved_time, published_by, published_time from txwx_page_button
+    </sql>
+
+    <select id="selectPageButtonList" parameterType="TxwxPageButton" resultMap="PageButtonResult">
+        <include refid="selectPageButtonVo"/>
+        <where>  
+            <if test="pageCode != null  and pageCode != ''"> and page_code = #{pageCode}</if>
+            <if test="buttonType != null  and buttonType != ''"> and button_type = #{buttonType}</if>
+            <if test="buttonText != null  and buttonText != ''"> and button_text like concat('%', #{buttonText}, '%')</if>
+            <if test="backgroundColor != null  and backgroundColor != ''"> and background_color = #{backgroundColor}</if>
+            <if test="jumpUrl != null  and jumpUrl != ''"> and jump_url like concat('%', #{jumpUrl}, '%')</if>
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url like concat('%', #{imageUrl}, '%')</if>
+            <if test="isShow != null  and isShow != ''"> and is_show = #{isShow}</if>
+            <if test="isPublish != null and isPublish != ''"> and is_publish = #{isPublish}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="sortOrder != null "> and sort_order = #{sortOrder}</if>
+        </where>
+        order by sort_order asc, create_time desc
+    </select>
+    
+    <select id="selectPageButtonByButtonId" parameterType="Long" resultMap="PageButtonResult">
+        <include refid="selectPageButtonVo"/>
+        where button_id = #{buttonId}
+    </select>
+
+    <select id="selectPageButtonListByPageCode" parameterType="String" resultMap="PageButtonResult">
+        <include refid="selectPageButtonVo"/>
+        where page_code = #{pageCode}
+        order by sort_order asc, create_time desc
+    </select>
+
+    <select id="selectShowPageButtonListByPageCode" resultMap="PageButtonResult">
+        <include refid="selectPageButtonVo"/>
+        where page_code = #{pageCode} and is_show = #{isShow}
+        order by sort_order asc, create_time desc
+    </select>
+        
+    <insert id="insertPageButton" parameterType="TxwxPageButton" useGeneratedKeys="true" keyProperty="buttonId">
+        insert into txwx_page_button
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pageCode != null and pageCode != ''">page_code,</if>
+            <if test="buttonType != null and buttonType != ''">button_type,</if>
+            <if test="buttonText != null">button_text,</if>
+            <if test="backgroundColor != null">background_color,</if>
+            <if test="jumpUrl != null">jump_url,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="isShow != null">is_show,</if>
+            <if test="isPublish != null">is_publish,</if>
+            <if test="state != null">state,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="pageCode != null and pageCode != ''">#{pageCode},</if>
+            <if test="buttonType != null and buttonType != ''">#{buttonType},</if>
+            <if test="buttonText != null">#{buttonText},</if>
+            <if test="backgroundColor != null">#{backgroundColor},</if>
+            <if test="jumpUrl != null">#{jumpUrl},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="isShow != null">#{isShow},</if>
+            <if test="isPublish != null">#{isPublish},</if>
+            <if test="state != null">#{state},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePageButton" parameterType="TxwxPageButton">
+        update txwx_page_button
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pageCode != null and pageCode != ''">page_code = #{pageCode},</if>
+            <if test="buttonType != null and buttonType != ''">button_type = #{buttonType},</if>
+            <if test="buttonText != null">button_text = #{buttonText},</if>
+            <if test="backgroundColor != null">background_color = #{backgroundColor},</if>
+            <if test="jumpUrl != null">jump_url = #{jumpUrl},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="isShow != null">is_show = #{isShow},</if>
+            <if test="isPublish != null">is_publish = #{isPublish},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+        </trim>
+        where button_id = #{buttonId}
+    </update>
+
+    <update id="updatePageButtonByAndTime" parameterType="TxwxPageButton">
+        update txwx_page_button
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+        </trim>
+    </update>
+
+    <delete id="deletePageButtonByButtonId" parameterType="Long">
+        delete from txwx_page_button where button_id = #{buttonId}
+    </delete>
+
+    <delete id="deletePageButtonByButtonIds" parameterType="String">
+        delete from txwx_page_button where button_id in
+        <foreach item="buttonId" collection="array" open="(" separator="," close=")">
+            #{buttonId}
+        </foreach>
+    </delete>
+
+    <delete id="deletePageButtonByPageCode" parameterType="String">
+        delete from txwx_page_button where page_code = #{pageCode}
+    </delete>
+
+    <select id="getMaxSortOrderByPageCode" parameterType="String" resultType="Integer">
+        select COALESCE(max(sort_order), 0) from txwx_page_button where page_code = #{pageCode}
+    </select>
+
+    <update id="updateButtonSort">
+        update txwx_page_button set sort_order = #{sortOrder} where button_id = #{buttonId}
+    </update>
+</mapper>

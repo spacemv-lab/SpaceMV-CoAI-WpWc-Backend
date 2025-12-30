@@ -1,0 +1,66 @@
+package com.txwx.web.mapper;
+
+import com.txwx.web.domain.TxwxCompanyProfileTemp;
+import org.apache.ibatis.annotations.Param;
+
+/**
+ * 公司简介临时表Mapper接口
+ * 
+ * @author txwx
+ * @date 2025-12-06
+ */
+public interface TxwxCompanyProfileTempMapper
+{
+    /**
+     * 查询公司简介临时表
+     * 
+     * @param id 公司简介临时表主键
+     * @return 公司简介临时表
+     */
+    TxwxCompanyProfileTemp selectCompanyProfileTempById(@Param("id") Long id);
+
+    /**
+     * 查询公司简介临时表（获取唯一一条记录）
+     * 
+     * @return 公司简介临时表
+     */
+    TxwxCompanyProfileTemp selectCompanyProfileTemp();
+
+    /**
+     * 新增公司简介临时表
+     * 
+     * @param companyProfileTemp 公司简介临时表
+     * @return 结果
+     */
+    int insertCompanyProfileTemp(TxwxCompanyProfileTemp companyProfileTemp);
+
+    /**
+     * 修改公司简介临时表
+     * 
+     * @param companyProfileTemp 公司简介临时表
+     * @return 结果
+     */
+    int updateCompanyProfileTemp(TxwxCompanyProfileTemp companyProfileTemp);
+
+    /**
+     * 删除公司简介临时表
+     * 
+     * @param id 公司简介临时表主键
+     * @return 结果
+     */
+    int deleteCompanyProfileTempById(@Param("id") Long id);
+
+    /**
+     * 清空公司简介临时表
+     * 
+     * @return 结果
+     */
+    int clearCompanyProfileTemp();
+
+    /**
+     * 将临时表数据复制到正式表
+     * 
+     * @return 结果
+     */
+    int copyTempToFormal();
+}
