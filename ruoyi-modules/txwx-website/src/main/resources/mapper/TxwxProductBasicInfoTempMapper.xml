@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxProductBasicInfoTempMapper">
+    
+    <resultMap type="TxwxProductBasicInfoTemp" id="ProductBasicInfoTempResult">
+        <result property="id"    column="id"    />
+        <result property="productType"    column="product_type"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productIntroduction"    column="product_introduction"    />
+        <result property="backgroundImageUrl"    column="background_image_url"    />
+        <result property="detailedIntroduction"    column="detailed_introduction"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectProductBasicInfoTempVo">
+        select id, product_type, product_name, product_introduction, background_image_url, detailed_introduction, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_product_basic_info_temp
+    </sql>
+
+    <select id="selectProductBasicInfoTempById" parameterType="Long" resultMap="ProductBasicInfoTempResult">
+        <include refid="selectProductBasicInfoTempVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectProductBasicInfoTempByProductType" parameterType="String" resultMap="ProductBasicInfoTempResult">
+        <include refid="selectProductBasicInfoTempVo"/>
+        where product_type = #{productType}
+        limit 1
+    </select>
+        
+    <insert id="insertProductBasicInfoTemp" parameterType="TxwxProductBasicInfoTemp" useGeneratedKeys="true" keyProperty="id">
+        insert into txwx_product_basic_info_temp
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="productIntroduction != null">product_introduction,</if>
+            <if test="backgroundImageUrl != null">background_image_url,</if>
+            <if test="detailedIntroduction != null">detailed_introduction,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">#{productType},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="productIntroduction != null">#{productIntroduction},</if>
+            <if test="backgroundImageUrl != null">#{backgroundImageUrl},</if>
+            <if test="detailedIntroduction != null">#{detailedIntroduction},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProductBasicInfoTemp" parameterType="TxwxProductBasicInfoTemp">
+        update txwx_product_basic_info_temp
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type = #{productType},</if>
+            <if test="productName != null and productName != ''">product_name = #{productName},</if>
+            <if test="productIntroduction != null">product_introduction = #{productIntroduction},</if>
+            <if test="backgroundImageUrl != null">background_image_url = #{backgroundImageUrl},</if>
+            <if test="detailedIntroduction != null">detailed_introduction = #{detailedIntroduction},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProductBasicInfoTempById" parameterType="Long">
+        delete from txwx_product_basic_info_temp where id = #{id}
+    </delete>
+
+    <delete id="deleteProductBasicInfoTempByProductType" parameterType="String">
+        delete from txwx_product_basic_info_temp where product_type = #{productType}
+    </delete>
+
+    <delete id="clearProductBasicInfoTemp">
+        truncate table txwx_product_basic_info_temp
+    </delete>
+
+    <!-- 将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormal">
+        INSERT INTO txwx_product_basic_info (product_type, product_name, product_introduction, background_image_url, detailed_introduction, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark)
+        SELECT product_type, product_name, product_introduction, background_image_url, detailed_introduction, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        FROM txwx_product_basic_info_temp
+    </insert>
+
+    <!-- 根据产品类型将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormalByProductType">
+        INSERT INTO txwx_product_basic_info (product_type, product_name, product_introduction, background_image_url, detailed_introduction, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark)
+        SELECT product_type, product_name, product_introduction, background_image_url, detailed_introduction, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        FROM txwx_product_basic_info_temp
+        WHERE product_type = #{productType}
+    </insert>
+
+</mapper>
