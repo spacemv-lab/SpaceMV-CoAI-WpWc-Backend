@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="profileOne"    column="profile_one"    />
 		<result property="profileTwo"    column="profile_two"    />
 		<result property="profileThree"    column="profile_three"    />
+        <result property="profileFour"    column="profile_four"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -21,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCompanyProfileVo">
-        select id, profile_one, profile_two, profile_three, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_company_profile
+        select id, profile_one, profile_two, profile_three, profile_four, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_company_profile
     </sql>
 
     <select id="selectCompanyProfileById" parameterType="Long" resultMap="CompanyProfileResult">
@@ -40,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="profileOne != null">profile_one,</if>
 			<if test="profileTwo != null">profile_two,</if>
 			<if test="profileThree != null">profile_three,</if>
+            <if test="profileFour != null">profile_four,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
@@ -54,6 +56,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="profileOne != null">#{profileOne},</if>
 			<if test="profileTwo != null">#{profileTwo},</if>
 			<if test="profileThree != null">#{profileThree},</if>
+            <if test="profileFour != null">#{profileFour},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
@@ -72,6 +75,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="profileOne != null">profile_one = #{profileOne},</if>
 			<if test="profileTwo != null">profile_two = #{profileTwo},</if>
 			<if test="profileThree != null">profile_three = #{profileThree},</if>
+            <if test="profileFour != null">profile_four = #{profileFour},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>

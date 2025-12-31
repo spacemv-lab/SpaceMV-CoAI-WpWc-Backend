@@ -25,6 +25,9 @@ public class TxwxCompanyProfileTemp extends BaseEntity
     /** 公司简介三（富文本） */
     private String profileThree;
 
+    /** 公司简介四（富文本） */
+    private String profileFour;
+
     public Long getId()
     {
         return id;
@@ -64,7 +67,15 @@ public class TxwxCompanyProfileTemp extends BaseEntity
     {
         this.profileThree = profileThree;
     }
-    
+
+    public String getProfileFour() {
+        return profileFour;
+    }
+
+    public void setProfileFour(String profileFour) {
+        this.profileFour = profileFour;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
