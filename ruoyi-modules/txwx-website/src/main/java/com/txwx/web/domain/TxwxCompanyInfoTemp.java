@@ -55,6 +55,10 @@ public class TxwxCompanyInfoTemp extends BaseEntity
     @Size(min = 0, max = 500, message = "公司Logo URL不能超过500个字符")
     private String logoUrl;
 
+    /** 公司地址图片 URL */
+    @Size(min = 0, max = 500, message = "公司地址图片 URL不能超过500个字符")
+    private String addrUrl;
+
     public Long getId()
     {
         return id;
@@ -154,7 +158,15 @@ public class TxwxCompanyInfoTemp extends BaseEntity
     {
         this.logoUrl = logoUrl;
     }
-    
+
+    public String getAddrUrl() {
+        return addrUrl;
+    }
+
+    public void setAddrUrl(String addrUrl) {
+        this.addrUrl = addrUrl;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

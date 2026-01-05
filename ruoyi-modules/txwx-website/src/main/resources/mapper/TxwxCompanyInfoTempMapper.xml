@@ -15,6 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="businessCooperation"    column="business_cooperation"    />
         <result property="resumeDelivery"    column="resume_delivery"    />
         <result property="logoUrl"    column="logo_url"    />
+        <result property="addrUrl"    column="addr_url"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -27,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCompanyInfoTempVo">
-        select id, company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_company_info_temp
+        select id, company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, addr_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_company_info_temp
     </sql>
 
     <select id="selectCompanyInfoTempById" parameterType="Long" resultMap="CompanyInfoTempResult">
@@ -52,6 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="businessCooperation != null">business_cooperation,</if>
             <if test="resumeDelivery != null">resume_delivery,</if>
             <if test="logoUrl != null">logo_url,</if>
+            <if test="addrUrl != null">addr_url,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
@@ -72,6 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="businessCooperation != null">#{businessCooperation},</if>
             <if test="resumeDelivery != null">#{resumeDelivery},</if>
             <if test="logoUrl != null">#{logoUrl},</if>
+            <if test="addrUrl != null">#{addrUrl},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
@@ -96,6 +99,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="businessCooperation != null">business_cooperation = #{businessCooperation},</if>
             <if test="resumeDelivery != null">resume_delivery = #{resumeDelivery},</if>
             <if test="logoUrl != null">logo_url = #{logoUrl},</if>
+            <if test="addrUrl != null">addr_url = #{addrUrl},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
@@ -118,8 +122,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <insert id="copyTempToFormal">
-        INSERT INTO txwx_company_info (company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark)
-        SELECT company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        INSERT INTO txwx_company_info (company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, addr_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark)
+        SELECT company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, addr_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
         FROM txwx_company_info_temp
     </insert>
 
