@@ -11,6 +11,9 @@ import java.util.Map;
 
 public class WebChatUtil {
 
+    /**
+     * @description: 获取微信接口调用接入码
+     */
     public static String getAccessToken(String appId, String secret) throws Exception{
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("grant_type", "client_credential");
@@ -30,6 +33,9 @@ public class WebChatUtil {
         return token;
     }
 
+    /**
+     * @description: 获取前一天的关注/取消关注用户数
+     */
     public static List<WebChatUser> getUserYesterday(String token, String beginDate, String endDate) throws Exception{
         Map<String, String> specialParams = new HashMap<>();
         specialParams.put("access_token", token);
@@ -51,6 +57,9 @@ public class WebChatUtil {
         return result;
     }
 
+    /**
+     * @description: 获取每天的文章阅读情况
+     */
     public static List<WebChatArticleUptackPerday> getArticleUptackPerday(String token, String beginDate, String endDate) throws Exception{
         Map<String, String> specialParams = new HashMap<>();
         specialParams.put("access_token", token);
@@ -72,6 +81,9 @@ public class WebChatUtil {
         return result;
     }
 
+    /**
+     * @description: 获取每天的用户阅读数据
+     */
     public static List<WebChatUserRead> getUserReadPerday(String token, String beginDate, String endDate) throws Exception{
         Map<String, String> specialParams = new HashMap<>();
         specialParams.put("access_token", token);
