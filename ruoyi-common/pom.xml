@@ -18,6 +18,8 @@
         <module>ruoyi-common-sensitive</module>
         <module>ruoyi-common-datascope</module>
         <module>ruoyi-common-datasource</module>
+        <module>ruoyi-common-http</module>
+        <module>ruoyi-common-clickhouse</module>
     </modules>
 
     <artifactId>ruoyi-common</artifactId>

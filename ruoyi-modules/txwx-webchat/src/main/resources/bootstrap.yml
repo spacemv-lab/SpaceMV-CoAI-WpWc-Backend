@@ -1,12 +1,12 @@
 # Tomcat
 server:
-  port: 8080
+  port: 9204
 
 # Spring
 spring: 
   application:
     # 应用名称
-    name: ruoyi-gateway
+    name: txwx-webchat
   profiles:
     # 环境配置
     active: dev
@@ -25,19 +25,3 @@ spring:
         # 共享配置
         shared-configs:
           - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
-    sentinel:
-      # 取消控制台懒加载
-      eager: true
-      transport:
-        # 控制台地址
-        dashboard: 127.0.0.1:8718
-      # nacos配置持久化
-      datasource:
-        ds1:
-          nacos:
-            server-addr: nacos-server:8848
-            namespace: 7a77dea7-1529-4bd6-8d0c-79c5ab7eb49c
-            dataId: sentinel-ruoyi-gateway
-            groupId: DEFAULT_GROUP
-            data-type: json
-            rule-type: gw-flow
