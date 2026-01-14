@@ -15,6 +15,7 @@
         <module>ruoyi-file</module>
         <module>txwx-website</module>
         <module>txwx-webchat</module>
+        <module>txwx-webchatcrm</module>
     </modules>
 
     <artifactId>ruoyi-modules</artifactId>
