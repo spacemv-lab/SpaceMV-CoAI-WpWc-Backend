@@ -165,6 +165,91 @@ public class WebChatUtil {
     }
 
     /**
+     * @description: 调用微信公众号官方接口新增草稿
+     */
+    public static AddDraftResponse addDraft(String accessToken, ArticleDTO articleDTO) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/draft/add?access_token=" + accessToken;
+
+        String response = HttpUtil.postJson(urlStr, null, articleDTO);
+        AddDraftResponse result = JSONObject.parseObject(response, AddDraftResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("新增草稿失败: " + result.getErrmsg());
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口更新草稿
+     */
+    public static void updateDraft(String accessToken, ArticleUpdateDTO articleDTO) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/draft/update?access_token=" + accessToken;
+
+        String response = HttpUtil.postJson(urlStr, null, articleDTO);
+
+        com.txwx.webchatcrm.dto.MaterialDeleteResponse result = JSONObject.parseObject(response, com.txwx.webchatcrm.dto.MaterialDeleteResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("更新草稿失败: " + result.getErrmsg());
+        }
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口删除草稿
+     */
+    public static void deleteDraft(String accessToken, String mediaId) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/draft/delete?access_token=" + accessToken;
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("media_id", mediaId);
+
+        String response = HttpUtil.postJson(urlStr, null, requestBody);
+        com.txwx.webchatcrm.dto.MaterialDeleteResponse result = JSONObject.parseObject(response, com.txwx.webchatcrm.dto.MaterialDeleteResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("删除草稿失败: " + result.getErrmsg());
+        }
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口发布草稿
+     */
+    public static PublishDraftResponse publishDraft(String accessToken, String mediaId) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/freepublish/submit?access_token=" + accessToken;
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("media_id", mediaId);
+
+        String response = HttpUtil.postJson(urlStr, null, requestBody);
+        PublishDraftResponse result = JSONObject.parseObject(response, PublishDraftResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("发布草稿失败: " + result.getErrmsg());
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口删除已发布文章
+     */
+    public static void deletePublishedArticle(String accessToken, String articleId) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/freepublish/delete?access_token=" + accessToken;
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("article_id", articleId);
+        requestBody.put("index", 0);
+
+        String response = HttpUtil.postJson(urlStr, null, requestBody);
+        com.txwx.webchatcrm.dto.MaterialDeleteResponse result = JSONObject.parseObject(response, com.txwx.webchatcrm.dto.MaterialDeleteResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("删除已发布文章失败: " + result.getErrmsg());
+        }
+    }
+
+    /**
      * @description: 转换MultipartFile为File
      */
     private static File convertMultipartFileToFile(MultipartFile multipartFile) throws Exception {
