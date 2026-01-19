@@ -134,7 +134,9 @@ public class ArticleServiceImpl implements IArticleService {
                 detailVO.setTitle(item.getTitle());
                 detailVO.setAuthor(item.getAuthor());
                 detailVO.setDigest(item.getDigest());
-                detailVO.setContent(item.getContent());
+                if(StringUtils.isNotEmpty(item.getContent())){
+                    detailVO.setContent(item.getContent().replace("data-src", "src"));
+                }
                 detailVO.setContentSourceUrl(item.getContent_source_url());
                 detailVO.setShowCoverPic(item.getShow_cover_pic());
                 detailVO.setThumbMediaId(item.getThumb_media_id());
