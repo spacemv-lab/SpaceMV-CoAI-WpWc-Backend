@@ -4,6 +4,7 @@ import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.webchatcrm.domain.po.TxwxArticlePO;
 import com.txwx.webchatcrm.domain.vo.ArticleVO;
+import com.txwx.webchatcrm.domain.vo.ArticleDetailVO;
 import com.txwx.webchatcrm.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +66,19 @@ public class ArticleController extends BaseController {
             return success(count);
         } catch (Exception e) {
             return error("查询草稿总数失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @description: 查询草稿详情
+     */
+    @GetMapping("/draftDetail/{id}")
+    public AjaxResult getDraftDetail(@PathVariable Long id) {
+        try {
+            ArticleDetailVO detail = articleService.getDraftDetail(id);
+            return success(detail);
+        } catch (Exception e) {
+            return error("查询草稿详情失败: " + e.getMessage());
         }
     }
 

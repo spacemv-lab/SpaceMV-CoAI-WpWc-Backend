@@ -12,6 +12,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -210,6 +211,40 @@ public class WebChatUtil {
         if (result.getErrcode() != null && result.getErrcode() != 0) {
             throw new RuntimeException("删除草稿失败: " + result.getErrmsg());
         }
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口获取草稿详情
+     */
+    public static GetDraftDetailResponse getDraftDetail(String accessToken, String mediaId) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/draft/get?access_token=" + accessToken;
+
+        GetDraftDetailRequest request = new GetDraftDetailRequest();
+        request.setMedia_id(mediaId);
+
+        // 使用Apache HttpClient指定UTF-8编码
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(urlStr);
+
+        // 设置请求体，指定UTF-8编码
+        String jsonBody = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(request);
+        StringEntity requestEntity = new StringEntity(jsonBody, ContentType.APPLICATION_JSON);
+        httpPost.setEntity(requestEntity);
+
+        String response = httpClient.execute(httpPost, httpResponse -> {
+            HttpEntity entity = httpResponse.getEntity();
+            return entity != null ? EntityUtils.toString(entity, "UTF-8") : "";
+        });
+
+        httpClient.close();
+
+        GetDraftDetailResponse result = JSONObject.parseObject(response, GetDraftDetailResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("获取草稿详情失败: " + result.getErrmsg());
+        }
+
+        return result;
     }
 
     /**

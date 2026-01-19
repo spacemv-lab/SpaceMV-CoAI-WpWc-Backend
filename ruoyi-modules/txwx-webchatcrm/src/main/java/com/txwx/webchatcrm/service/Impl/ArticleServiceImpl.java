@@ -2,12 +2,14 @@ package com.txwx.webchatcrm.service.Impl;
 
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.webchatcrm.domain.po.TxwxArticlePO;
+import com.txwx.webchatcrm.domain.vo.ArticleDetailVO;
 import com.txwx.webchatcrm.domain.vo.ArticleVO;
 import com.txwx.webchatcrm.dto.*;
 import com.txwx.webchatcrm.enums.ArticleStatusEnum;
 import com.txwx.webchatcrm.mapper.TxwxArticleMapper;
 import com.txwx.webchatcrm.service.IArticleService;
 import com.txwx.webchatcrm.util.WebChatUtil;
+import com.txwx.webchatcrm.util.Base64Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +50,11 @@ public class ArticleServiceImpl implements IArticleService {
             articleItem.setTitle(articleVO.getTitle());
             articleItem.setAuthor(articleVO.getAuthor());
             articleItem.setDigest(articleVO.getDigest());
-            articleItem.setContent(articleVO.getContent());
+            // 对content字段进行Base64解码
+            String content = Base64Util.isBase64(articleVO.getContent())
+                ? Base64Util.decode(articleVO.getContent())
+                : articleVO.getContent();
+            articleItem.setContent(content);
             articleItem.setThumb_media_id(articleVO.getThumbMediaId());
             articleItem.setNeed_open_comment(articleVO.getNeedOpenComment() != null ? articleVO.getNeedOpenComment() : 0);
             articleItem.setOnly_fans_can_comment(articleVO.getOnlyFansCanComment() != null ? articleVO.getOnlyFansCanComment() : 0);
@@ -71,7 +77,7 @@ public class ArticleServiceImpl implements IArticleService {
             article.setTitle(articleVO.getTitle());
             article.setAuthor(articleVO.getAuthor());
             article.setDigest(articleVO.getDigest());
-            article.setContent(articleVO.getContent());
+            article.setContent(content);
             article.setThumbMediaId(articleVO.getThumbMediaId());
             article.setNeedOpenComment(articleVO.getNeedOpenComment() != null ? articleVO.getNeedOpenComment() : 0);
             article.setOnlyFansCanComment(articleVO.getOnlyFansCanComment() != null ? articleVO.getOnlyFansCanComment() : 0);
@@ -108,6 +114,44 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
+    public ArticleDetailVO getDraftDetail(Long id) {
+        try {
+            // 1. 从数据库查询文章，获取mediaId
+            TxwxArticlePO article = txwxArticleMapper.selectArticleById(id);
+            if (article == null) {
+                throw new RuntimeException("草稿不存在");
+            }
+
+            // 2. 调用微信API获取草稿详情
+            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            GetDraftDetailResponse response = WebChatUtil.getDraftDetail(accessToken, article.getMediaId());
+
+            // 3. 转换为VO对象
+            if (response != null && response.getNews_item() != null && !response.getNews_item().isEmpty()) {
+                GetDraftDetailResponse.ArticleDetailItem item = response.getNews_item().get(0);
+                com.txwx.webchatcrm.domain.vo.ArticleDetailVO detailVO = new com.txwx.webchatcrm.domain.vo.ArticleDetailVO();
+                detailVO.setArticleType(item.getArticle_type());
+                detailVO.setTitle(item.getTitle());
+                detailVO.setAuthor(item.getAuthor());
+                detailVO.setDigest(item.getDigest());
+                detailVO.setContent(item.getContent());
+                detailVO.setContentSourceUrl(item.getContent_source_url());
+                detailVO.setShowCoverPic(item.getShow_cover_pic());
+                detailVO.setThumbMediaId(item.getThumb_media_id());
+                detailVO.setThumbUrl(item.getThumb_url());
+                detailVO.setUrl(item.getUrl());
+                detailVO.setNeedOpenComment(item.getNeed_open_comment());
+                detailVO.setOnlyFansCanComment(item.getOnly_fans_can_comment());
+                return detailVO;
+            }
+
+            throw new RuntimeException("获取草稿详情失败: 未返回有效数据");
+        } catch (Exception e) {
+            throw new RuntimeException("查询草稿详情失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     @Transactional
     public void updateDraft(Long id, ArticleVO articleVO) {
         try {
@@ -125,7 +169,11 @@ public class ArticleServiceImpl implements IArticleService {
             articleItem.setTitle(articleVO.getTitle());
             articleItem.setAuthor(articleVO.getAuthor());
             articleItem.setDigest(articleVO.getDigest());
-            articleItem.setContent(articleVO.getContent());
+            // 对content字段进行Base64解码
+            String content = Base64Util.isBase64(articleVO.getContent())
+                ? Base64Util.decode(articleVO.getContent())
+                : articleVO.getContent();
+            articleItem.setContent(content);
             articleItem.setThumb_media_id(articleVO.getThumbMediaId());
             articleItem.setNeed_open_comment(articleVO.getNeedOpenComment() != null ? articleVO.getNeedOpenComment() : 0);
             articleItem.setOnly_fans_can_comment(articleVO.getOnlyFansCanComment() != null ? articleVO.getOnlyFansCanComment() : 0);
@@ -141,7 +189,7 @@ public class ArticleServiceImpl implements IArticleService {
             existingArticle.setTitle(articleVO.getTitle());
             existingArticle.setAuthor(articleVO.getAuthor());
             existingArticle.setDigest(articleVO.getDigest());
-            existingArticle.setContent(articleVO.getContent());
+            existingArticle.setContent(content);
             existingArticle.setThumbMediaId(articleVO.getThumbMediaId());
             existingArticle.setNeedOpenComment(articleVO.getNeedOpenComment() != null ? articleVO.getNeedOpenComment() : 0);
             existingArticle.setOnlyFansCanComment(articleVO.getOnlyFansCanComment() != null ? articleVO.getOnlyFansCanComment() : 0);
