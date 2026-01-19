@@ -2,6 +2,7 @@ package com.txwx.webchatcrm.service;
 
 import com.txwx.webchatcrm.domain.po.TxwxArticlePO;
 import com.txwx.webchatcrm.domain.vo.ArticleVO;
+import com.txwx.webchatcrm.domain.vo.ArticleDetailVO;
 
 import java.util.List;
 
@@ -27,6 +28,11 @@ public interface IArticleService {
      * @description: 查询草稿总数
      */
     int getDraftCount(String status, String submitter, String reviewer);
+
+    /**
+     * @description: 查询草稿详情
+     */
+    ArticleDetailVO getDraftDetail(Long id);
 
     /**
      * @description: 更新草稿
