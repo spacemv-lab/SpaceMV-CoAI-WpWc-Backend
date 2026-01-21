@@ -330,12 +330,12 @@ public class WebChatUtil {
     /**
      * @description: 调用微信公众号官方接口删除已发布文章
      */
-    public static void deletePublishedArticle(String accessToken, String articleId) throws Exception {
+    public static void deletePublishedArticle(String accessToken, int idx, String articleId) throws Exception {
         String urlStr = "https://api.weixin.qq.com/cgi-bin/freepublish/delete?access_token=" + accessToken;
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("article_id", articleId);
-        requestBody.put("index", 0);
+        requestBody.put("index", idx);
 
         String response = HttpUtil.postJson(urlStr, null, requestBody);
         com.txwx.webchatcrm.dto.MaterialDeleteResponse result = JSONObject.parseObject(response, com.txwx.webchatcrm.dto.MaterialDeleteResponse.class);

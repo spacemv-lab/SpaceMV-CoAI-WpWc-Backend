@@ -69,6 +69,7 @@ public class ArticleServiceImpl implements IArticleService {
              */
             String username = SecurityUtils.getLoginUser().getUsername();
             Long userid = SecurityUtils.getLoginUser().getUserid();
+            //Long userid = 1l;
             //String username = "admin";
 
             // 2. 保存到数据库
@@ -477,6 +478,7 @@ public class ArticleServiceImpl implements IArticleService {
             String accessToken = WebChatUtil.getAccessToken(appId, secret);
             PublishDraftResponse response = WebChatUtil.publishDraft(accessToken, article.getMediaId());
 
+            // 3. 转换为VO对象
             /**
              * @description: 以当前登录用户作为发布人
              */
@@ -527,9 +529,31 @@ public class ArticleServiceImpl implements IArticleService {
             }
 
             // 2. 调用微信API删除已发布文章
-            if (StringUtils.isNotEmpty(article.getArticleId())) {
+            if(StringUtils.isNotEmpty(article.getPublishId())){
                 String accessToken = WebChatUtil.getAccessToken(appId, secret);
-                WebChatUtil.deletePublishedArticle(accessToken, article.getArticleId());
+                GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
+
+                if(response.getPublish_status() == 0){
+                    if (response.getArticle_detail() != null) {
+                        String article_id = response.getArticle_id();
+                        GetPublishStatusResponse.ArticleDetail articleDetail = response.getArticle_detail();
+
+                        if (articleDetail.getItem() != null && !articleDetail.getItem().isEmpty()) {
+                            GetPublishStatusResponse.ArticleItem item = articleDetail.getItem().get(0);
+
+                            Integer idx = item.getIdx();
+                            WebChatUtil.deletePublishedArticle(accessToken, idx, article_id);
+                        }else{
+                            throw new RuntimeException("微信官网文章详情报文体为空");
+                        }
+                    }else{
+                        throw new RuntimeException("微信官网文章报文体为空");
+                    }
+                }else{
+                    throw new RuntimeException("Publish_status:" + response.getPublish_status());
+                }
+            }else{
+                throw new RuntimeException("PublishId为空");
             }
 
             // 3. 删除数据库记录

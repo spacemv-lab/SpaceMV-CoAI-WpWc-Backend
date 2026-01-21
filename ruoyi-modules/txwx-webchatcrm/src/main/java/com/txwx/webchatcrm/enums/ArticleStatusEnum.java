@@ -28,7 +28,12 @@ public enum ArticleStatusEnum {
     /**
      * 已发布
      */
-    PUBLISHED("4", "已发布");
+    PUBLISHED("4", "已发布"),
+
+    /**
+     * 已发布
+     */
+    PUBLISHING("5", "发布中");
 
     private final String code;
     private final String desc;
