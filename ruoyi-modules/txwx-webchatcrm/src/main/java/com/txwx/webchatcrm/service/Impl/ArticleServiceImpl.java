@@ -488,7 +488,7 @@ public class ArticleServiceImpl implements IArticleService {
             // 3. 更新数据库
             article.setPublishId(response.getPublish_id());
             article.setMsgDataId(response.getMsg_data_id());
-            article.setStatus(ArticleStatusEnum.PUBLISHED.getCode());
+            article.setStatus(ArticleStatusEnum.PUBLISHING.getCode());
             article.setPublisher(username);
             article.setUpdateTime(new Date());
 
