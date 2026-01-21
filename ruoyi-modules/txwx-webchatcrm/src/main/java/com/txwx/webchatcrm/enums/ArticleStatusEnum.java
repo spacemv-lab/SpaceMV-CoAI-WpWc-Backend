@@ -31,9 +31,34 @@ public enum ArticleStatusEnum {
     PUBLISHED("4", "已发布"),
 
     /**
-     * 已发布
+     * 发布中
      */
-    PUBLISHING("5", "发布中");
+    PUBLISHING("5", "发布中"),
+
+    /**
+     * 原创失败
+     */
+    FAIL_ORIGINAL("6", "原创失败"),
+
+    /**
+     * 常规失败
+     */
+    FAIL_ROUTINE("7", "常规失败"),
+
+    /**
+     * 平台审核不通过
+     */
+    TENGSEN_REVIEW_APPROVED("8", "平台审核不通过"),
+
+    /**
+     * 成功后用户删除所有文章
+     */
+    DELETE_ALL("9", "成功后用户删除所有文章"),
+
+    /**
+     * 成功后系统封禁所有文章
+     */
+    BAN_ALL("10", "成功后系统封禁所有文章");
 
     private final String code;
     private final String desc;
