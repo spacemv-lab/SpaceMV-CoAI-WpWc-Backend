@@ -3,6 +3,9 @@ package com.txwx.webchatcrm.service;
 import com.txwx.webchatcrm.domain.po.TxwxArticlePO;
 import com.txwx.webchatcrm.domain.vo.ArticleVO;
 import com.txwx.webchatcrm.domain.vo.ArticleDetailVO;
+import com.txwx.webchatcrm.domain.vo.PublishStatusVO;
+import com.txwx.webchatcrm.domain.vo.PublishedArticleListVO;
+import com.txwx.webchatcrm.domain.vo.DraftListVO;
 
 import java.util.List;
 
@@ -33,6 +36,21 @@ public interface IArticleService {
      * @description: 查询草稿详情
      */
     ArticleDetailVO getDraftDetail(Long id);
+
+    /**
+     * @description: 获取草稿列表（从微信官方查询）
+     */
+    DraftListVO getDraftListFromTencent(Integer pageNum, Integer pageSize, Integer noContent);
+
+    /**
+     * @description: 查询发布状态
+     */
+    PublishStatusVO getPublishStatus(Long id);
+
+    /**
+     * @description: 获取已发布的消息列表（从微信官方查询）
+     */
+    PublishedArticleListVO getPublishedListFromTencent(Integer pageNum, Integer pageSize, Integer noContent);
 
     /**
      * @description: 更新草稿

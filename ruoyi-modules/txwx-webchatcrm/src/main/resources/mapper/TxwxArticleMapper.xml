@@ -18,6 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="articleType"     column="article_type" />
         <result property="status"          column="status" />
         <result property="submitter"       column="submitter" />
+        <result property="submitterId"       column="submitter_id" />
         <result property="reviewer"        column="reviewer" />
         <result property="publisher"       column="publisher" />
         <result property="publishId"       column="publish_id" />
@@ -32,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectTxwxArticleVo">
         select id, media_id, article_id, title, author, digest, content, thumb_media_id,
                need_open_comment, only_fans_can_comment, article_type, status,
-               submitter, reviewer, publisher, publish_id, msg_data_id, del_flag,
+               submitter, submitter_id, reviewer, publisher, publish_id, msg_data_id, del_flag,
                create_by, create_time, update_by, update_time
         from txwx_article
         where del_flag = '0'
@@ -54,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="articleType != null and articleType != ''">article_type,</if>
             <if test="status != null and status != ''">status,</if>
             <if test="submitter != null and submitter != ''">submitter,</if>
+            <if test="submitterId != null and submitterId != ''">submitter_id,</if>
             <if test="reviewer != null and reviewer != ''">reviewer,</if>
             <if test="publisher != null and publisher != ''">publisher,</if>
             <if test="publishId != null and publishId != ''">publish_id,</if>
@@ -74,6 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="articleType != null and articleType != ''">#{articleType},</if>
             <if test="status != null and status != ''">#{status},</if>
             <if test="submitter != null and submitter != ''">#{submitter},</if>
+            <if test="submitterId != null and submitterId != ''">#{submitterId},</if>
             <if test="reviewer != null and reviewer != ''">#{reviewer},</if>
             <if test="publisher != null and publisher != ''">#{publisher},</if>
             <if test="publishId != null and publishId != ''">#{publishId},</if>
@@ -99,6 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="articleType != null and articleType != ''">article_type = #{articleType},</if>
             <if test="status != null and status != ''">status = #{status},</if>
             <if test="submitter != null and submitter != ''">submitter = #{submitter},</if>
+            <if test="submitterId != null and submitterId != ''">submitter_id = #{submitterId},</if>
             <if test="reviewer != null and reviewer != ''">reviewer = #{reviewer},</if>
             <if test="publisher != null and publisher != ''">publisher = #{publisher},</if>
             <if test="publishId != null and publishId != ''">publish_id = #{publishId},</if>
