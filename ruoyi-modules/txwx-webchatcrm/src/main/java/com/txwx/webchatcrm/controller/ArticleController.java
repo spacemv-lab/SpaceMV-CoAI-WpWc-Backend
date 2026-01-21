@@ -5,6 +5,9 @@ import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.webchatcrm.domain.po.TxwxArticlePO;
 import com.txwx.webchatcrm.domain.vo.ArticleVO;
 import com.txwx.webchatcrm.domain.vo.ArticleDetailVO;
+import com.txwx.webchatcrm.domain.vo.PublishStatusVO;
+import com.txwx.webchatcrm.domain.vo.PublishedArticleListVO;
+import com.txwx.webchatcrm.domain.vo.DraftListVO;
 import com.txwx.webchatcrm.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -79,6 +82,34 @@ public class ArticleController extends BaseController {
             return success(detail);
         } catch (Exception e) {
             return error("查询草稿详情失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @description: 获取草稿列表（从微信官方查询）
+     */
+    @GetMapping("/draftListFromTencent")
+    public AjaxResult draftListFromTencent(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                                         @RequestParam(required = false, defaultValue = "20") Integer pageSize,
+                                         @RequestParam(required = false) Integer noContent) {
+        try {
+            DraftListVO list = articleService.getDraftListFromTencent(pageNum, pageSize, noContent);
+            return success(list);
+        } catch (Exception e) {
+            return error("获取草稿列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @description: 查询发布状态
+     */
+    @GetMapping("/publishStatus/{id}")
+    public AjaxResult getPublishStatus(@PathVariable Long id) {
+        try {
+            PublishStatusVO status = articleService.getPublishStatus(id);
+            return success(status);
+        } catch (Exception e) {
+            return error("查询发布状态失败: " + e.getMessage());
         }
     }
 
@@ -159,6 +190,18 @@ public class ArticleController extends BaseController {
             return success(list);
         } catch (Exception e) {
             return error("查询已发布文章列表失败: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/publishedListFromTencent")
+    public AjaxResult publishedListFromTencent(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                                           @RequestParam(required = false, defaultValue = "20") Integer pageSize,
+                                           @RequestParam(required = false) Integer noContent) {
+        try {
+            PublishedArticleListVO list = articleService.getPublishedListFromTencent(pageNum, pageSize, noContent);
+            return success(list);
+        } catch (Exception e) {
+            return error("获取已发布消息列表失败: " + e.getMessage());
         }
     }
 

@@ -82,6 +82,11 @@ public class TxwxArticlePO extends BaseEntity {
     private String submitter;
 
     /**
+     * 提交人的ID
+     */
+    private Long submitterId;
+
+    /**
      * 审核人
      */
     private String reviewer;

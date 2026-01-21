@@ -2,8 +2,7 @@ package com.txwx.webchatcrm.service.Impl;
 
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.webchatcrm.domain.po.TxwxArticlePO;
-import com.txwx.webchatcrm.domain.vo.ArticleDetailVO;
-import com.txwx.webchatcrm.domain.vo.ArticleVO;
+import com.txwx.webchatcrm.domain.vo.*;
 import com.txwx.webchatcrm.dto.*;
 import com.txwx.webchatcrm.enums.ArticleStatusEnum;
 import com.txwx.webchatcrm.mapper.TxwxArticleMapper;
@@ -69,6 +68,7 @@ public class ArticleServiceImpl implements IArticleService {
              * @description: 以当前登录用户作为提交人
              */
             String username = SecurityUtils.getLoginUser().getUsername();
+            Long userid = SecurityUtils.getLoginUser().getUserid();
             //String username = "admin";
 
             // 2. 保存到数据库
@@ -84,6 +84,7 @@ public class ArticleServiceImpl implements IArticleService {
             article.setArticleType(articleVO.getArticleType() != null ? articleVO.getArticleType() : "news");
             article.setStatus(ArticleStatusEnum.PENDING_SUBMIT.getCode());
             article.setSubmitter(username);
+            article.setSubmitterId(userid);
             article.setCreateTime(new Date());
             article.setUpdateTime(new Date());
 
@@ -150,6 +151,190 @@ public class ArticleServiceImpl implements IArticleService {
             throw new RuntimeException("获取草稿详情失败: 未返回有效数据");
         } catch (Exception e) {
             throw new RuntimeException("查询草稿详情失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public DraftListVO getDraftListFromTencent(Integer pageNum, Integer pageSize, Integer noContent) {
+        try {
+            // 将pageNum和pageSize转换为offset和count
+            int offset = (pageNum - 1) * pageSize;
+            int count = pageSize;
+
+            // 调用微信API获取草稿列表
+            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            GetDraftListResponse response = WebChatUtil.getDraftList(accessToken, offset, count, noContent);
+
+            // 转换为VO对象
+            DraftListVO listVO = new DraftListVO();
+            listVO.setTotalCount(response.getTotal_count());
+            listVO.setItemCount(response.getItem_count());
+
+            if (response.getItem() != null && !response.getItem().isEmpty()) {
+                List<DraftListVO.DraftItem> items = new ArrayList<>();
+                for (GetDraftListResponse.DraftItem item : response.getItem()) {
+                    DraftListVO.DraftItem voItem = new DraftListVO.DraftItem();
+                    voItem.setMediaId(item.getMedia_id());
+                    voItem.setUpdateTime(item.getUpdate_time());
+
+                    // 处理news_item列表
+                    if (item.getContent() != null && item.getContent().getNews_item() != null) {
+                        List<DraftListVO.NewsItem> newsItems = new ArrayList<>();
+                        for (GetDraftListResponse.NewsItem newsItem : item.getContent().getNews_item()) {
+                            DraftListVO.NewsItem voNewsItem = new DraftListVO.NewsItem();
+                            voNewsItem.setArticleType(newsItem.getArticle_type());
+                            voNewsItem.setTitle(newsItem.getTitle());
+                            voNewsItem.setAuthor(newsItem.getAuthor());
+                            voNewsItem.setDigest(newsItem.getDigest());
+                            voNewsItem.setContent(newsItem.getContent());
+                            voNewsItem.setContentSourceUrl(newsItem.getContent_source_url());
+                            voNewsItem.setShowCoverPic(newsItem.getShow_cover_pic());
+                            voNewsItem.setThumbMediaId(newsItem.getThumb_media_id());
+                            voNewsItem.setThumbUrl(newsItem.getThumb_url());
+                            voNewsItem.setNeedOpenComment(newsItem.getNeed_open_comment());
+                            voNewsItem.setOnlyFansCanComment(newsItem.getOnly_fans_can_comment());
+                            voNewsItem.setUrl(newsItem.getUrl());
+                            newsItems.add(voNewsItem);
+                        }
+                        voItem.setNewsItems(newsItems);
+                    }
+                    items.add(voItem);
+                }
+                listVO.setItems(items);
+            }
+
+            return listVO;
+        } catch (Exception e) {
+            throw new RuntimeException("获取草稿列表失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PublishStatusVO getPublishStatus(Long id) {
+        try {
+            // 1. 从数据库查询文章，获取publishId
+            TxwxArticlePO article = txwxArticleMapper.selectArticleById(id);
+            if (article == null) {
+                throw new RuntimeException("文章不存在");
+            }
+
+            if (StringUtils.isEmpty(article.getPublishId())) {
+                throw new RuntimeException("该文章尚未发布");
+            }
+
+            // 2. 调用微信API查询发布状态
+            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
+
+            // 3. 转换为VO对象
+            PublishStatusVO statusVO = new PublishStatusVO();
+            statusVO.setPublishId(response.getPublish_id());
+            statusVO.setPublishStatus(response.getPublish_status());
+            statusVO.setPublishStatusDesc(getPublishStatusDesc(response.getPublish_status()));
+            statusVO.setArticleId(response.getArticle_id());
+            statusVO.setFailIdx(response.getFail_idx());
+
+            // 4. 处理文章详情
+            if (response.getArticle_detail() != null) {
+                GetPublishStatusResponse.ArticleDetail articleDetail = response.getArticle_detail();
+                statusVO.setCount(articleDetail.getCount());
+
+                if (articleDetail.getItem() != null && !articleDetail.getItem().isEmpty()) {
+                    List<PublishStatusVO.ArticleItem> items = new ArrayList<>();
+                    for (GetPublishStatusResponse.ArticleItem item : articleDetail.getItem()) {
+                        PublishStatusVO.ArticleItem voItem = new PublishStatusVO.ArticleItem();
+                        voItem.setIdx(item.getIdx());
+                        voItem.setArticleUrl(item.getArticle_url());
+                        items.add(voItem);
+                    }
+                    statusVO.setArticleItems(items);
+                }
+            }
+
+            return statusVO;
+        } catch (Exception e) {
+            throw new RuntimeException("查询发布状态失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @description: 根据发布状态码获取描述
+     */
+    private String getPublishStatusDesc(Integer status) {
+        if (status == null) {
+            return "未知状态";
+        }
+        switch (status) {
+            case 0:
+                return "成功";
+            case 1:
+                return "发布中";
+            case 2:
+                return "原创失败";
+            case 3:
+                return "常规失败";
+            case 4:
+                return "平台审核不通过";
+            case 5:
+                return "成功后用户删除所有文章";
+            case 6:
+                return "成功后系统封禁所有文章";
+            default:
+                return "未知状态";
+        }
+    }
+
+    @Override
+    public PublishedArticleListVO getPublishedListFromTencent(Integer pageNum, Integer pageSize, Integer noContent) {
+        try {
+            // 将pageNum和pageSize转换为offset和count
+            int offset = (pageNum - 1) * pageSize;
+            int count = pageSize;
+
+            // 调用微信API获取已发布消息列表
+            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            GetPublishedListResponse response = WebChatUtil.getPublishedList(accessToken, offset, count, noContent);
+
+            // 转换为VO对象
+            PublishedArticleListVO listVO = new PublishedArticleListVO();
+            listVO.setTotalCount(response.getTotal_count());
+            listVO.setItemCount(response.getItem_count());
+
+            if (response.getItem() != null && !response.getItem().isEmpty()) {
+                List<PublishedArticleListVO.PublishedArticleItem> items = new ArrayList<>();
+                for (GetPublishedListResponse.PublishedItem item : response.getItem()) {
+                    PublishedArticleListVO.PublishedArticleItem voItem = new PublishedArticleListVO.PublishedArticleItem();
+                    voItem.setArticleId(item.getArticle_id());
+                    voItem.setUpdateTime(item.getUpdate_time());
+
+                    // 处理news_item列表
+                    if (item.getContent() != null && item.getContent().getNews_item() != null) {
+                        List<PublishedArticleListVO.NewsItem> newsItems = new ArrayList<>();
+                        for (GetPublishedListResponse.NewsItem newsItem : item.getContent().getNews_item()) {
+                            PublishedArticleListVO.NewsItem voNewsItem = new PublishedArticleListVO.NewsItem();
+                            voNewsItem.setTitle(newsItem.getTitle());
+                            voNewsItem.setAuthor(newsItem.getAuthor());
+                            voNewsItem.setDigest(newsItem.getDigest());
+                            voNewsItem.setContent(newsItem.getContent());
+                            voNewsItem.setContentSourceUrl(newsItem.getContent_source_url());
+                            voNewsItem.setThumbMediaId(newsItem.getThumb_media_id());
+                            voNewsItem.setThumbUrl(newsItem.getThumb_url());
+                            voNewsItem.setNeedOpenComment(newsItem.getNeed_open_comment());
+                            voNewsItem.setOnlyFansCanComment(newsItem.getOnly_fans_can_comment());
+                            voNewsItem.setUrl(newsItem.getUrl());
+                            voNewsItem.setIsDeleted(newsItem.getIs_deleted());
+                            newsItems.add(voNewsItem);
+                        }
+                        voItem.setNewsItems(newsItems);
+                    }
+                    items.add(voItem);
+                }
+                listVO.setItems(items);
+            }
+
+            return listVO;
+        } catch (Exception e) {
+            throw new RuntimeException("获取已发布消息列表失败: " + e.getMessage(), e);
         }
     }
 

@@ -248,6 +248,67 @@ public class WebChatUtil {
     }
 
     /**
+     * @description: 调用微信公众号官方接口查询发布状态
+     */
+    public static GetPublishStatusResponse getPublishStatus(String accessToken, String publishId) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/freepublish/get?access_token=" + accessToken;
+
+        GetPublishStatusRequest request = new GetPublishStatusRequest();
+        request.setPublish_id(publishId);
+
+        String response = HttpUtil.postJson(urlStr, null, request);
+        GetPublishStatusResponse result = JSONObject.parseObject(response, GetPublishStatusResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("查询发布状态失败: " + result.getErrmsg());
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口获取草稿列表
+     */
+    public static GetDraftListResponse getDraftList(String accessToken, Integer offset, Integer count, Integer noContent) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/draft/batchget?access_token=" + accessToken;
+
+        GetDraftListRequest request = new GetDraftListRequest();
+        request.setOffset(offset);
+        request.setCount(count);
+        request.setNo_content(noContent);
+
+        String response = HttpUtil.postJson(urlStr, null, request);
+        GetDraftListResponse result = JSONObject.parseObject(response, GetDraftListResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("获取草稿列表失败: " + result.getErrmsg());
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口获取已发布消息列表
+     */
+    public static GetPublishedListResponse getPublishedList(String accessToken, Integer offset, Integer count, Integer noContent) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/freepublish/batchget?access_token=" + accessToken;
+
+        GetPublishedListRequest request = new GetPublishedListRequest();
+        request.setOffset(offset);
+        request.setCount(count);
+        request.setNo_content(noContent);
+
+        String response = HttpUtil.postJson(urlStr, null, request);
+        GetPublishedListResponse result = JSONObject.parseObject(response, GetPublishedListResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("获取已发布消息列表失败: " + result.getErrmsg());
+        }
+
+        return result;
+    }
+
+    /**
      * @description: 调用微信公众号官方接口发布草稿
      */
     public static PublishDraftResponse publishDraft(String accessToken, String mediaId) throws Exception {
