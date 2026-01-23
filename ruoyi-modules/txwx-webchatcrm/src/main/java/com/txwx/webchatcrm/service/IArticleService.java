@@ -91,4 +91,9 @@ public interface IArticleService {
      * @description: 删除已发布文章
      */
     void deletePublishedArticle(Long id);
+
+    /**
+     * @description: 定时任务：更新发布中文章的状态
+     */
+    void updatePublishingArticleStatus();
 }

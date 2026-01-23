@@ -7,9 +7,11 @@ import com.txwx.webchatcrm.dto.*;
 import com.txwx.webchatcrm.enums.ArticleStatusEnum;
 import com.txwx.webchatcrm.mapper.TxwxArticleMapper;
 import com.txwx.webchatcrm.service.IArticleService;
-import com.txwx.webchatcrm.util.WebChatUtil;
 import com.txwx.webchatcrm.util.Base64Util;
+import com.txwx.webchatcrm.util.WebChatUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ import java.util.List;
  */
 @Service
 public class ArticleServiceImpl implements IArticleService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArticleServiceImpl.class);
 
     @Autowired
     private TxwxArticleMapper txwxArticleMapper;
@@ -382,6 +386,7 @@ public class ArticleServiceImpl implements IArticleService {
             existingArticle.setNeedOpenComment(articleVO.getNeedOpenComment() != null ? articleVO.getNeedOpenComment() : 0);
             existingArticle.setOnlyFansCanComment(articleVO.getOnlyFansCanComment() != null ? articleVO.getOnlyFansCanComment() : 0);
             existingArticle.setArticleType(articleVO.getArticleType() != null ? articleVO.getArticleType() : "news");
+            existingArticle.setStatus(ArticleStatusEnum.PENDING_SUBMIT.getCode());
             existingArticle.setUpdateTime(new Date());
 
             txwxArticleMapper.updateArticle(existingArticle);
@@ -560,6 +565,87 @@ public class ArticleServiceImpl implements IArticleService {
             txwxArticleMapper.deleteArticle(id);
         } catch (Exception e) {
             throw new RuntimeException("删除已发布文章失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updatePublishingArticleStatus() {
+        try {
+            // 1. 查询所有发布中的文章
+            List<TxwxArticlePO> publishingArticles = txwxArticleMapper.selectPublishingArticles();
+            if (publishingArticles == null || publishingArticles.isEmpty()) {
+                return;
+            }
+
+            logger.info("需要更新发布文章状态的数量:" + publishingArticles.size());
+            // 2. 准备批量更新的文章列表
+            List<TxwxArticlePO> articlesToUpdate = new ArrayList<>();
+            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+
+            // 3. 遍历每篇文章，查询发布状态
+            for (TxwxArticlePO article : publishingArticles) {
+                try {
+                    if (StringUtils.isEmpty(article.getPublishId())) {
+                        continue;
+                    }
+
+                    // 调用微信API查询发布状态
+                    GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
+
+                    if (response != null && response.getPublish_status() != null) {
+                        // 转换微信状态为本地状态
+                        String newStatus = convertPublishStatusToArticleStatus(response.getPublish_status());
+
+                        // 只有状态不是"发布中"才更新
+                        if (!ArticleStatusEnum.PUBLISHING.getCode().equals(newStatus)) {
+                            TxwxArticlePO updateArticle = new TxwxArticlePO();
+                            updateArticle.setId(article.getId());
+                            updateArticle.setStatus(newStatus);
+                            updateArticle.setUpdateTime(new Date());
+                            articlesToUpdate.add(updateArticle);
+                        }
+                    }
+                } catch (Exception e) {
+                    // 单个文章查询失败不影响其他文章的处理
+                    System.err.println("查询文章发布状态失败，文章ID: " + article.getId() + ", 错误: " + e.getMessage());
+                }
+            }
+
+            // 4. 批量更新数据库
+            if (!articlesToUpdate.isEmpty()) {
+                txwxArticleMapper.batchUpdateStatus(articlesToUpdate);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("更新发布中文章状态失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @description: 将微信发布状态转换为本地文章状态
+     */
+    private String convertPublishStatusToArticleStatus(Integer publishStatus) {
+        if (publishStatus == null) {
+            return ArticleStatusEnum.PUBLISHING.getCode();
+        }
+        switch (publishStatus) {
+            case 0:
+                return ArticleStatusEnum.PUBLISHED.getCode();
+            case 1:
+                return ArticleStatusEnum.PUBLISHING.getCode();
+            case 2:
+                return ArticleStatusEnum.FAIL_ORIGINAL.getCode();
+            case 3:
+                return ArticleStatusEnum.FAIL_ROUTINE.getCode();
+            case 4:
+                return ArticleStatusEnum.TENGSEN_REVIEW_APPROVED.getCode();
+            case 5:
+                return ArticleStatusEnum.DELETE_ALL.getCode();
+            case 6:
+                return ArticleStatusEnum.BAN_ALL.getCode();
+            default:
+                return ArticleStatusEnum.PUBLISHING.getCode();
         }
     }
 }
