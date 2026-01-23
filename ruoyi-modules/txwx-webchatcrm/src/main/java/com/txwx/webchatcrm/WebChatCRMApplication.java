@@ -5,9 +5,11 @@ import com.ruoyi.common.security.annotation.EnableRyFeignClients;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableCustomConfig
 @EnableRyFeignClients
+@EnableScheduling
 @SpringBootApplication
 @MapperScan("com.txwx.**.mapper")
 public class WebChatCRMApplication {

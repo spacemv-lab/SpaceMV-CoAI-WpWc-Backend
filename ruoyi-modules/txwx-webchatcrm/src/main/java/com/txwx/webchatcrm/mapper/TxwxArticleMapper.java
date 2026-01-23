@@ -68,4 +68,14 @@ public interface TxwxArticleMapper {
      * @description: 根据mediaId删除文章
      */
     int deleteArticleByMediaId(@Param("mediaId") String mediaId);
+
+    /**
+     * @description: 查询发布中的文章列表
+     */
+    List<TxwxArticlePO> selectPublishingArticles();
+
+    /**
+     * @description: 批量更新文章状态
+     */
+    int batchUpdateStatus(@Param("articles") List<TxwxArticlePO> articles);
 }

@@ -137,7 +137,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="reviewer != null and reviewer != ''">
             and reviewer = #{reviewer}
         </if>
-        and status != '4'
+        and status not in ('4','9','10')
         order by create_time desc
         <if test="offset != null and limit != null">
             limit #{offset}, #{limit}
@@ -163,7 +163,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 查询已发布文章列表 -->
     <select id="selectPublishedList" resultMap="TxwxArticleResult">
         <include refid="selectTxwxArticleVo"/>
-        and status = '4'
+        and status in ('4','9', '10')
         order by update_time desc
         <if test="offset != null and limit != null">
             limit #{offset}, #{limit}
@@ -187,6 +187,38 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="deleteArticleByMediaId">
         update txwx_article set del_flag = '1'
         where media_id = #{mediaId}
+    </update>
+
+    <!-- 查询发布中的文章列表 -->
+    <select id="selectPublishingArticles" resultMap="TxwxArticleResult">
+        <include refid="selectTxwxArticleVo"/>
+        and status = '5'
+        order by create_time asc
+    </select>
+
+    <!-- 批量更新文章状态 -->
+    <update id="batchUpdateStatus">
+        update txwx_article
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="status = CASE" suffix="END,">
+                <foreach collection="articles" item="article">
+                    <if test="article.status != null and article.status != ''">
+                        WHEN id = #{article.id} THEN #{article.status}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_time = CASE" suffix="END">
+                <foreach collection="articles" item="article">
+                    <if test="article.updateTime != null">
+                        WHEN id = #{article.id} THEN #{article.updateTime}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="articles" item="article" open="(" separator="," close=")">
+            #{article.id}
+        </foreach>
     </update>
 
 </mapper>
