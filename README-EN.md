@@ -19,7 +19,7 @@
 
 
 
-## **📖 Table of Contents**
+## **Table of Contents**
 
 * [Core Modules](#core-modules)
 * [Technical Architecture](#technical-architecture)
@@ -30,7 +30,7 @@
 * [To-Do List](#to-do-list)
 
 
-## **🧩 Core Modules**
+## **Core Modules**
 
 SpaceMV-CoAI-Wp/Wc Backend is developed based on the master branch of [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud). Building upon the Ruoyi framework, we have expanded the following four modules:
 
@@ -41,7 +41,7 @@ SpaceMV-CoAI-Wp/Wc Backend is developed based on the master branch of [RuoYi-Clo
 | **Official Website Content Management** | ruoyi-modules\_txwx-website | Customize the official website content based on the design of Tianxun Micro Company's website. |
 | **WeChat Official Account Content Management** | ruoyi-modules\_txwx-webchatcrm | Content editing, review, and publishing for WeChat Official Account. |
 
-## **🏗 Technical Architecture**
+## **Technical Architecture**
 
 ### **Directory Structure**
 
@@ -78,7 +78,7 @@ server
 ~~~
 
 
-### Technology Stack
+### **Technology Stack**
 
 | Domain | Technology Selection |
 | :--- | :--- |
@@ -87,9 +87,9 @@ server
 | **OSS** | **MinIO** | 
 
 
-## **✨ Features**
+## **Features**
 
-### 1. System Management Module
+### **1. System Management Module**
 
 * **Menu Management**: Support menu creation, editing, permission control and other functions.
 * **Department Management**: Support department hierarchy management.
@@ -99,7 +99,7 @@ server
 * **Dictionary Management**: Support management of various dictionary data in the system, such as predefined enumeration values like gender, status, etc.
 
 
-### 2. Content Management Module
+### **2. Content Management Module**
 
 * **Company Information**: Manage company basic information and display content.
 * **Homepage Content**: Manage website homepage display content.
@@ -107,12 +107,12 @@ server
 * **Top Button**: Manage website top button configuration.
 
 
-### 3. Article Management Module
+### **3. Article Management Module**
 
 * **Article List**: Manage all article lists and statuses.  
 * **Article Editing**: Support rich text editor for easy article content editing.  
 
-### 4. Material Management Module
+### **4. Material Management Module**
 
 * **Image-Text Materials**: Manage image-text combined material content.  
 * **Permanent Materials**: Manage reusable permanent materials.  
@@ -120,7 +120,7 @@ server
  
 
 
-## **🚀 Quick Start**
+## **Quick Start**
 
 ### **Precondition**
 * **JDK 17+** 
@@ -165,7 +165,7 @@ sh deploy.sh port
 For the SpaceMV-CoAI-Wp/Wc frontend repository, please refer to[SpaceMV-CoAI-Wp/Wc-frontend](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Frontend)
 
 
-## **🤝 Contribution Guide**
+## **Contribution Guide**
 
 We warmly welcome community developers to participate in the construction of SpaceMV-CoAI-Wp/Wc Backend! If you have any improvement suggestions or found bugs, please follow the following process:
 
@@ -184,7 +184,7 @@ We warmly welcome community developers to participate in the construction of Spa
 * Please place common service components under the ruoyi-common directory.
 
 
-## **📄 License**
+## **License**
 
 This project is licensed under the MIT License
 
@@ -208,7 +208,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## **📮 Contact**
+## **Contact**
 
 For any questions, suggestions or business cooperation needs, please contact the project maintenance team.
 
@@ -220,7 +220,7 @@ For more information, you can follow the company's WeChat official account:
 <img width="106" height="106" alt="image" src="https://github.com/user-attachments/assets/69a02ad0-422c-422a-bf5f-9b7890cf31ab" />
 
 
-## ✅ To-Do List
+## **To-Do List**
 
 <table>
   <tr>
