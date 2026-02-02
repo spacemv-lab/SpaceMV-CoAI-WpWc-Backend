@@ -1,6 +1,6 @@
 <div align="center">
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: 产业星球运营智能体服务端</h1>
-<a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/tianxunweixiao/SpaceMV-COO-Frontend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a> <a href="https://github.com/vitejs/vite/actions/workflows/ci.yml"><img src="https://github.com/vitejs/vite/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a> 
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README-EN.md"><strong>English</strong></a>
@@ -10,9 +10,9 @@
 <img width="800" height="450" alt="SpaceMV-COO" src="./public/spacemv_coo.png" />
 </div>
 
-[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-COO-Frontend/tree/main)是由成都天巡微小卫星科技有限责任公司(以下简称天巡微小公司)研发的一款集官网内容管理、自媒体一站式创作发布、运营数据分析于一体的产业星球运营智能体，旨在解决企业内容运营面临的多平台内容分发耗时耗力、运营数据分散难以洞察、内容审核流程复杂低效的问题。
+[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend)是由成都天巡微小卫星科技有限责任公司(以下简称天巡微小公司)研发的一款集官网内容管理、自媒体一站式创作发布、运营数据分析于一体的产业星球运营智能体，旨在解决企业内容运营面临的多平台内容分发耗时耗力、运营数据分散难以洞察、内容审核流程复杂低效的问题。
 
-[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-COO-Frontend/tree/main)作为企业内容中枢，具备官网版面定制、文章内容快速更新发布功能，可一站式完成自媒体创作与多平台分发，且有审核机制保障内容安全，还能通过多维数据分析，为运营决策提供支撑，助力高效开展品牌运营。
+[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend)作为企业内容中枢，具备官网版面定制、文章内容快速更新发布功能，可一站式完成自媒体创作与多平台分发，且有审核机制保障内容安全，还能通过多维数据分析，为运营决策提供支撑，助力高效开展品牌运营。
 
 `SpaceMV-CoAI-Wp/Wc Backend`作为平台的核心后端组件，为前端提供逻辑实现和交互接口。
 
@@ -159,7 +159,7 @@ sh deploy.sh port
 ```
 
 
-SpaceMV-CoAI-Wp/Wc 前端仓库可参考[SpaceMV-CoAI-Wp/Wc-frontend](https://github.com/tianxunweixiao/SpaceMV-COO-frontend)
+SpaceMV-CoAI-Wp/Wc 前端仓库可参考[SpaceMV-CoAI-Wp/Wc-frontend](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Frontend)
 
 
 ## **🤝 贡献指南**
