@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxCarouselImageMapper">
+    
+    <resultMap type="TxwxCarouselImage" id="CarouselImageResult">
+        <result property="carouselId"    column="carousel_id"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="isShow"    column="is_show"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="title"    column="title"    />
+        <result property="description"    column="description"    />
+        <result property="jumpUrl"    column="jump_url"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectCarouselImageVo">
+        select carousel_id, image_url, is_show, sort_order, title, description, jump_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_carousel_image
+    </sql>
+
+    <select id="selectCarouselImageList" parameterType="TxwxCarouselImage" resultMap="CarouselImageResult">
+        <include refid="selectCarouselImageVo"/>
+        <where>  
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url like concat('%', #{imageUrl}, '%')</if>
+            <if test="isShow != null  and isShow != ''"> and is_show = #{isShow}</if>
+            <if test="sortOrder != null "> and sort_order = #{sortOrder}</if>
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="description != null  and description != ''"> and description like concat('%', #{description}, '%')</if>
+            <if test="jumpUrl != null  and jumpUrl != ''"> and jump_url like concat('%', #{jumpUrl}, '%')</if>
+        </where>
+        order by sort_order asc, create_time desc
+    </select>
+    
+    <select id="selectCarouselImageByCarouselId" parameterType="Long" resultMap="CarouselImageResult">
+        <include refid="selectCarouselImageVo"/>
+        where carousel_id = #{carouselId}
+    </select>
+
+    <select id="selectShowCarouselImageList" parameterType="String" resultMap="CarouselImageResult">
+        <include refid="selectCarouselImageVo"/>
+        where is_show = #{isShow}
+        order by sort_order asc, create_time desc
+    </select>
+        
+    <insert id="insertCarouselImage" parameterType="TxwxCarouselImage" useGeneratedKeys="true" keyProperty="carouselId">
+        insert into txwx_carousel_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="imageUrl != null and imageUrl != ''">image_url,</if>
+            <if test="isShow != null and isShow != ''">is_show,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="title != null">title,</if>
+            <if test="description != null">description,</if>
+            <if test="jumpUrl != null">jump_url,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="imageUrl != null and imageUrl != ''">#{imageUrl},</if>
+            <if test="isShow != null and isShow != ''">#{isShow},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="title != null">#{title},</if>
+            <if test="description != null">#{description},</if>
+            <if test="jumpUrl != null">#{jumpUrl},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarouselImage" parameterType="TxwxCarouselImage">
+        update txwx_carousel_image
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="imageUrl != null and imageUrl != ''">image_url = #{imageUrl},</if>
+            <if test="isShow != null and isShow != ''">is_show = #{isShow},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="jumpUrl != null">jump_url = #{jumpUrl},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where carousel_id = #{carouselId}
+    </update>
+
+    <delete id="deleteCarouselImageByCarouselId" parameterType="Long">
+        delete from txwx_carousel_image where carousel_id = #{carouselId}
+    </delete>
+
+    <delete id="deleteCarouselImageByCarouselIds" parameterType="String">
+        delete from txwx_carousel_image where carousel_id in
+        <foreach item="carouselId" collection="array" open="(" separator="," close=")">
+            #{carouselId}
+        </foreach>
+    </delete>
+
+    <select id="getMaxSortOrder" resultType="Integer">
+        select COALESCE(max(sort_order), 0) from txwx_carousel_image
+    </select>
+
+    <update id="updateCarouselSort">
+        update txwx_carousel_image set sort_order = #{sortOrder} where carousel_id = #{carouselId}
+    </update>
+
+    <update id="updateByAndTime">
+        update txwx_carousel_image
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+        </trim>
+    </update>
+
+    <delete id="clearCarouselImage">
+        truncate table txwx_carousel_image
+    </delete>
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.webchatcrm.mapper.TxwxGraphicInformationImageMapper">
+    <resultMap type="com.txwx.webchatcrm.domain.po.TxwxGraphicInformationImagePO" id="TxwxGraphicInformationImageResult">
+        <result property="id"         column="id"         />
+        <result property="mediaId"    column="media_id"    />
+        <result property="name"       column="name"       />
+        <result property="url"        column="url"        />
+        <result property="delFlag"    column="del_flag"   />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <resultMap type="com.txwx.webchatcrm.domain.vo.WebChatGraphicInformationImageVO" id="WebChatGraphicInformationImageVOResult">
+        <result property="media_id"    column="media_id"    />
+        <result property="name"       column="name"       />
+        <result property="update_time" column="update_time" />
+        <result property="url"        column="url"        />
+    </resultMap>
+
+    <!-- 查询图文消息图片列表 -->
+    <select id="selectGraphicInformationImageList" resultMap="TxwxGraphicInformationImageResult">
+        select id, media_id, name, url, create_time, create_by, del_flag
+        from txwx_graphic_information_image
+        where del_flag = '0'
+    </select>
+
+    <!-- 分页查询图文消息图片列表 -->
+    <select id="selectGraphicInformationImageListByPage" resultMap="WebChatGraphicInformationImageVOResult">
+        select media_id, name, update_time, url
+        from txwx_graphic_information_image
+        where del_flag = '0'
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <!-- 查询图文消息图片总数 -->
+    <select id="selectGraphicInformationImageTotalCount" resultType="int">
+        select count(1)
+        from txwx_graphic_information_image
+        where del_flag = '0'
+    </select>
+
+    <!-- 插入图文消息图片 -->
+    <insert id="insertGraphicInformationImage" parameterType="com.txwx.webchatcrm.domain.po.TxwxGraphicInformationImagePO" useGeneratedKeys="true" keyProperty="id">
+        insert into txwx_graphic_information_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">media_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="url != null and url != ''">url,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">#{mediaId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="url != null and url != ''">#{url},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 根据mediaId删除图文消息图片(逻辑删除) -->
+    <update id="deleteGraphicInformationImage">
+        update txwx_graphic_information_image set del_flag = '1'
+        where media_id = #{mediaId}
+    </update>
+
+</mapper>

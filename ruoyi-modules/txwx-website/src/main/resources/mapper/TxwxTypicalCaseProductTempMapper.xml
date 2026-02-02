@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxTypicalCaseProductTempMapper">
+    
+    <resultMap type="TxwxTypicalCaseProductTemp" id="TypicalCaseProductTempResult">
+        <result property="caseProductId"    column="case_product_id"    />
+        <result property="productType"    column="product_type"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productIntroduction"    column="product_introduction"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="detailedIntroduction"    column="detailed_introduction"    />
+        <result property="standardFunctionsStr"    column="standard_functions_str"    />
+        <result property="customServicesStr"    column="custom_services_str"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectTypicalCaseProductTempVo">
+        select case_product_id, product_type, product_name, product_introduction, image_url, detailed_introduction, standard_functions_str, custom_services_str, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_typical_case_product_temp
+    </sql>
+
+    <select id="selectTypicalCaseProductTempList" parameterType="TxwxTypicalCaseProductTemp" resultMap="TypicalCaseProductTempResult">
+        <include refid="selectTypicalCaseProductTempVo"/>
+        <where>  
+            <if test="productType != null  and productType != ''"> and product_type = #{productType}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productIntroduction != null  and productIntroduction != ''"> and product_introduction like concat('%', #{productIntroduction}, '%')</if>
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url like concat('%', #{imageUrl}, '%')</if>
+            <if test="detailedIntroduction != null  and detailedIntroduction != ''"> and detailed_introduction like concat('%', #{detailedIntroduction}, '%')</if>
+            <if test="standardFunctionsStr != null  and standardFunctionsStr != ''"> and standard_functions_str like concat('%', #{standardFunctionsStr}, '%')</if>
+            <if test="customServicesStr != null  and customServicesStr != ''"> and custom_services_str like concat('%', #{customServicesStr}, '%')</if>
+            <if test="sortOrder != null "> and sort_order = #{sortOrder}</if>
+        </where>
+        order by sort_order asc, create_time desc
+    </select>
+    
+    <select id="selectTypicalCaseProductTempByCaseProductId" parameterType="Long" resultMap="TypicalCaseProductTempResult">
+        <include refid="selectTypicalCaseProductTempVo"/>
+        where case_product_id = #{caseProductId}
+    </select>
+
+    <select id="selectTypicalCaseProductTempListByProductType" parameterType="String" resultMap="TypicalCaseProductTempResult">
+        <include refid="selectTypicalCaseProductTempVo"/>
+        where product_type = #{productType}
+        order by sort_order asc, create_time desc
+    </select>
+        
+    <insert id="insertTypicalCaseProductTemp" parameterType="TxwxTypicalCaseProductTemp" useGeneratedKeys="true" keyProperty="caseProductId">
+        insert into txwx_typical_case_product_temp
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="productIntroduction != null">product_introduction,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="detailedIntroduction != null">detailed_introduction,</if>
+            <if test="standardFunctionsStr != null">standard_functions_str,</if>
+            <if test="customServicesStr != null">custom_services_str,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">#{productType},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="productIntroduction != null">#{productIntroduction},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="detailedIntroduction != null">#{detailedIntroduction},</if>
+            <if test="standardFunctionsStr != null">#{standardFunctionsStr},</if>
+            <if test="customServicesStr != null">#{customServicesStr},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <insert id="batchInsertTypicalCaseProductTemp" parameterType="java.util.List">
+        insert into txwx_typical_case_product_temp (
+            product_type, product_name, product_introduction, image_url, detailed_introduction, 
+            standard_functions_str, custom_services_str, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        values
+        <foreach collection="typicalCaseProductTempList" item="item" separator=",">
+            (
+                #{item.productType}, #{item.productName}, #{item.productIntroduction}, #{item.imageUrl}, #{item.detailedIntroduction}, 
+                #{item.standardFunctionsStr}, #{item.customServicesStr}, #{item.sortOrder}, #{item.createBy}, #{item.createTime}, 
+                #{item.updateBy}, #{item.updateTime}, #{item.savedBy}, #{item.savedTime}, #{item.publishedBy}, #{item.publishedTime}, #{item.remark}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateTypicalCaseProductTemp" parameterType="TxwxTypicalCaseProductTemp">
+        update txwx_typical_case_product_temp
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type = #{productType},</if>
+            <if test="productName != null and productName != ''">product_name = #{productName},</if>
+            <if test="productIntroduction != null">product_introduction = #{productIntroduction},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="detailedIntroduction != null">detailed_introduction = #{detailedIntroduction},</if>
+            <if test="standardFunctionsStr != null">standard_functions_str = #{standardFunctionsStr},</if>
+            <if test="customServicesStr != null">custom_services_str = #{customServicesStr},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where case_product_id = #{caseProductId}
+    </update>
+
+    <update id="updateCaseProductSort">
+        update txwx_typical_case_product_temp set sort_order = #{sortOrder} where case_product_id = #{caseProductId}
+    </update>
+
+    <delete id="deleteTypicalCaseProductTempByCaseProductId" parameterType="Long">
+        delete from txwx_typical_case_product_temp where case_product_id = #{caseProductId}
+    </delete>
+
+    <delete id="deleteTypicalCaseProductTempByCaseProductIds" parameterType="String">
+        delete from txwx_typical_case_product_temp where case_product_id in 
+        <foreach item="caseProductId" collection="array" open="(" separator="," close=")">
+            #{caseProductId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteTypicalCaseProductTempByProductType" parameterType="String">
+        delete from txwx_typical_case_product_temp where product_type = #{productType}
+    </delete>
+
+    <delete id="clearTypicalCaseProductTemp">
+        truncate table txwx_typical_case_product_temp
+    </delete>
+
+    <delete id="clearTypicalCaseProductTempByProductType" parameterType="String">
+        delete from txwx_typical_case_product_temp where product_type = #{productType}
+    </delete>
+
+    <!-- 将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormal">
+        insert into txwx_typical_case_product (
+            product_type, product_name, product_introduction, image_url, detailed_introduction, 
+            standard_functions_str, custom_services_str, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        select 
+            product_type, product_name, product_introduction, image_url, detailed_introduction, 
+            standard_functions_str, custom_services_str, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        from txwx_typical_case_product_temp
+    </insert>
+
+    <!-- 根据产品类型将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormalByProductType">
+        insert into txwx_typical_case_product (
+            product_type, product_name, product_introduction, image_url, detailed_introduction, 
+            standard_functions_str, custom_services_str, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        select 
+            product_type, product_name, product_introduction, image_url, detailed_introduction, 
+            standard_functions_str, custom_services_str, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        from txwx_typical_case_product_temp
+        where product_type = #{productType}
+    </insert>
+
+    <select id="getMaxSortOrderByProductType" parameterType="String" resultType="Integer">
+        select COALESCE(max(sort_order), 0) from txwx_typical_case_product_temp where product_type = #{productType}
+    </select>
+
+</mapper>

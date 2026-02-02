@@ -1,0 +1,104 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the MIT License;
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ 
+ * the copywrite is belongs to  SpaceMV  team
+ */
+package com.txwx.webchatcrm.dto;
+
+import lombok.Data;
+import java.util.List;
+
+/**
+ * 获取草稿详情响应
+ */
+@Data
+public class GetDraftDetailResponse {
+
+    /**
+     * 图文素材列表
+     */
+    private List<ArticleDetailItem> news_item;
+
+    /**
+     * 错误码
+     */
+    private Integer errcode;
+
+    /**
+     * 错误信息
+     */
+    private String errmsg;
+
+    @Data
+    public static class ArticleDetailItem {
+
+        /**
+         * 文章类型,固定填news
+         */
+        private String article_type;
+
+        /**
+         * 标题
+         */
+        private String title;
+
+        /**
+         * 作者
+         */
+        private String author;
+
+        /**
+         * 摘要
+         */
+        private String digest;
+
+        /**
+         * 内容
+         */
+        private String content;
+
+        /**
+         * 图文消息的原文地址
+         */
+        private String content_source_url;
+
+        /**
+         * 图文消息封面序号
+         */
+        private Integer show_cover_pic;
+
+        /**
+         * 图文消息的封面图片素材id
+         */
+        private String thumb_media_id;
+
+        /**
+         * 图文消息封面链接
+         */
+        private String thumb_url;
+
+        /**
+         * 草稿的临时链接
+         */
+        private String url;
+
+        /**
+         * 是否打开评论，0不打开(默认)，1打开
+         */
+        private Integer need_open_comment;
+
+        /**
+         * 是否粉丝才可评论，0所有人可评论(默认)，1粉丝才可评论
+         */
+        private Integer only_fans_can_comment;
+    }
+}

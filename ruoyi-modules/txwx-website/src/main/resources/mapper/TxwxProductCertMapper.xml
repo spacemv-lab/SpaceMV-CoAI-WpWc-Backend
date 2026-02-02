@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxProductCertMapper">
+    
+    <resultMap type="TxwxProductCert" id="ProductCertResult">
+        <result property="certId"    column="cert_id"    />
+        <result property="certName"    column="cert_name"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectProductCertVo">
+        select cert_id, cert_name, image_url, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_product_cert
+    </sql>
+
+    <select id="selectProductCertList" resultMap="ProductCertResult">
+        <include refid="selectProductCertVo"/>
+        order by sort_order asc, create_time desc
+    </select>
+    
+    <select id="selectProductCertByCertId" parameterType="Long" resultMap="ProductCertResult">
+        <include refid="selectProductCertVo"/>
+        where cert_id = #{certId}
+    </select>
+        
+    <insert id="insertProductCert" parameterType="TxwxProductCert" useGeneratedKeys="true" keyProperty="certId">
+        insert into txwx_product_cert
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="certName != null and certName != ''">cert_name,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="certName != null and certName != ''">#{certName},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProductCert" parameterType="TxwxProductCert">
+        update txwx_product_cert
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="certName != null and certName != ''">cert_name = #{certName},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where cert_id = #{certId}
+    </update>
+
+    <delete id="deleteProductCertByCertId" parameterType="Long">
+        delete from txwx_product_cert where cert_id = #{certId}
+    </delete>
+
+    <delete id="deleteProductCertByCertIds" parameterType="String">
+        delete from txwx_product_cert where cert_id in 
+        <foreach item="certId" collection="array" open="(" separator="," close=")">
+            #{certId}
+        </foreach>
+    </delete>
+
+    <delete id="clearProductCert">
+        truncate table txwx_product_cert
+    </delete>
+
+    <select id="getMaxSortOrder" resultType="Integer">
+        select COALESCE(max(sort_order), 0) from txwx_product_cert
+    </select>
+
+    <update id="updateByAndTime">
+        update txwx_product_cert
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+        </trim>
+    </update>
+
+</mapper>

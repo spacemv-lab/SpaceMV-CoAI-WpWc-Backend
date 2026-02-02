@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxApplicationScenarioTempMapper">
+    
+    <resultMap type="TxwxApplicationScenarioTemp" id="ApplicationScenarioTempResult">
+        <result property="scenarioId"    column="scenario_id"    />
+        <result property="productType"    column="product_type"    />
+        <result property="scenarioName"    column="scenario_name"    />
+        <result property="scenarioIntroduction"    column="scenario_introduction"    />
+        <result property="iconUrl"    column="icon_url"    />
+        <result property="backgroundImageUrl"    column="background_image_url"    />
+        <result property="detailedIntroduction"    column="detailed_introduction"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+		<result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectApplicationScenarioTempVo">
+        select scenario_id, product_type, scenario_name, scenario_introduction, icon_url, background_image_url, detailed_introduction, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_application_scenario_temp
+    </sql>
+
+    <select id="selectApplicationScenarioTempList" parameterType="TxwxApplicationScenarioTemp" resultMap="ApplicationScenarioTempResult">
+        <include refid="selectApplicationScenarioTempVo"/>
+        <where>  
+            <if test="productType != null  and productType != ''"> and product_type = #{productType}</if>
+            <if test="scenarioName != null  and scenarioName != ''"> and scenario_name like concat('%', #{scenarioName}, '%')</if>
+            <if test="scenarioIntroduction != null  and scenarioIntroduction != ''"> and scenario_introduction like concat('%', #{scenarioIntroduction}, '%')</if>
+            <if test="iconUrl != null  and iconUrl != ''"> and icon_url like concat('%', #{iconUrl}, '%')</if>
+            <if test="backgroundImageUrl != null  and backgroundImageUrl != ''"> and background_image_url like concat('%', #{backgroundImageUrl}, '%')</if>
+            <if test="detailedIntroduction != null  and detailedIntroduction != ''"> and detailed_introduction like concat('%', #{detailedIntroduction}, '%')</if>
+            <if test="sortOrder != null "> and sort_order = #{sortOrder}</if>
+        </where>
+        order by sort_order asc, create_time desc
+    </select>
+    
+    <select id="selectApplicationScenarioTempByScenarioId" parameterType="Long" resultMap="ApplicationScenarioTempResult">
+        <include refid="selectApplicationScenarioTempVo"/>
+        where scenario_id = #{scenarioId}
+    </select>
+
+    <select id="selectApplicationScenarioTempListByProductType" parameterType="String" resultMap="ApplicationScenarioTempResult">
+        <include refid="selectApplicationScenarioTempVo"/>
+        where product_type = #{productType}
+        order by sort_order asc, create_time desc
+    </select>
+        
+    <insert id="insertApplicationScenarioTemp" parameterType="TxwxApplicationScenarioTemp" useGeneratedKeys="true" keyProperty="scenarioId">
+        insert into txwx_application_scenario_temp
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type,</if>
+            <if test="scenarioName != null and scenarioName != ''">scenario_name,</if>
+            <if test="scenarioIntroduction != null">scenario_introduction,</if>
+            <if test="iconUrl != null">icon_url,</if>
+            <if test="backgroundImageUrl != null">background_image_url,</if>
+            <if test="detailedIntroduction != null">detailed_introduction,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+			<if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">#{productType},</if>
+            <if test="scenarioName != null and scenarioName != ''">#{scenarioName},</if>
+            <if test="scenarioIntroduction != null">#{scenarioIntroduction},</if>
+            <if test="iconUrl != null">#{iconUrl},</if>
+            <if test="backgroundImageUrl != null">#{backgroundImageUrl},</if>
+            <if test="detailedIntroduction != null">#{detailedIntroduction},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <insert id="batchInsertApplicationScenarioTemp" parameterType="java.util.List">
+        insert into txwx_application_scenario_temp (
+            product_type, scenario_name, scenario_introduction, icon_url, background_image_url,
+        detailed_introduction, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        values
+        <foreach collection="applicationScenarioTempList" item="item" separator=",">
+            (
+                #{item.productType}, #{item.scenarioName}, #{item.scenarioIntroduction}, #{item.iconUrl},
+                #{item.backgroundImageUrl}, #{item.detailedIntroduction}, #{item.sortOrder},
+                #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.savedBy}, #{item.savedTime}, #{item.publishedBy}, #{item.publishedTime}, #{item.remark}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateApplicationScenarioTemp" parameterType="TxwxApplicationScenarioTemp">
+        update txwx_application_scenario_temp
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type = #{productType},</if>
+            <if test="scenarioName != null and scenarioName != ''">scenario_name = #{scenarioName},</if>
+            <if test="scenarioIntroduction != null">scenario_introduction = #{scenarioIntroduction},</if>
+            <if test="iconUrl != null">icon_url = #{iconUrl},</if>
+            <if test="backgroundImageUrl != null">background_image_url = #{backgroundImageUrl},</if>
+            <if test="detailedIntroduction != null">detailed_introduction = #{detailedIntroduction},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where scenario_id = #{scenarioId}
+    </update>
+
+    <delete id="deleteApplicationScenarioTempByScenarioId" parameterType="Long">
+        delete from txwx_application_scenario_temp where scenario_id = #{scenarioId}
+    </delete>
+
+    <delete id="deleteApplicationScenarioTempByScenarioIds" parameterType="String">
+        delete from txwx_application_scenario_temp where scenario_id in 
+        <foreach item="scenarioId" collection="array" open="(" separator="," close=")">
+            #{scenarioId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteApplicationScenarioTempByProductType" parameterType="String">
+        delete from txwx_application_scenario_temp where product_type = #{productType}
+    </delete>
+
+    <delete id="clearApplicationScenarioTemp">
+        truncate table txwx_application_scenario_temp
+    </delete>
+
+    <delete id="clearApplicationScenarioTempByProductType" parameterType="String">
+        delete from txwx_application_scenario_temp where product_type = #{productType}
+    </delete>
+
+    <!-- 将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormal">
+        insert into txwx_application_scenario (
+            product_type, scenario_name, scenario_introduction, icon_url, background_image_url,
+            detailed_introduction, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        select 
+            product_type, scenario_name, scenario_introduction, icon_url, background_image_url,
+            detailed_introduction, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        from txwx_application_scenario_temp
+    </insert>
+
+    <!-- 根据产品类型将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormalByProductType">
+        insert into txwx_application_scenario (
+            product_type, scenario_name, scenario_introduction, icon_url, background_image_url,
+            detailed_introduction, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        select 
+            product_type, scenario_name, scenario_introduction, icon_url, background_image_url,
+            detailed_introduction, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        from txwx_application_scenario_temp
+        where product_type = #{productType}
+    </insert>
+
+    <update id="updateScenarioSort">
+        update txwx_application_scenario_temp set sort_order = #{sortOrder} where scenario_id = #{scenarioId}
+    </update>
+
+    <select id="getMaxSortOrderByProductType" parameterType="String" resultType="Integer">
+        select COALESCE(max(sort_order), 0) from txwx_application_scenario_temp where product_type = #{productType}
+    </select>
+
+</mapper>
