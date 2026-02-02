@@ -10,9 +10,9 @@
 <img width="800" height="450" alt="SpaceMV-COO" src="./public/spacemv_coo.png" />
 </div>
 
-[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend)是由成都天巡微小卫星科技有限责任公司(以下简称天巡微小公司)研发的一款集官网内容管理、自媒体一站式创作发布、运营数据分析于一体的产业星球运营智能体，旨在解决企业内容运营面临的多平台内容分发耗时耗力、运营数据分散难以洞察、内容审核流程复杂低效的问题。
+[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI)是由成都天巡微小卫星科技有限责任公司(以下简称天巡微小公司)研发的一款集官网内容管理、自媒体一站式创作发布、运营数据分析于一体的产业星球运营智能体，旨在解决企业内容运营面临的多平台内容分发耗时耗力、运营数据分散难以洞察、内容审核流程复杂低效的问题。
 
-[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend)作为企业内容中枢，具备官网版面定制、文章内容快速更新发布功能，可一站式完成自媒体创作与多平台分发，且有审核机制保障内容安全，还能通过多维数据分析，为运营决策提供支撑，助力高效开展品牌运营。
+[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI)作为企业内容中枢，具备官网版面定制、文章内容快速更新发布功能，可一站式完成自媒体创作与多平台分发，且有审核机制保障内容安全，还能通过多维数据分析，为运营决策提供支撑，助力高效开展品牌运营。
 
 `SpaceMV-CoAI-Wp/Wc Backend`作为平台的核心后端组件，为前端提供逻辑实现和交互接口。
 
