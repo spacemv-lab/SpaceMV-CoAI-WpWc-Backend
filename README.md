@@ -221,14 +221,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## **✨ 贡献者**
 
-<div style="display: flex; gap: 20px; margin: 20px 0;">
-  <div style="cursor: pointer; position: relative; text-align: center;">
-    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvpy" />
-  </div>
-  <div style="cursor: pointer; position: relative; text-align: center;">
-    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvwnn" />
-  </div>
-</div>
+<table>
+  <tr>
+    <td align="center" style="padding: 10px;">
+      <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; cursor: pointer;" alt="spacemvpy" title="spacemvpy" />
+    </td>
+    <td align="center" style="padding: 10px;">
+      <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; cursor: pointer;" alt="spacemvwnn" title="spacemvwnn" />
+    </td>
+  </tr>
+</table>
 
 ## ✅ 待办事项
 
