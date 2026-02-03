@@ -27,6 +27,7 @@
 * [Quick Start](#quick-start)
 * [Contribution Guide](#contribution-guide)
 * [Contact](#contact)
+* [Contributors](#contributors)
 * [To-Do List](#to-do-list)
 
 
@@ -214,11 +215,23 @@ For any questions, suggestions or business cooperation needs, please contact the
 
 * **Email**: code@spacemv.com  
 * **Issues**: [GitHub Issues](https://github.com/tianxunweixiao/SpaceMV-ScAI-backend/issues)
+* **Discussions**: [GitHub Discussions](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend/discussions)
 
 For more information, you can follow the company's WeChat official account:
 
 <img width="106" height="106" alt="image" src="https://github.com/user-attachments/assets/69a02ad0-422c-422a-bf5f-9b7890cf31ab" />
 
+
+## **Contributors**
+
+<div style="display: flex; gap: 20px; margin: 20px 0;">
+  <div style="cursor: pointer; position: relative; text-align: center;">
+    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvpy" />
+  </div>
+  <div style="cursor: pointer; position: relative; text-align: center;">
+    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvwnn" />
+  </div>
+</div>
 
 ## **To-Do List**
 

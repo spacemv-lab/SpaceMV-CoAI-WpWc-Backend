@@ -26,6 +26,7 @@
 * [贡献指南](#-贡献指南)
 * [许可证](#-许可证)
 * [联系方式](#-联系方式)
+* [贡献者](#-贡献者)
 * [待办事项](#-待办事项)
 
 ## **🧩 核心模块**
@@ -211,11 +212,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 * **Email**: code@spacemv.com  
 * **Issues**: [GitHub Issues](https://github.com/tianxunweixiao/SpaceMV-ScAI-backend/issues)
+* **Discussions**: [GitHub Discussions](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend/discussions)
 
 更多信息可关注公司微信公众号：
 
 <img width="106" height="106" alt="image" src="https://github.com/user-attachments/assets/69a02ad0-422c-422a-bf5f-9b7890cf31ab" />
 
+
+## **✨ 贡献者**
+
+<div style="display: flex; gap: 20px; margin: 20px 0;">
+  <div style="cursor: pointer; position: relative; text-align: center;">
+    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvpy" />
+  </div>
+  <div style="cursor: pointer; position: relative; text-align: center;">
+    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvwnn" />
+  </div>
+</div>
 
 ## ✅ 待办事项
 
