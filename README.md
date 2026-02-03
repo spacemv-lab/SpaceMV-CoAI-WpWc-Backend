@@ -221,16 +221,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## **✨ 贡献者**
 
-<table border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td align="center" style="padding: 10px;">
-      <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; cursor: pointer;" alt="spacemvpy" title="spacemvpy" />
-    </td>
-    <td align="center" style="padding: 10px;">
-      <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; cursor: pointer;" alt="spacemvwnn" title="spacemvwnn" />
-    </td>
-  </tr>
-</table>
+<div>
+  <img src="./public/github.png" style="cursor: pointer;" width="80" height="80" alt="spacemvpy" title="spacemvpy" />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./public/github.png" style="cursor: pointer;" width="80" height="80" alt="spacemvwnn" title="spacemvwnn" />
+</div>
 
 ## ✅ 待办事项
 
