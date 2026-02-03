@@ -222,9 +222,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ## **✨ 贡献者**
 
 <div>
-  <img src="./public/github.png" style="cursor: pointer;" width="80" height="80" alt="spacemvpy" title="spacemvpy" />
+  <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvpy" title="spacemvpy" />
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./public/github.png" style="cursor: pointer;" width="80" height="80" alt="spacemvwnn" title="spacemvwnn" />
+  <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvwnn" title="spacemvwnn" />
 </div>
 
 ## ✅ 待办事项

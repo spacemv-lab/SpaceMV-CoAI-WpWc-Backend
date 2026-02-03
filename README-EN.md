@@ -224,13 +224,10 @@ For more information, you can follow the company's WeChat official account:
 
 ## **Contributors**
 
-<div style="display: flex; gap: 20px; margin: 20px 0;">
-  <div style="cursor: pointer; position: relative; text-align: center;">
-    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvpy" />
-  </div>
-  <div style="cursor: pointer; position: relative; text-align: center;">
-    <img src="./public/github.png" width="80" height="80" style="border-radius: 50%; object-fit: cover;" title="spacemvwnn" />
-  </div>
+<div>
+  <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvpy" title="spacemvpy" />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvwnn" title="spacemvwnn" />
 </div>
 
 ## **To-Do List**
