@@ -1,6 +1,6 @@
 <div align="center">
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: Industrial Planet Operations AI Agent Server-side</h1>
-<a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README_EN.md"><strong>English</strong></a>
@@ -11,9 +11,9 @@
 </div>
 
 
-[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI) is an Industrial Planet Operations AI Agent developed by Chengdu Tianxun Microsatellite Technology Co., Ltd.(hereinafter referred to as "Tianxun Micro Company"), integrating official website content management, one-stop self-media creation and publishing, and operational data analysis. It aims to solve the problems faced by enterprise content operations, such as time-consuming multi-platform content distribution, scattered operational data that is difficult to insight into, and complex and inefficient content review processes.
+[SpaceMV-CoAI-Wp/Wc](https://github.com/spacemv-lab/SpaceMV-CoAI) is an Industrial Planet Operations AI Agent developed by Chengdu Tianxun Microsatellite Technology Co., Ltd.(hereinafter referred to as "Tianxun Micro Company"), integrating official website content management, one-stop self-media creation and publishing, and operational data analysis. It aims to solve the problems faced by enterprise content operations, such as time-consuming multi-platform content distribution, scattered operational data that is difficult to insight into, and complex and inefficient content review processes.
 
-[SpaceMV-CoAI-Wp/Wc](https://github.com/tianxunweixiao/SpaceMV-CoAI) serves as the enterprise content hub, featuring official website layout customization, quick article content update and publishing functions. It can complete self-media creation and multi-platform distribution in one stop, with review mechanisms to ensure content security, and can provide support for operational decision-making through multi-dimensional data analysis, helping to efficiently carry out brand operations.
+[SpaceMV-CoAI-Wp/Wc](https://github.com/spacemv-lab/SpaceMV-CoAI) serves as the enterprise content hub, featuring official website layout customization, quick article content update and publishing functions. It can complete self-media creation and multi-platform distribution in one stop, with review mechanisms to ensure content security, and can provide support for operational decision-making through multi-dimensional data analysis, helping to efficiently carry out brand operations.
 
 `SpaceMV-CoAI-Wp/Wc Backendend` As the core backend component of the platform, it provides logical implementation and interactive interfaces for the frontend.
 
@@ -134,7 +134,7 @@ server
 ### **System Deployment and Startup**
 ```bash
 # Clone repository  
-git clone https://github.com/tianxunweixiao/SpaceMV-CRM-backend.git   
+git clone https://github.com/spacemv-lab/SpaceMV-CRM-backend.git   
 cd SpaceMV-CRM-backend
 
 # Build
@@ -164,7 +164,7 @@ sh deploy.sh port
 ```
 
 
-For the SpaceMV-CoAI-Wp/Wc frontend repository, please refer to[SpaceMV-CoAI-Wp/Wc-frontend](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Frontend)
+For the SpaceMV-CoAI-Wp/Wc frontend repository, please refer to[SpaceMV-CoAI-Wp/Wc-frontend](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Frontend)
 
 
 ## **Contribution Guide**
@@ -215,8 +215,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 For any questions, suggestions or business cooperation needs, please contact the project maintenance team.
 
 * **Email**: code@spacemv.com  
-* **Issues**: [GitHub Issues](https://github.com/tianxunweixiao/SpaceMV-ScAI-backend/issues)
-* **Discussions**: [GitHub Discussions](https://github.com/tianxunweixiao/SpaceMV-CoAI-WpWc-Backend/discussions)
+* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-backend/issues)
+* **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)
 
 For more information, you can follow the company's WeChat official account:
 
