@@ -215,7 +215,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 For any questions, suggestions or business cooperation needs, please contact the project maintenance team.
 
 * **Email**: code@spacemv.com  
-* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-backend/issues)
+* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-Backend/issues)
 * **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)
 
 For more information, you can follow the company's WeChat official account:

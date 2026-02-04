@@ -211,7 +211,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 如有任何问题、建议或商务合作需求，请联系项目维护团队。
 
 * **Email**: code@spacemv.com  
-* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-backend/issues)
+* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-Backend/issues)
 * **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)
 
 更多信息可关注公司微信公众号：
