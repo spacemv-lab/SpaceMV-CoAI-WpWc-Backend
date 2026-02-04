@@ -25,7 +25,8 @@
 * [Technical Architecture](#technical-architecture)
 * [Features](#features)
 * [Quick Start](#quick-start)
-* [Contribution Guide](#contribution-guide)
+* [Contribution Guide](#contribution-guide)'
+* [License](#license)
 * [Contact](#contact)
 * [Contributors](#contributors)
 * [To-Do List](#to-do-list)
