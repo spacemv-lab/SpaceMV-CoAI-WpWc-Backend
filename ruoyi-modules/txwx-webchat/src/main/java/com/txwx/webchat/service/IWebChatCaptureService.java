@@ -51,4 +51,14 @@ public interface IWebChatCaptureService {
      * @description: 获取并保存发表内容概况总数据（定时任务）
      */
     void captureArticleSummaryDaily(String accessToken);
+
+    /**
+     * @description: 获取并保存历史发表内容每日阅读数据（2025-11-01 到 2026-12-04）
+     */
+    void captureArticleReadDailyHistory(String accessToken);
+
+    /**
+     * @description: 获取并保存历史发表内容概况总数据（2025-11-01 到 2026-12-04）
+     */
+    void captureArticleSummaryDailyHistory(String accessToken);
 }

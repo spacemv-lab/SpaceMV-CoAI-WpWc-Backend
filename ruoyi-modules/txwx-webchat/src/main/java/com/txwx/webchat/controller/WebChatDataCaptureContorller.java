@@ -86,4 +86,20 @@ public class WebChatDataCaptureContorller extends BaseController {
         webChatCaptureService.captureArticleSummaryDaily(accessToken);
         return success();
     }
+
+    @GetMapping("/captureArticleReadDailyHistory")
+    public AjaxResult captureArticleReadDailyHistory(){
+        String accessToken = webChatCaptureService.getAccessToken();
+
+        webChatCaptureService.captureArticleReadDailyHistory(accessToken);
+        return success();
+    }
+
+    @GetMapping("/captureArticleSummaryDailyHistory")
+    public AjaxResult captureArticleSummaryDailyHistory(){
+        String accessToken = webChatCaptureService.getAccessToken();
+
+        webChatCaptureService.captureArticleSummaryDailyHistory(accessToken);
+        return success();
+    }
 }
