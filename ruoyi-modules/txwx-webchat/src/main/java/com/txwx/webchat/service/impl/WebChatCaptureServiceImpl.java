@@ -31,6 +31,9 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    private WebChatHistoryDataCapture webChatHistoryDataCapture;
+
     @Override
     public String getAccessToken() {
         String accessToken = null;
@@ -449,6 +452,16 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         }
 
         logger.info("<##############################发表内容概况总数据抓取结束##############################>");
+    }
+
+    @Override
+    public void captureArticleReadDailyHistory(String accessToken) {
+        webChatHistoryDataCapture.captureArticleReadDailyHistory(accessToken);
+    }
+
+    @Override
+    public void captureArticleSummaryDailyHistory(String accessToken) {
+        webChatHistoryDataCapture.captureArticleSummaryDailyHistory(accessToken);
     }
 
     /**
