@@ -1,7 +1,6 @@
 package com.txwx.webchat.schedule;
 
 import com.txwx.webchat.service.IWebChatCaptureService;
-import com.txwx.webchat.service.impl.WebChatCaptureServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,26 @@ public class WebChatDataCaptureTasks {
         webChatCaptureService.webChatUserReadCapture(accessToken);
 
         logger.info("\n");
+        webChatCaptureService.captureArticleReadDaily(accessToken);
+
+        logger.info("\n");
+        webChatCaptureService.captureArticleSummaryDaily(accessToken);
+
+        logger.info("\n");
         logger.info("<===================微信公众号数据每日抓取结束=======" + timestamp() + "==============>");
+    }
+
+    /**
+     * @description: 每天凌晨3点获取并保存已发布消息列表
+     */
+    @Scheduled(cron = "0 0 3 * * ?")
+    public void capturePublishedArticles() {
+        logger.info("<===================微信公众号已发布消息列表抓取开始=======" + timestamp() + "==============>");
+        String accessToken = webChatCaptureService.getAccessToken();
+        logger.info("\n");
+        webChatCaptureService.capturePublishedArticles(accessToken);
+        logger.info("\n");
+        logger.info("<===================微信公众号已发布消息列表抓取结束=======" + timestamp() + "==============>");
     }
 
     private String timestamp(){

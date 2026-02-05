@@ -222,29 +222,28 @@ public class WebChatUtil {
         GetDraftDetailRequest request = new GetDraftDetailRequest();
         request.setMedia_id(mediaId);
 
-        // 使用Apache HttpClient指定UTF-8编码
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(urlStr);
+        // 使用try-with-resources确保HttpClient自动关闭
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(urlStr);
 
-        // 设置请求体，指定UTF-8编码
-        String jsonBody = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(request);
-        StringEntity requestEntity = new StringEntity(jsonBody, ContentType.APPLICATION_JSON);
-        httpPost.setEntity(requestEntity);
+            // 设置请求体，指定UTF-8编码
+            String jsonBody = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(request);
+            StringEntity requestEntity = new StringEntity(jsonBody, ContentType.APPLICATION_JSON);
+            httpPost.setEntity(requestEntity);
 
-        String response = httpClient.execute(httpPost, httpResponse -> {
-            HttpEntity entity = httpResponse.getEntity();
-            return entity != null ? EntityUtils.toString(entity, "UTF-8") : "";
-        });
+            String response = httpClient.execute(httpPost, httpResponse -> {
+                HttpEntity entity = httpResponse.getEntity();
+                return entity != null ? EntityUtils.toString(entity, "UTF-8") : "";
+            });
 
-        httpClient.close();
+            GetDraftDetailResponse result = JSONObject.parseObject(response, GetDraftDetailResponse.class);
 
-        GetDraftDetailResponse result = JSONObject.parseObject(response, GetDraftDetailResponse.class);
+            if (result.getErrcode() != null && result.getErrcode() != 0) {
+                throw new RuntimeException("获取草稿详情失败: " + result.getErrmsg());
+            }
 
-        if (result.getErrcode() != null && result.getErrcode() != 0) {
-            throw new RuntimeException("获取草稿详情失败: " + result.getErrmsg());
+            return result;
         }
-
-        return result;
     }
 
     /**
