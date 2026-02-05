@@ -2,6 +2,10 @@ package com.txwx.webchat.domain;
 
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 /**
  * 已发布文章实体类（用于存储到ClickHouse）
  */
@@ -27,6 +31,13 @@ public class PublishedArticle {
      * 转换为Object数组，用于批量插入ClickHouse
      */
     public Object[] toObject() {
-        return new Object[]{mid, title, createTime};
+        // 将Unix时间戳转换为LocalDate
+        LocalDate createDate = null;
+        if (createTime != null) {
+            createDate = Instant.ofEpochSecond(createTime)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+        }
+        return new Object[]{mid, title, createDate};
     }
 }
