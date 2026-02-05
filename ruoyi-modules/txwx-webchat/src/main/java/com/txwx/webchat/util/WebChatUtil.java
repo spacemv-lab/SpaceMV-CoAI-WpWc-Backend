@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.ruoyi.common.http.service.HttpUtil;
 import com.txwx.webchat.domain.*;
+import com.txwx.webchat.dto.GetPublishedListRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +99,75 @@ public class WebChatUtil {
             String postResponse = HttpUtil.postJson(url, null, date);
             JSONObject jsonObject = JSONObject.parseObject(postResponse);
             result = jsonObject.getList("list", WebChatUserRead.class);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 调用微信公众号官方接口获取已发布消息列表
+     */
+    public static GetPublishedListResponse getPublishedList(String accessToken, Integer offset, Integer count, Integer noContent) throws Exception {
+        String urlStr = "https://api.weixin.qq.com/cgi-bin/freepublish/batchget?access_token=" + accessToken;
+
+        GetPublishedListRequest request = new GetPublishedListRequest();
+        request.setOffset(offset);
+        request.setCount(count);
+        request.setNo_content(noContent);
+
+        String response = HttpUtil.postJson(urlStr, null, request);
+        GetPublishedListResponse result = JSONObject.parseObject(response, GetPublishedListResponse.class);
+
+        if (result.getErrcode() != null && result.getErrcode() != 0) {
+            throw new RuntimeException("获取已发布消息列表失败: " + result.getErrmsg());
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 获取发表内容每日阅读数据
+     */
+    public static List<ArticleReadDaily> getArticleReadDaily(String token, String beginDate, String endDate) throws Exception {
+        Map<String, String> specialParams = new HashMap<>();
+        specialParams.put("access_token", token);
+        String url = HttpUtil.buildUrlWithParams("https://api.weixin.qq.com/datacube/getarticleread", specialParams);
+
+        WebChatDate date = new WebChatDate();
+        date.setBegin_date(beginDate);
+        date.setEnd_date(endDate);
+
+        List<ArticleReadDaily> result = null;
+        try {
+            String postResponse = HttpUtil.postJson(url, null, date);
+            JSONObject jsonObject = JSONObject.parseObject(postResponse);
+            result = jsonObject.getList("list", ArticleReadDaily.class);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return result;
+    }
+
+    /**
+     * @description: 获取发表内容概况总数据
+     */
+    public static List<ArticleSummaryDaily> getArticleSummaryDaily(String token, String beginDate, String endDate) throws Exception {
+        Map<String, String> specialParams = new HashMap<>();
+        specialParams.put("access_token", token);
+        String url = HttpUtil.buildUrlWithParams("https://api.weixin.qq.com/datacube/getbizsummary", specialParams);
+
+        WebChatDate date = new WebChatDate();
+        date.setBegin_date(beginDate);
+        date.setEnd_date(endDate);
+
+        List<ArticleSummaryDaily> result = null;
+        try {
+            String postResponse = HttpUtil.postJson(url, null, date);
+            JSONObject jsonObject = JSONObject.parseObject(postResponse);
+            result = jsonObject.getList("list", ArticleSummaryDaily.class);
         } catch (Exception e) {
             throw e;
         }

@@ -83,7 +83,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{deptId}, ancestors) ))
 		</if>
 		<!-- 数据范围过滤 -->
-		${params.dataScope}
+		<if test="params.dataScope != null and params.dataScope != ''">
+			<choose>
+				<when test="params.dataScope.matches('(?i)^\\s*AND\\s*\\(.*\\)\\s*$')">
+					${params.dataScope}
+				</when>
+				<otherwise>
+					AND 1=0
+				</otherwise>
+			</choose>
+		</if>
 	</select>
 	
 	<select id="selectAllocatedList" parameterType="SysUser" resultMap="SysUserResult">
@@ -100,7 +109,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			AND u.phonenumber like concat('%', #{phonenumber}, '%')
 		</if>
 		<!-- 数据范围过滤 -->
-		${params.dataScope}
+		<if test="params.dataScope != null and params.dataScope != ''">
+			<choose>
+				<when test="params.dataScope.matches('(?i)^\\s*AND\\s*\\(.*\\)\\s*$')">
+					${params.dataScope}
+				</when>
+				<otherwise>
+					AND 1=0
+				</otherwise>
+			</choose>
+		</if>
 	</select>
 	
 	<select id="selectUnallocatedList" parameterType="SysUser" resultMap="SysUserResult">
@@ -118,7 +136,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			AND u.phonenumber like concat('%', #{phonenumber}, '%')
 		</if>
 		<!-- 数据范围过滤 -->
-		${params.dataScope}
+		<if test="params.dataScope != null and params.dataScope != ''">
+			<choose>
+				<when test="params.dataScope.matches('(?i)^\\s*AND\\s*\\(.*\\)\\s*$')">
+					${params.dataScope}
+				</when>
+				<otherwise>
+					AND 1=0
+				</otherwise>
+			</choose>
+		</if>
 	</select>
 	
 	<select id="selectUserByUserName" parameterType="String" resultMap="SysUserResult">

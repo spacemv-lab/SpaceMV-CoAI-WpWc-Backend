@@ -27,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from sys_dept d
     </sql>
     
-	<select id="selectDeptList" parameterType="SysDept" resultMap="SysDeptResult">
+    <select id="selectDeptList" parameterType="SysDept" resultMap="SysDeptResult">
         <include refid="selectDeptVo"/>
         where d.del_flag = '0'
 		<if test="deptId != null and deptId != 0">
@@ -43,7 +43,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			AND status = #{status}
 		</if>
 		<!-- 数据范围过滤 -->
-		${params.dataScope}
+		<if test="params.dataScope != null and params.dataScope != ''">
+			<choose>
+				<when test="params.dataScope.matches('(?i)^\\s*AND\\s*\\(.*\\)\\s*$')">
+					${params.dataScope}
+				</when>
+				<otherwise>
+					AND 1=0
+				</otherwise>
+			</choose>
+		</if>
 		order by d.parent_id, d.order_num
     </select>
     

@@ -23,6 +23,15 @@ public class WebChatConfig {
     @Value("${webchat.insertuserreadsql}")
     private String insertuserreadsql;
 
+    @Value("${webchat.insertpublishedarticlesql}")
+    private String insertpublishedarticlesql;
+
+    @Value("${webchat.insertarticlereaddailysql}")
+    private String insertarticlereaddailysql;
+
+    @Value("${webchat.insertarticlesummarydailysql}")
+    private String insertarticlesummarydailysql;
+
     public String getAppid() {
         return appid;
     }
@@ -61,5 +70,29 @@ public class WebChatConfig {
 
     public void setInsertuserreadsql(String insertuserreadsql) {
         this.insertuserreadsql = insertuserreadsql;
+    }
+
+    public String getInsertpublishedarticlesql() {
+        return insertpublishedarticlesql;
+    }
+
+    public void setInsertpublishedarticlesql(String insertpublishedarticlesql) {
+        this.insertpublishedarticlesql = insertpublishedarticlesql;
+    }
+
+    public String getInsertarticlereaddailysql() {
+        return insertarticlereaddailysql;
+    }
+
+    public void setInsertarticlereaddailysql(String insertarticlereaddailysql) {
+        this.insertarticlereaddailysql = insertarticlereaddailysql;
+    }
+
+    public String getInsertarticlesummarydailysql() {
+        return insertarticlesummarydailysql;
+    }
+
+    public void setInsertarticlesummarydailysql(String insertarticlesummarydailysql) {
+        this.insertarticlesummarydailysql = insertarticlesummarydailysql;
     }
 }
