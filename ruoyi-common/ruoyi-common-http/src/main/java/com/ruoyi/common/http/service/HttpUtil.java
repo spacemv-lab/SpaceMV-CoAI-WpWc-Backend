@@ -16,6 +16,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
@@ -44,7 +45,7 @@ public class HttpUtil {
         return httpClient.execute(httpGet, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -142,7 +143,7 @@ public class HttpUtil {
         return httpClient.execute(httpPost, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -177,7 +178,7 @@ public class HttpUtil {
         return httpClient.execute(httpPost, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -203,7 +204,7 @@ public class HttpUtil {
         return httpClient.execute(httpDelete, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
