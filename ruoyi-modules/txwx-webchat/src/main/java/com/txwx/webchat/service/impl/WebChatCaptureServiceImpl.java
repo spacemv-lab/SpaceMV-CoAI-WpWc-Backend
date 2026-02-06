@@ -5,6 +5,7 @@ import com.ruoyi.common.redis.service.RedisService;
 import com.txwx.webchat.config.WebChatConfig;
 import com.txwx.webchat.domain.*;
 import com.txwx.webchat.service.IWebChatCaptureService;
+import com.txwx.webchat.domain.ArticleShareDaily;
 import com.txwx.webchat.util.WebChatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserCaptureHistory(String accessToken) {
         LocalDate startDate = LocalDate.of(2025, 7, 24);
-        LocalDate endDate = LocalDate.of(2026, 1, 5);
+        LocalDate endDate = LocalDate.of(2026, 2, 5);
 
         // 使用ISO_LOCAL_DATE格式器，输出格式为YYYY-MM-DD
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -455,6 +456,49 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     }
 
     @Override
+    public void captureArticleShareDaily(String accessToken) {
+        logger.info("<##############################发表内容每日分享数据抓取开始##############################>");
+        logger.info("传入的凭证->" + accessToken);
+
+        // (1)定义抓取日期
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        String yesterdayISO = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        logger.info("定义抓取日期:" + yesterdayISO);
+
+        // (2)抓取发表内容每日分享数据
+        List<ArticleShareDaily> articleShareDailyList = null;
+        try {
+            articleShareDailyList = WebChatUtil.getArticleShareDaily(accessToken, yesterdayISO, yesterdayISO);
+        } catch (Exception ex) {
+            logger.error("抓取发表内容每日分享数据失败:" + ex.getMessage());
+        }
+
+        // (3)将获取的数据插入数据库
+        if (articleShareDailyList != null && articleShareDailyList.size() > 0) {
+            logger.info("<------获取的发表内容每日分享数据条数------> " + articleShareDailyList.size());
+            logger.info("<------获取的发表内容每日分享数据------> " + articleShareDailyList.toString());
+            List<Object[]> batchArgs = new ArrayList<>();
+            for (ArticleShareDaily article : articleShareDailyList) {
+                batchArgs.add(article.toObject());
+            }
+
+            String insertSql = webChatConfig.getInsertarticlesharedailysql();
+            if (insertSql != null && !insertSql.isEmpty()) {
+                try {
+                    clickhouseService.batchInsert(insertSql, batchArgs);
+                    logger.info("成功插入发表内容每日分享数据到ClickHouse，数量: " + batchArgs.size());
+                } catch (Exception ex) {
+                    logger.error("插入发表内容每日分享数据到ClickHouse失败: " + ex.getMessage());
+                }
+            } else {
+                logger.warn("未配置insertarticlesharedailysql，无法插入数据到ClickHouse");
+            }
+        }
+
+        logger.info("<##############################发表内容每日分享数据抓取结束##############################>");
+    }
+
+    @Override
     public void captureArticleReadDailyHistory(String accessToken) {
         webChatHistoryDataCapture.captureArticleReadDailyHistory(accessToken);
     }
@@ -462,6 +506,11 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleSummaryDailyHistory(String accessToken) {
         webChatHistoryDataCapture.captureArticleSummaryDailyHistory(accessToken);
+    }
+
+    @Override
+    public void captureArticleShareDailyHistory(String accessToken) {
+        webChatHistoryDataCapture.captureArticleShareDailyHistory(accessToken);
     }
 
     /**
