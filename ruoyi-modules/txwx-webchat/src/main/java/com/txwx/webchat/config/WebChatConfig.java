@@ -32,6 +32,9 @@ public class WebChatConfig {
     @Value("${webchat.insertarticlesummarydailysql}")
     private String insertarticlesummarydailysql;
 
+    @Value("${webchat.insertarticlesharedailysql}")
+    private String insertarticlesharedailysql;
+
     public String getAppid() {
         return appid;
     }
@@ -94,5 +97,13 @@ public class WebChatConfig {
 
     public void setInsertarticlesummarydailysql(String insertarticlesummarydailysql) {
         this.insertarticlesummarydailysql = insertarticlesummarydailysql;
+    }
+
+    public String getInsertarticlesharedailysql() {
+        return insertarticlesharedailysql;
+    }
+
+    public void setInsertarticlesharedailysql(String insertarticlesharedailysql) {
+        this.insertarticlesharedailysql = insertarticlesharedailysql;
     }
 }

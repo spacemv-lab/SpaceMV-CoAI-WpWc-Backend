@@ -53,12 +53,22 @@ public interface IWebChatCaptureService {
     void captureArticleSummaryDaily(String accessToken);
 
     /**
+     * @description: 获取并保存发表内容每日分享数据（定时任务）
+     */
+    void captureArticleShareDaily(String accessToken);
+
+    /**
      * @description: 获取并保存历史发表内容每日阅读数据（2025-11-01 到 2026-12-04）
      */
     void captureArticleReadDailyHistory(String accessToken);
 
     /**
-     * @description: 获取并保存历史发表内容概况总数据（2025-11-01 到 2026-12-04）
+     * @description: 获取并保存历史发表内容概况总数据（2025-11-01 到 2026-02-05）
      */
     void captureArticleSummaryDailyHistory(String accessToken);
+
+    /**
+     * @description: 获取并保存历史发表内容每日分享数据（2025-11-01 到 2026-02-05）
+     */
+    void captureArticleShareDailyHistory(String accessToken);
 }

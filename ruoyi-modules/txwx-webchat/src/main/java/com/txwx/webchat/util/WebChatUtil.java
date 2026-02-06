@@ -174,4 +174,28 @@ public class WebChatUtil {
 
         return result;
     }
+
+    /**
+     * @description: 获取发表内容每日分享数据
+     */
+    public static List<ArticleShareDaily> getArticleShareDaily(String token, String beginDate, String endDate) throws Exception {
+        Map<String, String> specialParams = new HashMap<>();
+        specialParams.put("access_token", token);
+        String url = HttpUtil.buildUrlWithParams("https://api.weixin.qq.com/datacube/getarticleshare", specialParams);
+
+        WebChatDate date = new WebChatDate();
+        date.setBegin_date(beginDate);
+        date.setEnd_date(endDate);
+
+        List<ArticleShareDaily> result = null;
+        try {
+            String postResponse = HttpUtil.postJson(url, null, date);
+            JSONObject jsonObject = JSONObject.parseObject(postResponse);
+            result = jsonObject.getList("list", ArticleShareDaily.class);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return result;
+    }
 }
