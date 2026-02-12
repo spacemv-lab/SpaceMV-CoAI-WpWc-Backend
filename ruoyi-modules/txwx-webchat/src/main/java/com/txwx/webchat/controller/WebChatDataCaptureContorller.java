@@ -118,4 +118,10 @@ public class WebChatDataCaptureContorller extends BaseController {
         webChatCaptureService.captureArticleShareDailyHistory(accessToken);
         return success();
     }
+
+    @GetMapping("/aggregateArticleDataToDws")
+    public AjaxResult aggregateArticleDataToDws(){
+        webChatCaptureService.aggregateArticleDataToDws();
+        return success();
+    }
 }

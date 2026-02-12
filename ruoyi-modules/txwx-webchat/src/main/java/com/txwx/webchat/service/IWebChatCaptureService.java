@@ -71,4 +71,9 @@ public interface IWebChatCaptureService {
      * @description: 获取并保存历史发表内容每日分享数据（2025-11-01 到 2026-02-05）
      */
     void captureArticleShareDailyHistory(String accessToken);
+
+    /**
+     * @description: 聚合ODS层数据到DWS层（文章维度统计）
+     */
+    void aggregateArticleDataToDws();
 }

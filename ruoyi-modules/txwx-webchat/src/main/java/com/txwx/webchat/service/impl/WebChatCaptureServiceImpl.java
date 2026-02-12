@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,9 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
 
     @Autowired
     private WebChatHistoryDataCapture webChatHistoryDataCapture;
+
+    @Autowired
+    private ArticleDataAggregator articleDataAggregator;
 
     @Override
     public String getAccessToken() {
@@ -58,14 +62,15 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         logger.info("定义抓取日期:" + yesterdayISO);
 
         //(2)抓取关注或取消关注人数
-        List<WebChatUser> userYesterday = null;
+        List<WebChatUser> userYesterdayTemp = null;
         try{
-            userYesterday = WebChatUtil.getUserYesterday(accessToken, yesterdayISO, yesterdayISO);
+            userYesterdayTemp = WebChatUtil.getUserYesterday(accessToken, yesterdayISO, yesterdayISO);
         }catch (Exception ex){
             logger.error("抓取微信公众号关注或取消用户失败:" + ex.getMessage());
         }
+        final List<WebChatUser> userYesterday = userYesterdayTemp;
 
-        //(3)将获取的数据插入数据库
+        //(3)将获取的数据插入ods_users表
         if(userYesterday != null && userYesterday.size() > 0){
             logger.info("<------获取的昨天用户数据条数------> " + userYesterday.size());
             logger.info("<------获取的昨天用户------> " + userYesterday.toString());
@@ -75,6 +80,81 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             }
 
             clickhouseService.batchInsert(webChatConfig.getInsertusersql(), batchArgs);
+        }
+
+        // 使用CompletableFuture并行处理数据汇总和写入dws_users表
+        CompletableFuture<Void> dwsUsersFuture = CompletableFuture.runAsync(() -> {
+            try {
+                // (1)将不同user_source的new_user进行累加
+                int totalNewUser = 0;
+                // (2)将不同user_source的cancel_user进行累加
+                int totalCancelUser = 0;
+
+                if (userYesterday != null && !userYesterday.isEmpty()) {
+                    totalNewUser = userYesterday.stream().mapToInt(WebChatUser::getNew_user).sum();
+                    totalCancelUser = userYesterday.stream().mapToInt(WebChatUser::getCancel_user).sum();
+                }
+
+                logger.info("累加new_user: " + totalNewUser + ", 累加cancel_user: " + totalCancelUser);
+
+                // (3)total_user_source减去total_cancel_user形成净增新用户数net_new_user
+                int netNewUser = totalNewUser - totalCancelUser;
+                logger.info("净增新用户数net_new_user: " + netNewUser);
+
+                // (4)从ods_users表中查询历史累计数据
+                int dbUserSource = 0;
+                int dbCancelSource = 0;
+                try {
+                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM wcai.ods_users WHERE ref_date < '" + yesterdayISO + "'";
+                    List<Map<String, Object>> result = clickhouseService.readData(querySql);
+
+                    if (result != null && !result.isEmpty()) {
+                        Map<String, Object> row = result.get(0);
+                        Object totalNew = row.get("total_new");
+                        Object totalCancel = row.get("total_cancel");
+                        dbUserSource = totalNew != null ? ((Number) totalNew).intValue() : 0;
+                        dbCancelSource = totalCancel != null ? ((Number) totalCancel).intValue() : 0;
+                        logger.info("历史累计new_user: " + dbUserSource + ", 历史累计cancel_user: " + dbCancelSource);
+                    }
+                } catch (Exception ex) {
+                    logger.error("查询ods_users历史累计数据失败: " + ex.getMessage());
+                }
+
+                // (4)db_user_source减去db_cancel_source形成accumulated_user
+                int accumulatedUser = dbUserSource - dbCancelSource;
+                logger.info("历史累计净增用户accumulated_user: " + accumulatedUser);
+
+                // (5)将数据插入dws_users表
+                List<Object[]> dwsBatchArgs = new ArrayList<>();
+                dwsBatchArgs.add(new Object[]{
+                    yesterdayISO,
+                    totalNewUser,
+                    totalCancelUser,
+                    netNewUser,
+                    accumulatedUser
+                });
+
+                String insertDwsSql = webChatConfig.getInsertdwsuserssql();
+                if (insertDwsSql != null && !insertDwsSql.isEmpty()) {
+                    try {
+                        clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
+                        logger.info("成功插入dws_users表数据");
+                    } catch (Exception ex) {
+                        logger.error("插入dws_users表失败: " + ex.getMessage());
+                    }
+                } else {
+                    logger.warn("未配置insertdwsuserssql，无法插入数据到dws_users表");
+                }
+            } catch (Exception ex) {
+                logger.error("处理dws_users数据汇总失败: " + ex.getMessage());
+            }
+        });
+
+        // 等待dws_users数据处理完成
+        try {
+            dwsUsersFuture.get();
+        } catch (Exception ex) {
+            logger.error("等待dws_users数据处理完成失败: " + ex.getMessage());
         }
 
         logger.info("<##############################微信公众号用户抓取结束##############################>");
@@ -511,6 +591,11 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleShareDailyHistory(String accessToken) {
         webChatHistoryDataCapture.captureArticleShareDailyHistory(accessToken);
+    }
+
+    @Override
+    public void aggregateArticleDataToDws() {
+        articleDataAggregator.aggregateYesterdayDataToDws();
     }
 
     /**
