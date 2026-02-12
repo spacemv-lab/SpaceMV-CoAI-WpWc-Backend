@@ -42,6 +42,9 @@ public class WebChatDataCaptureTasks {
         webChatCaptureService.captureArticleShareDaily(accessToken);
 
         logger.info("\n");
+        webChatCaptureService.aggregateArticleDataToDws();
+
+        logger.info("\n");
         logger.info("<===================微信公众号数据每日抓取结束=======" + timestamp() + "==============>");
     }
 

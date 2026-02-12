@@ -14,50 +14,56 @@ import java.util.List;
 public interface IPageButtonConfigService 
 {
     // ========================= 保存操作 =========================
-    
+
     /**
      * 保存页面按钮配置（到临时表）
-     * 
+     *
      * @param pageCode 页面代码
-     * @param pageButtonTempList 按钮配置临时表列表
+     * @param pageButtonTempList 按钮配置临时表列表（包含下拉按钮列表dropButtonList）
      * @return 结果
      */
     int savePageButtonConfig(String pageCode, List<TxwxPageButtonTemp> pageButtonTempList);
 
     // ========================= 预览操作 =========================
-    
+
     /**
-     * 获取临时表中的按钮配置列表
-     * 
+     * 获取临时表中的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置临时表集合
      */
     List<TxwxPageButtonTemp> previewPageButtonConfig(String pageCode);
 
     /**
-     * 获取临时表中展示状态的按钮配置列表
-     * 
+     * 获取临时表中展示状态的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置临时表集合
      */
     List<TxwxPageButtonTemp> previewShowPageButtonConfig(String pageCode);
 
-
+    /**
+     * 获取临时表中已发布状态的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
+     * @param pageCode 页面代码
+     * @param isPublish 是否已发布
+     * @return 按钮配置临时表集合
+     */
     List<TxwxPageButtonTemp> previewPublishPageButtonConfig(String pageCode, String isPublish);
 
     // ========================= 展示操作（正式表数据） =========================
-    
+
     /**
-     * 获取正式表中的按钮配置列表
-     * 
+     * 获取正式表中的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置正式表集合
      */
     List<TxwxPageButton> displayPageButtonConfig(String pageCode);
 
     /**
-     * 获取正式表中展示状态的按钮配置列表
-     * 
+     * 获取正式表中展示状态的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置正式表集合
      */

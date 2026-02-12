@@ -206,13 +206,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 批量插入按钮配置 -->
     <insert id="batchInsertPageButtonTemp" parameterType="java.util.List">
         insert into txwx_page_button_temp (
-            page_code, button_type, button_text, background_color, jump_url, 
+            page_code, button_type, button_text, background_color, jump_url,
             image_url, is_show, is_publish, state, sort_order, create_by, create_time, update_by, update_time, remark, saved_by, saved_time, published_by, published_time
         )
         values
         <foreach collection="pageButtonTempList" item="item" separator=",">
             (
-                #{item.pageCode}, #{item.buttonType}, #{item.buttonText}, #{item.backgroundColor}, 
+                #{item.pageCode}, #{item.buttonType}, #{item.buttonText}, #{item.backgroundColor},
                 #{item.jumpUrl}, #{item.imageUrl}, #{item.isShow}, #{item.isPublish}, #{item.state}, #{item.sortOrder},
                 #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, #{item.remark}, #{item.savedBy}, #{item.savedTime}, #{item.publishedBy}, #{item.publishedTime}
             )
