@@ -36,7 +36,7 @@ public class DataBoardServiceImpl implements IDataBoardService {
         userTotalVo.setValue(list.get(0).getAccumulatedUser());
         res.add(userTotalVo);
         // 获取总阅读数 + 总分享人数 from 2025-11-01
-        String readTotalSql = "SELECT sum(read_user_total) as readTotal, sum(share_user) as shareTotal FROM wcai.ods_article_summary_daily";
+        String readTotalSql = "SELECT sum(read_user_total) as readTotal, sum(share_user) as shareTotal FROM wcai_prod.ods_article_summary_daily";
         List<Map<String, Object>> readData = clickhouseService.readData(readTotalSql);
         if (readData != null && !readData.isEmpty()) {
             Map<String, Object> row = readData.get(0);
@@ -65,7 +65,7 @@ public class DataBoardServiceImpl implements IDataBoardService {
                 .append("sum(read_user_source_other) OVER () AS total_source_other, ")
                 .append("sum(read_user_source_recommend) OVER () AS total_source_recommend, ")
                 .append("sum(read_user_source_search) OVER () AS total_source_search ")
-                .append("FROM wcai.ods_article_summary_daily ");
+                .append("FROM wcai_prod.ods_article_summary_daily ");
         if (filterDimension != null && filterDimension != FilterDimension.ALL.getCode()){
             readSql.append(" WHERE ref_date >= ");
             switch (filterDimension) {
@@ -176,30 +176,30 @@ public class DataBoardServiceImpl implements IDataBoardService {
         String querySql = null;
         if (filterDimension == FilterDimension.WEEK.getCode()) {
             startTime = endTime.minusWeeks(1);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.MONTH.getCode()) {
             startTime = endTime.minusMonths(1);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.HALF_YEAR.getCode()) {
             startTime = endTime.minusMonths(6);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.YEAR.getCode()){
             startTime = endTime.minusYears(1);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else {
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + " ORDER BY ref_date ASC";
         }
 
@@ -214,30 +214,30 @@ public class DataBoardServiceImpl implements IDataBoardService {
         String querySql = null;
         if (filterDimension == FilterDimension.WEEK.getCode()) {
             startTime = endTime.minusWeeks(1);
-            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.MONTH.getCode()) {
             startTime = endTime.minusMonths(1);
-            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.HALF_YEAR.getCode()) {
             startTime = endTime.minusMonths(6);
-            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.YEAR.getCode()){
             startTime = endTime.minusYears(1);
-            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else {
-            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai.dws_users "
+            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + " ORDER BY ref_date ASC";
         }
 
@@ -253,26 +253,25 @@ public class DataBoardServiceImpl implements IDataBoardService {
                 "    a.total_follows,\n" +
                 "    a.last_stat_date\n" +
                 "FROM (\n" +
-                "    -- 1. 统计表：取每篇文章最新的关注数快照\n" +
+                "    -- 1. 统计表：利用 argMax 获取每篇文章在最新日期下的累计关注数\n" +
                 "    SELECT \n" +
                 "        msgid,\n" +
                 "        argMax(read_subscribe_user, stat_date) AS total_follows,\n" +
                 "        max(stat_date) AS last_stat_date\n" +
-                "    FROM wcai.ods_article_detail_daily\n" +
+                "    FROM wcai_prod.ods_article_detail_daily\n" +
                 "    GROUP BY msgid\n" +
                 ") AS a\n" +
                 "INNER JOIN (\n" +
-                "    -- 2. 维度表：这里用 INNER JOIN 确保只有匹配到标题的数据才会出现\n" +
-                "    -- 动态给维度表的 msgid 补上 _1 以实现对齐\n" +
+                "    -- 2. 维度表：直接通过对齐后的 msgid 关联，同样利用 argMax 取最新标题\n" +
                 "    SELECT \n" +
-                "        concat(msgid, '_1') AS join_id, \n" +
-                "        argMax(title, create_time) AS title \n" +
-                "    FROM wcai.ods_article \n" +
-                "    GROUP BY join_id\n" +
-                ") AS b ON a.msgid = b.join_id\n" +
-                "-- 3. 过滤掉标题可能为空的情况\n" +
-                "WHERE b.title != '' AND b.title IS NOT NULL\n" +
-                "-- 4. 排序取前十\n" +
+                "        msgid, \n" +
+                "        argMax(title, create_time ) AS title \n" +
+                "    FROM wcai_prod.ods_article \n" +
+                "    GROUP BY msgid\n" +
+                ") AS b ON a.msgid = b.msgid\n" +
+                "-- 3. 过滤条件：只看有标题的文章，且关注数大于 0\n" +
+                "WHERE b.title != '' AND b.title IS NOT NULL AND a.total_follows > 0\n" +
+                "-- 4. 排序并取 Top 10\n" +
                 "ORDER BY total_follows DESC\n" +
                 "LIMIT 10;";
         List<Map<String, Object>> articleList = clickhouseService.readData(readQuerySql);

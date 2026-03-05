@@ -3,7 +3,7 @@ server:
   port: 9204
 
 # Spring
-spring: 
+spring:
   application:
     # 应用名称
     name: txwx-webchat
@@ -16,10 +16,12 @@ spring:
         # 服务注册地址
         server-addr: ***REMOVED***:8848
         namespace: ***REMOVED***
+#        namespace: ***REMOVED***
       config:
         # 配置中心地址
         server-addr: ***REMOVED***:8848
         namespace: ***REMOVED***
+#        namespace: ***REMOVED***
         # 配置文件格式
         file-extension: yml
         # 共享配置
