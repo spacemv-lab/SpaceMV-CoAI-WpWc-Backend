@@ -198,4 +198,25 @@ public class WebChatUtil {
 
         return result;
     }
+
+    public static List<ArticleDetailDaily> getArticleDetailDaily(String token, String beginDate, String endDate) throws Exception{
+        Map<String, String> specialParams = new HashMap<>();
+        specialParams.put("access_token", token);
+        String url = HttpUtil.buildUrlWithParams("https://api.weixin.qq.com/datacube/getarticletotaldetail", specialParams);
+
+        WebChatDate date = new WebChatDate();
+        date.setBegin_date(beginDate);
+        date.setEnd_date(endDate);
+
+        List<ArticleDetailDaily> result = null;
+        try {
+            String postResponse = HttpUtil.postJson(url, null, date);
+            JSONObject jsonObject = JSONObject.parseObject(postResponse);
+            result = jsonObject.getList("list", ArticleDetailDaily.class);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return result;
+    }
 }

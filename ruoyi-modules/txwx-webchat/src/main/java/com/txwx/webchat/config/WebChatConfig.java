@@ -38,6 +38,9 @@ public class WebChatConfig {
     @Value("${webchat.insertdwsuserssql}")
     private String insertdwsuserssql;
 
+    @Value("${webchat.insertarticledetaildailysql}")
+    private String insertarticledetaildailysql;
+
     public String getAppid() {
         return appid;
     }
@@ -116,5 +119,13 @@ public class WebChatConfig {
 
     public void setInsertdwsuserssql(String insertdwsuserssql) {
         this.insertdwsuserssql = insertdwsuserssql;
+    }
+
+    public String getInsertarticledetaildailysql() {
+        return insertarticledetaildailysql;
+    }
+
+    public void setInsertarticledetaildailysql(String insertarticledetaildailysql) {
+        this.insertarticledetaildailysql = insertarticledetaildailysql;
     }
 }
