@@ -85,7 +85,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             logger.info("<------获取的昨天用户数据条数------> " + userYesterday.size());
             logger.info("<------获取的昨天用户------> " + userYesterday.toString());
             // qyl-20260227校验删除【按照日期进行删除】
-            String deleteOdsSql  = "DELETE FROM wcai.ods_users WHERE ref_date = '" + yesterdayISO + "'";
+            String deleteOdsSql  = "DELETE FROM database_name.ods_users WHERE ref_date = '" + yesterdayISO + "'";
             clickhouseService.singleInsert(deleteOdsSql);
             // pengyan批量插入
             List<Object[]> batchArgs = new ArrayList<>();
@@ -119,7 +119,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 int dbUserSource = 0;
                 int dbCancelSource = 0;
                 try {
-                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM wcai.ods_users WHERE ref_date < '" + yesterdayISO + "'";
+                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM database_name.ods_users WHERE ref_date < '" + yesterdayISO + "'";
                     List<Map<String, Object>> result = clickhouseService.readData(querySql);
 
                     if (result != null && !result.isEmpty()) {
@@ -152,7 +152,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 if (insertDwsSql != null && !insertDwsSql.isEmpty()) {
                     try {
                         // qyl-20260227校验删除【按照日期进行删除】
-                        String deleteDwsSql  = "DELETE FROM wcai.dws_users WHERE ref_date = '" + yesterdayISO + "'";
+                        String deleteDwsSql  = "DELETE FROM database_name.dws_users WHERE ref_date = '" + yesterdayISO + "'";
                         clickhouseService.singleInsert(deleteDwsSql);
                         // pengyan批量插入
                         clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
@@ -406,7 +406,9 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         List<PublishedArticle> newArticles = new ArrayList<>();
         Map<String, String> newMidMap = new HashMap<>();
 
-        for (GetPublishedListResponse.PublishedItem item : allItems) {
+        for (int i = 0; i < allItems.size(); i++) {
+//        for (GetPublishedListResponse.PublishedItem item : allItems) {
+            GetPublishedListResponse.PublishedItem item = allItems.get(i);
             if (item.getContent() == null || item.getContent().getNews_item() == null) {
                 continue;
             }
@@ -423,19 +425,19 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                     logger.warn("无法从URL解析mid: " + url);
                     continue;
                 }
-
+                String midWithIdx = mid + "_" + (i + 1);
                 // 比对是否为新增数据
-                if (!existingMids.contains(mid)) {
+                if (!existingMids.contains(midWithIdx)) {
                     PublishedArticle article = new PublishedArticle();
-                    article.setMid(mid);
+                    article.setMid(midWithIdx);
                     article.setTitle(newsItem.getTitle());
                     article.setCreateTime(item.getContent().getCreate_time());
                     newArticles.add(article);
-                    logger.info("发现新文章 - mid: " + mid + ", title: " + newsItem.getTitle());
+                    logger.info("发现新文章 - midWithIdx: " + midWithIdx + ", title: " + newsItem.getTitle());
                 }
 
                 // 更新Redis中的数据（包括已有的和新发现的）
-                newMidMap.put(mid, newsItem.getTitle());
+                newMidMap.put(midWithIdx, newsItem.getTitle());
             }
         }
 
