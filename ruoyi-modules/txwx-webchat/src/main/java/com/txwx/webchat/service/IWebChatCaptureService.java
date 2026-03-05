@@ -76,4 +76,6 @@ public interface IWebChatCaptureService {
      * @description: 聚合ODS层数据到DWS层（文章维度统计）
      */
     void aggregateArticleDataToDws();
+
+    void captureArticleTotalDetailDaily(String accessToken);
 }

@@ -1,9 +1,14 @@
 package com.txwx.webchat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
 import com.ruoyi.common.redis.service.RedisService;
 import com.txwx.webchat.config.WebChatConfig;
 import com.txwx.webchat.domain.*;
+import com.txwx.webchat.domain.entity.DwsUsers;
+import com.txwx.webchat.domain.entity.OdsUsers;
+import com.txwx.webchat.service.IDwsUsersService;
+import com.txwx.webchat.service.IOdsUsersService;
 import com.txwx.webchat.service.IWebChatCaptureService;
 import com.txwx.webchat.domain.ArticleShareDaily;
 import com.txwx.webchat.util.WebChatUtil;
@@ -38,6 +43,11 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
 
     @Autowired
     private ArticleDataAggregator articleDataAggregator;
+    @Autowired
+    private IOdsUsersService iOdsUsersService;
+    @Autowired
+    private IDwsUsersService iDwsUsersService;
+
 
     @Override
     public String getAccessToken() {
@@ -74,6 +84,10 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         if(userYesterday != null && userYesterday.size() > 0){
             logger.info("<------获取的昨天用户数据条数------> " + userYesterday.size());
             logger.info("<------获取的昨天用户------> " + userYesterday.toString());
+            // qyl-20260227校验删除【按照日期进行删除】
+            String deleteOdsSql  = "DELETE FROM wcai.ods_users WHERE ref_date = '" + yesterdayISO + "'";
+            clickhouseService.singleInsert(deleteOdsSql);
+            // pengyan批量插入
             List<Object[]> batchArgs = new ArrayList<>();
             for(WebChatUser user : userYesterday){
                 batchArgs.add(user.toObject());
@@ -137,6 +151,10 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 String insertDwsSql = webChatConfig.getInsertdwsuserssql();
                 if (insertDwsSql != null && !insertDwsSql.isEmpty()) {
                     try {
+                        // qyl-20260227校验删除【按照日期进行删除】
+                        String deleteDwsSql  = "DELETE FROM wcai.dws_users WHERE ref_date = '" + yesterdayISO + "'";
+                        clickhouseService.singleInsert(deleteDwsSql);
+                        // pengyan批量插入
                         clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
                         logger.info("成功插入dws_users表数据");
                     } catch (Exception ex) {
@@ -375,6 +393,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 } else {
                     hasMore = false;
                 }
+                Thread.sleep(100);
             } catch (Exception ex) {
                 logger.error("获取已发布消息列表失败，offset: " + offset + ", 错误: " + ex.getMessage());
                 hasMore = false;
@@ -536,6 +555,58 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     }
 
     @Override
+    public void captureArticleTotalDetailDaily(String accessToken) {
+        logger.info("<##############################发表内容发表详细数据抓取开始##############################>");
+        logger.info("传入的凭证->" + accessToken);
+
+        String insertSql = webChatConfig.getInsertarticledetaildailysql();
+        if (insertSql == null || insertSql.isEmpty()) {
+            logger.error("ClickHouse 插入 SQL 未配置，任务终止");
+            return;
+        }
+
+        List<Object[]> allBatchArgs = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        String todayFormat = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        for (int i = 1; i <= 30; i++) {
+            // (1)定义抓取日期
+            LocalDate yesterday = LocalDate.now().minusDays(i);
+            String yesterdayISO = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            logger.info("今天是[{}] ---- 正在抓取发布日期为 [{}] 的文章数据 (回溯第 {} 天) ---", todayFormat, yesterdayISO, i);
+
+            List<ArticleDetailDaily> articleDetailDailyList = null;
+            try {
+                articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, yesterdayISO, yesterdayISO);
+            } catch (Exception ex) {
+                logger.error("抓取发表内容发表详细数据失败:" + ex.getMessage());
+            }
+
+            if (articleDetailDailyList != null && articleDetailDailyList.size() > 0) {
+                logger.info("<------获取的发表内容发表详细数据条数------> " + articleDetailDailyList.size());
+                for (ArticleDetailDaily articleDetailDaily : articleDetailDailyList) {
+                    allBatchArgs.addAll(articleDetailDaily.toFlattenObjectList());
+                }
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (!allBatchArgs.isEmpty()) {
+            try {
+                clickhouseService.batchInsert(insertSql, allBatchArgs);
+                logger.info("成功插入发表内容发表详细数据到ClickHouse，数量: " + allBatchArgs.size());
+            } catch (Exception ex) {
+                logger.error("插入发表内容发表详细数据到ClickHouse失败: " + ex.getMessage());
+            }
+        }
+
+        logger.info("<##############################发表内容发表详细数据抓取结束##############################>");
+    }
+
+    @Override
     public void captureArticleShareDaily(String accessToken) {
         logger.info("<##############################发表内容每日分享数据抓取开始##############################>");
         logger.info("传入的凭证->" + accessToken);
@@ -597,6 +668,8 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     public void aggregateArticleDataToDws() {
         articleDataAggregator.aggregateYesterdayDataToDws();
     }
+
+
 
     /**
      * @description: 从URL中解析mid值
