@@ -253,26 +253,25 @@ public class DataBoardServiceImpl implements IDataBoardService {
                 "    a.total_follows,\n" +
                 "    a.last_stat_date\n" +
                 "FROM (\n" +
-                "    -- 1. 统计表：取每篇文章最新的关注数快照\n" +
+                "    -- 1. 统计表：利用 argMax 获取每篇文章在最新日期下的累计关注数\n" +
                 "    SELECT \n" +
                 "        msgid,\n" +
                 "        argMax(read_subscribe_user, stat_date) AS total_follows,\n" +
                 "        max(stat_date) AS last_stat_date\n" +
-                "    FROM wcai.ods_article_detail_daily\n" +
+                "    FROM wcai_prod.ods_article_detail_daily\n" +
                 "    GROUP BY msgid\n" +
                 ") AS a\n" +
                 "INNER JOIN (\n" +
-                "    -- 2. 维度表：这里用 INNER JOIN 确保只有匹配到标题的数据才会出现\n" +
-                "    -- 动态给维度表的 msgid 补上 _1 以实现对齐\n" +
+                "    -- 2. 维度表：直接通过对齐后的 msgid 关联，同样利用 argMax 取最新标题\n" +
                 "    SELECT \n" +
-                "        concat(msgid, '_1') AS join_id, \n" +
-                "        argMax(title, create_time) AS title \n" +
-                "    FROM wcai.ods_article \n" +
-                "    GROUP BY join_id\n" +
-                ") AS b ON a.msgid = b.join_id\n" +
-                "-- 3. 过滤掉标题可能为空的情况\n" +
-                "WHERE b.title != '' AND b.title IS NOT NULL\n" +
-                "-- 4. 排序取前十\n" +
+                "        msgid, \n" +
+                "        argMax(title, create_time ) AS title \n" +
+                "    FROM wcai_prod.ods_article \n" +
+                "    GROUP BY msgid\n" +
+                ") AS b ON a.msgid = b.msgid\n" +
+                "-- 3. 过滤条件：只看有标题的文章，且关注数大于 0\n" +
+                "WHERE b.title != '' AND b.title IS NOT NULL AND a.total_follows > 0\n" +
+                "-- 4. 排序并取 Top 10\n" +
                 "ORDER BY total_follows DESC\n" +
                 "LIMIT 10;";
         List<Map<String, Object>> articleList = clickhouseService.readData(readQuerySql);
