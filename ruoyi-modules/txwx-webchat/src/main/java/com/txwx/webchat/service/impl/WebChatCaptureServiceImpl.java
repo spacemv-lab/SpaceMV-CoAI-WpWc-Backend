@@ -411,7 +411,9 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 continue;
             }
 
-            for (GetPublishedListResponse.NewsItem newsItem : item.getContent().getNews_item()) {
+            for (int i = 0; i < item.getContent().getNews_item().size(); i++) {
+//            for (GetPublishedListResponse.NewsItem newsItem : item.getContent().getNews_item()) {
+                GetPublishedListResponse.NewsItem newsItem = item.getContent().getNews_item().get(i);
                 String url = newsItem.getUrl();
                 if (url == null || url.isEmpty()) {
                     continue;
@@ -423,19 +425,19 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                     logger.warn("无法从URL解析mid: " + url);
                     continue;
                 }
-
+                String midWithIdx = mid + "_" + (i + 1);
                 // 比对是否为新增数据
-                if (!existingMids.contains(mid)) {
+                if (!existingMids.contains(midWithIdx)) {
                     PublishedArticle article = new PublishedArticle();
-                    article.setMid(mid);
+                    article.setMid(midWithIdx);
                     article.setTitle(newsItem.getTitle());
                     article.setCreateTime(item.getContent().getCreate_time());
                     newArticles.add(article);
-                    logger.info("发现新文章 - mid: " + mid + ", title: " + newsItem.getTitle());
+                    logger.info("发现新文章 - midWithIdx: " + midWithIdx + ", title: " + newsItem.getTitle());
                 }
 
                 // 更新Redis中的数据（包括已有的和新发现的）
-                newMidMap.put(mid, newsItem.getTitle());
+                newMidMap.put(midWithIdx, newsItem.getTitle());
             }
         }
 
