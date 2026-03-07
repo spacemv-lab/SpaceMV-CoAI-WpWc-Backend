@@ -406,19 +406,20 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         List<PublishedArticle> newArticles = new ArrayList<>();
         Map<String, String> newMidMap = new HashMap<>();
 
-        for (int i = 0; i < allItems.size(); i++) {
-//        for (GetPublishedListResponse.PublishedItem item : allItems) {
-            GetPublishedListResponse.PublishedItem item = allItems.get(i);
+//        for (int i = 0; i < allItems.size(); i++) {
+        for (GetPublishedListResponse.PublishedItem item : allItems) {
+//            GetPublishedListResponse.PublishedItem item = allItems.get(i);
             if (item.getContent() == null || item.getContent().getNews_item() == null) {
                 continue;
             }
 
-            for (GetPublishedListResponse.NewsItem newsItem : item.getContent().getNews_item()) {
+            for (int i = 0; i < item.getContent().getNews_item().size(); i++) {
+//            for (GetPublishedListResponse.NewsItem newsItem : item.getContent().getNews_item()) {
+                GetPublishedListResponse.NewsItem newsItem = item.getContent().getNews_item().get(i);
                 String url = newsItem.getUrl();
                 if (url == null || url.isEmpty()) {
                     continue;
                 }
-
                 // 从URL中解析mid
                 String mid = extractMidFromUrl(url);
                 if (mid == null || mid.isEmpty()) {
