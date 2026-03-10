@@ -176,30 +176,30 @@ public class DataBoardServiceImpl implements IDataBoardService {
         String querySql = null;
         if (filterDimension == FilterDimension.WEEK.getCode()) {
             startTime = endTime.minusWeeks(1);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
+            querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.MONTH.getCode()) {
             startTime = endTime.minusMonths(1);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
+            querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.HALF_YEAR.getCode()) {
             startTime = endTime.minusMonths(6);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
+            querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else if (filterDimension == FilterDimension.YEAR.getCode()){
             startTime = endTime.minusYears(1);
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
+            querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + "WHERE ref_date >= '"  + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     + "' AND ref_date < '" + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + "'"
                     + " ORDER BY ref_date ASC";
         }else {
-            querySql = "SELECT net_new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
+            querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM wcai_prod.dws_users "
                     + " ORDER BY ref_date ASC";
         }
 
