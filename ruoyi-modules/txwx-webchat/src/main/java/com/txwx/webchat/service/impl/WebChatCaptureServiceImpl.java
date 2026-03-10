@@ -85,7 +85,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             logger.info("<------获取的昨天用户数据条数------> " + userYesterday.size());
             logger.info("<------获取的昨天用户------> " + userYesterday.toString());
             // qyl-20260227校验删除【按照日期进行删除】
-            String deleteOdsSql  = "DELETE FROM wcai.ods_users WHERE ref_date = '" + yesterdayISO + "'";
+            String deleteOdsSql  = "DELETE FROM database_name.ods_users WHERE ref_date = '" + yesterdayISO + "'";
             clickhouseService.singleInsert(deleteOdsSql);
             // pengyan批量插入
             List<Object[]> batchArgs = new ArrayList<>();
@@ -119,7 +119,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 int dbUserSource = 0;
                 int dbCancelSource = 0;
                 try {
-                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM wcai.ods_users WHERE ref_date < '" + yesterdayISO + "'";
+                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM database_name.ods_users WHERE ref_date < '" + yesterdayISO + "'";
                     List<Map<String, Object>> result = clickhouseService.readData(querySql);
 
                     if (result != null && !result.isEmpty()) {
@@ -135,7 +135,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 }
 
                 // (4)db_user_source减去db_cancel_source形成accumulated_user
-                int accumulatedUser = dbUserSource - dbCancelSource;
+                int accumulatedUser = dbUserSource - dbCancelSource + netNewUser;
                 logger.info("历史累计净增用户accumulated_user: " + accumulatedUser);
 
                 // (5)将数据插入dws_users表
@@ -152,7 +152,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 if (insertDwsSql != null && !insertDwsSql.isEmpty()) {
                     try {
                         // qyl-20260227校验删除【按照日期进行删除】
-                        String deleteDwsSql  = "DELETE FROM wcai.dws_users WHERE ref_date = '" + yesterdayISO + "'";
+                        String deleteDwsSql  = "DELETE FROM database_name.dws_users WHERE ref_date = '" + yesterdayISO + "'";
                         clickhouseService.singleInsert(deleteDwsSql);
                         // pengyan批量插入
                         clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
@@ -181,7 +181,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserCaptureHistory(String accessToken) {
         LocalDate startDate = LocalDate.of(2025, 7, 24);
-        LocalDate endDate = LocalDate.of(2026, 2, 5);
+        LocalDate endDate = LocalDate.of(2026, 3, 10);
 
         // 使用ISO_LOCAL_DATE格式器，输出格式为YYYY-MM-DD
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -406,7 +406,9 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         List<PublishedArticle> newArticles = new ArrayList<>();
         Map<String, String> newMidMap = new HashMap<>();
 
+//        for (int i = 0; i < allItems.size(); i++) {
         for (GetPublishedListResponse.PublishedItem item : allItems) {
+//            GetPublishedListResponse.PublishedItem item = allItems.get(i);
             if (item.getContent() == null || item.getContent().getNews_item() == null) {
                 continue;
             }
@@ -418,7 +420,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 if (url == null || url.isEmpty()) {
                     continue;
                 }
-
                 // 从URL中解析mid
                 String mid = extractMidFromUrl(url);
                 if (mid == null || mid.isEmpty()) {
