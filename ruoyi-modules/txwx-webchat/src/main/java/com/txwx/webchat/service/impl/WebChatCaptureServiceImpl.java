@@ -135,7 +135,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 }
 
                 // (4)db_user_source减去db_cancel_source形成accumulated_user
-                int accumulatedUser = dbUserSource - dbCancelSource;
+                int accumulatedUser = dbUserSource - dbCancelSource + netNewUser;
                 logger.info("历史累计净增用户accumulated_user: " + accumulatedUser);
 
                 // (5)将数据插入dws_users表
@@ -181,7 +181,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserCaptureHistory(String accessToken) {
         LocalDate startDate = LocalDate.of(2025, 7, 24);
-        LocalDate endDate = LocalDate.of(2026, 2, 5);
+        LocalDate endDate = LocalDate.of(2026, 3, 10);
 
         // 使用ISO_LOCAL_DATE格式器，输出格式为YYYY-MM-DD
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
