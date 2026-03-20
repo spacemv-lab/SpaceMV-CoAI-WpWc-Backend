@@ -1,10 +1,9 @@
 package com.txwx.webchat.util;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.TypeReference;
 import com.ruoyi.common.http.service.HttpUtil;
 import com.txwx.webchat.domain.*;
-import com.txwx.webchat.dto.GetPublishedListRequest;
+import com.txwx.webchat.domain.dto.GetPublishedListRequest;
 
 import java.util.HashMap;
 import java.util.List;

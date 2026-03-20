@@ -1,12 +1,13 @@
 package com.txwx.webchat.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
 import com.ruoyi.common.redis.service.RedisService;
 import com.txwx.webchat.config.WebChatConfig;
 import com.txwx.webchat.domain.*;
-import com.txwx.webchat.domain.entity.DwsUsers;
-import com.txwx.webchat.domain.entity.OdsUsers;
+import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
+import com.txwx.webchat.mapper.DwsBizsummaryChannelDailyMapper;
+import com.txwx.webchat.mapper.DwsContentDataMapper;
+import com.txwx.webchat.service.IDwsBizsummaryChannelDailyService;
 import com.txwx.webchat.service.IDwsUsersService;
 import com.txwx.webchat.service.IOdsUsersService;
 import com.txwx.webchat.service.IWebChatCaptureService;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -47,7 +47,10 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     private IOdsUsersService iOdsUsersService;
     @Autowired
     private IDwsUsersService iDwsUsersService;
-
+    @Autowired
+    private DwsContentDataMapper dwsContentDataMapper;
+    @Autowired
+    private DwsBizsummaryChannelDailyMapper dwsBizsummaryChannelDailyMapper;
 
     @Override
     public String getAccessToken() {
@@ -85,7 +88,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             logger.info("<------获取的昨天用户数据条数------> " + userYesterday.size());
             logger.info("<------获取的昨天用户------> " + userYesterday.toString());
             // qyl-20260227校验删除【按照日期进行删除】
-            String deleteOdsSql  = "DELETE FROM wcai_prod.ods_users WHERE ref_date = '" + yesterdayISO + "'";
+            String deleteOdsSql  = "DELETE FROM ods_users WHERE ref_date = '" + yesterdayISO + "'";
             clickhouseService.singleInsert(deleteOdsSql);
             // pengyan批量插入
             List<Object[]> batchArgs = new ArrayList<>();
@@ -119,7 +122,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 int dbUserSource = 0;
                 int dbCancelSource = 0;
                 try {
-                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM wcai_prod.ods_users WHERE ref_date < '" + yesterdayISO + "'";
+                    String querySql = "SELECT sum(new_user) as total_new, sum(cancel_user) as total_cancel FROM ods_users WHERE ref_date < '" + yesterdayISO + "'";
                     List<Map<String, Object>> result = clickhouseService.readData(querySql);
 
                     if (result != null && !result.isEmpty()) {
@@ -152,7 +155,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 if (insertDwsSql != null && !insertDwsSql.isEmpty()) {
                     try {
                         // qyl-20260227校验删除【按照日期进行删除】
-                        String deleteDwsSql  = "DELETE FROM wcai_prod.dws_users WHERE ref_date = '" + yesterdayISO + "'";
+                        String deleteDwsSql  = "DELETE FROM dws_users WHERE ref_date = '" + yesterdayISO + "'";
                         clickhouseService.singleInsert(deleteDwsSql);
                         // pengyan批量插入
                         clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
@@ -433,6 +436,8 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                     article.setMid(midWithIdx);
                     article.setTitle(newsItem.getTitle());
                     article.setCreateTime(item.getContent().getCreate_time());
+                    article.setAuthor(newsItem.getAuthor());
+                    article.setUrl(newsItem.getUrl());
                     newArticles.add(article);
                     logger.info("发现新文章 - midWithIdx: " + midWithIdx + ", title: " + newsItem.getTitle());
                 }
@@ -553,6 +558,14 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 logger.warn("未配置insertarticlesummarydailysql，无法插入数据到ClickHouse");
             }
         }
+        // 将数据按渠道汇聚到 dws_bizsummary_channel_daily 表
+        if (articleSummaryDailyList != null && articleSummaryDailyList.size() > 0) {
+            List<DwsBizsummaryChannelDaily> batchArgs = new ArrayList<>();
+            for (ArticleSummaryDaily article : articleSummaryDailyList) {
+                batchArgs.addAll(article.toDwsContentData());
+            }
+            dwsBizsummaryChannelDailyMapper.insertBatch(batchArgs);
+        }
 
         logger.info("<##############################发表内容概况总数据抓取结束##############################>");
     }
@@ -606,8 +619,14 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             }
         }
 
+        // 将数据聚合到 dws_content_data
+        dwsContentDataMapper.truncateDwsContentData();
+        dwsContentDataMapper.aggregateArticleDetailsDataToDws();
+
         logger.info("<##############################发表内容发表详细数据抓取结束##############################>");
     }
+
+
 
     @Override
     public void captureArticleShareDaily(String accessToken) {

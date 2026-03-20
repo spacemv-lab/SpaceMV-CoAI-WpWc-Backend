@@ -1,5 +1,7 @@
 package com.txwx.webchat.domain;
 
+import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -11,13 +13,18 @@ import java.util.List;
  * @description: 发表内容发表详细数据
  */
 @Data
+@ExcelIgnoreUnannotated
 public class ArticleDetailDaily {
 
     private String ref_date;
 
     private String msgid;
 
-    private Integer  publish_type;
+    private Integer publish_type;
+
+    private String title;
+
+    private String content_url;
 
     private List<DetailList> detail_list;
 
@@ -42,7 +49,7 @@ public class ArticleDetailDaily {
         /**
          * 将单日明细转换为 ClickHouse 的一行 (23个字段)
          */
-        public Object[] toClickHouseRow(String refDate, String msgId, Integer pubType) {
+        public Object[] toClickHouseRow(String refDate, String msgId, Integer pubType, String title, String url) {
             int[] sources = new int[8]; // all, msg, chat, moments, home, other, rec, search
             if (this.read_user_source != null) {
                 for (ArticleReadDaily.ReadUserSource source : this.read_user_source) {
@@ -79,7 +86,9 @@ public class ArticleDetailDaily {
                     this.read_subscribe_user, // 20
                     this.read_delivery_rate,  // 21
                     this.read_finish_rate,    // 22
-                    this.read_avg_activetime  // 23
+                    this.read_avg_activetime,  // 23
+                    title,
+                    url,
             };
         }
     }
@@ -97,7 +106,7 @@ public class ArticleDetailDaily {
         }
 
         for (DetailList detail : detail_list) {
-            rows.add(detail.toClickHouseRow(this.ref_date, this.msgid, this.publish_type));
+            rows.add(detail.toClickHouseRow(this.ref_date, this.msgid, this.publish_type, this.title, this.content_url));
         }
         return rows;
     }

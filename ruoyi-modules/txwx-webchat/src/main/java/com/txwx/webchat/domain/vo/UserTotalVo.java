@@ -10,5 +10,5 @@ public class UserTotalVo {
     private String desc;
 
     @Schema(description = "数量")
-    private Integer value;
+    private Long value;
 }

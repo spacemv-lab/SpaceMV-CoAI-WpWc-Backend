@@ -1,6 +1,7 @@
 package com.txwx.webchat.domain.entity;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.core.annotation.Excel;
 import com.txwx.webchat.mapper.IImportBaseModel;
@@ -13,26 +14,27 @@ import java.time.LocalDate;
 @TableName("dws_users")
 public class DwsUsers implements IImportBaseModel {
 
-    @Schema(description = "数据日期")
-    @Excel(name = "数据日期")
-    @ExcelProperty("数据日期")
+    @Schema(description = "时间")
+    @Excel(name = "时间")
+    @ExcelProperty("时间")
+    @DateTimeFormat("yyyyMMdd")
     private LocalDate refDate;
 
-    @Excel(name = "新增用户数")
-    @ExcelProperty("新增用户数")
-    private Integer newUser;
+    @Excel(name = "新关注人数")
+    @ExcelProperty("新关注人数")
+    private Long newUser;
 
-    @Excel(name = "取消用户数")
-    @ExcelProperty("取消用户数")
-    private Integer cancelUser;
+    @Excel(name = "取消关注人数")
+    @ExcelProperty("取消关注人数")
+    private Long cancelUser;
 
-    @Excel(name = "净新增用户数")
-    @ExcelProperty("净新增用户数")
-    private Integer netNewUser;
+    @Excel(name = "净增关注人数")
+    @ExcelProperty("净增关注人数")
+    private Long netNewUser;
 
-    @Excel(name = "累计用户数")
-    @ExcelProperty("累计用户数")
-    private Integer accumulatedUser;
+    @Excel(name = "累积关注人数")
+    @ExcelProperty("累积关注人数")
+    private Long accumulatedUser;
 
     public Object[] toObject(){
         return new Object[]{refDate, newUser, cancelUser, netNewUser, accumulatedUser};

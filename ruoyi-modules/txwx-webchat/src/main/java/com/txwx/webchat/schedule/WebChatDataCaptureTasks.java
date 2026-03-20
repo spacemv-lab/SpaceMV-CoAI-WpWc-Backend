@@ -52,6 +52,7 @@ public class WebChatDataCaptureTasks {
 
         logger.info("\n");
         // 获取 概况总数据 【ods_article_summary_daily】
+        // 将数据按渠道汇聚到 dws_bizsummary_channel_daily 表
         webChatCaptureService.captureArticleSummaryDaily(accessToken);
 
         logger.info("\n");

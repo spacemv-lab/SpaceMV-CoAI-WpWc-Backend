@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RowErrorVo<T> {
 
-    private long rowNo;  // 错误行号
-
-    private String errorMessage; // 错误信息
-
-    private T rowData;  // 错误行数据
+    // 错误行号
+    private long rowNo;
+    // 错误信息
+    private String errorMessage;
+    // 错误行数据
+    private T rowData;
 }

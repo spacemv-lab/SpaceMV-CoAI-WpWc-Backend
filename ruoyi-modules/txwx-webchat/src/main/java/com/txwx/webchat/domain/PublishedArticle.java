@@ -27,6 +27,10 @@ public class PublishedArticle {
      */
     private Long createTime;
 
+    private String author;
+
+    private String url;
+
     /**
      * 转换为Object数组，用于批量插入ClickHouse
      */
@@ -38,6 +42,6 @@ public class PublishedArticle {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate();
         }
-        return new Object[]{mid, title, createDate};
+        return new Object[]{mid, title, createDate, author, url};
     }
 }

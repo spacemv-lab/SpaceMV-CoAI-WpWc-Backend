@@ -39,7 +39,7 @@ public class WebChatHistoryDataCapture {
         logger.info("传入的凭证->" + accessToken);
 
         LocalDate startDate = LocalDate.of(2025, 11, 1);
-        LocalDate endDate = LocalDate.of(2026, 2, 5);
+        LocalDate endDate = LocalDate.of(2026, 3, 11);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
         LocalDate currentDate = startDate;
@@ -96,7 +96,7 @@ public class WebChatHistoryDataCapture {
         logger.info("传入的凭证->" + accessToken);
 
         LocalDate startDate = LocalDate.of(2025, 11, 1);
-        LocalDate endDate = LocalDate.of(2026, 2, 5);
+        LocalDate endDate = LocalDate.of(2026, 3, 11);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
         LocalDate currentDate = startDate;
@@ -153,7 +153,7 @@ public class WebChatHistoryDataCapture {
         logger.info("传入的凭证->" + accessToken);
 
         LocalDate startDate = LocalDate.of(2025, 11, 1);
-        LocalDate endDate = LocalDate.of(2026, 2, 5);
+        LocalDate endDate = LocalDate.of(2026, 3, 11);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
         LocalDate currentDate = startDate;
