@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ruoyi-auth
+  namespace: wpai
+spec:
+  selector:
+    app: wpai-auth
+  ports:
+    - port: 9200
+      targetPort: 9200

@@ -6,8 +6,6 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelDataConvertException;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
-import com.txwx.webchat.config.WebChatConfig;
-import com.txwx.webchat.domain.entity.DwsUsers;
 import com.txwx.webchat.domain.vo.ImportResultVo;
 import com.txwx.webchat.domain.vo.RowErrorVo;
 import com.txwx.webchat.mapper.IImportBaseModel;
@@ -28,7 +26,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
-public class ImportService {
+public class ImportServiceImpl {
 
     // 每批数据量
     private static final int BATCH_SIZE = 10000;

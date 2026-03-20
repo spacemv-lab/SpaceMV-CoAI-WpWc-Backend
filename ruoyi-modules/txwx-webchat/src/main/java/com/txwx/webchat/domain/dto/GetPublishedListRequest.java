@@ -1,4 +1,4 @@
-package com.txwx.webchat.dto;
+package com.txwx.webchat.domain.dto;
 
 import lombok.Data;
 

@@ -1,0 +1,32 @@
+# gateway-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wpai-webchatcrm
+  labels:
+    app: wpai-webchatcrm
+  namespace: wpai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wpai-webchatcrm
+  template:
+    metadata:
+      labels:
+        app: wpai-webchatcrm
+    spec:
+      containers:
+      - name: wpai-webchatcrm
+        image: wpai-webchatcrm:v1.0.0
+        ports:
+        - containerPort: 9205
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        args:
+          ["nohup","java","-jar","/usr/local/wpai/txwx-webchatcrm.jar", ">", "/usr/local/wpai/logs/txwx-webchatcrm/nohup.log", "&"]

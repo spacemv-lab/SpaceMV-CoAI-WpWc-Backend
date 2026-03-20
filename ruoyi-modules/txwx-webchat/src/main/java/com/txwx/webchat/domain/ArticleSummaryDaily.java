@@ -1,9 +1,12 @@
 package com.txwx.webchat.domain;
 
+import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +18,7 @@ public class ArticleSummaryDaily {
     /**
      * @description: 统计日期
      */
-    private String ref_date;
+    private LocalDate ref_date;
 
     /**
      * @description: 每篇文章的详细数据
@@ -37,45 +40,45 @@ public class ArticleSummaryDaily {
          */
         private List<ReadUserSource> read_user_source;
 
-    /**
-     * @description: 分享人数
-     */
-    private int share_user;
+        /**
+         * @description: 分享人数
+         */
+        private Long share_user;
 
-    /**
-     * @description: 爱心赞人数
-     */
-    private int zaikan_user;
+        /**
+         * @description: 爱心赞人数
+         */
+        private int zaikan_user;
 
-    /**
-     * @description: 拇指赞人数
-     */
-    private int like_user;
+        /**
+         * @description: 拇指赞人数
+         */
+        private int like_user;
 
-    /**
-     * @description: 留言条数
-     */
-    private int comment_count;
+        /**
+         * @description: 留言条数
+         */
+        private int comment_count;
 
-    /**
-     * @description: 微信收藏人数
-     */
-    private int collection_user;
+        /**
+         * @description: 微信收藏人数
+         */
+        private Long collection_user;
 
-    /**
-     * @description: 跳转原文人数
-     */
-    private int redirect_ori_page_user;
+        /**
+         * @description: 跳转原文人数
+         */
+        private Long redirect_ori_page_user;
 
-    /**
-     * @description: 发布篇数
-     */
-    private int send_page_count;
+        /**
+         * @description: 发布篇数
+         */
+        private Long send_page_count;
     }
 
     @Data
     public static class ReadUserSource {
-        private int user_count;
+        private Long user_count;
         private String scene_desc;
     }
 
@@ -95,20 +98,20 @@ public class ArticleSummaryDaily {
         }
 
         // 初始化阅读来源字段
-        int readUserAll = 0;
-        int readUserMsg = 0;
-        int readUserChat = 0;
-        int readUserMoments = 0;
-        int readUserHomepage = 0;
-        int readUserOther = 0;
-        int readUserRecommend = 0;
-        int readUserSearch = 0;
+        Long readUserAll = 0L;
+        Long readUserMsg = 0L;
+        Long readUserChat = 0L;
+        Long readUserMoments = 0L;
+        Long readUserHomepage = 0L;
+        Long readUserOther = 0L;
+        Long readUserRecommend = 0L;
+        Long readUserSearch = 0L;
 
         // 解析read_user_source数组
         if (detail.getRead_user_source() != null) {
             for (ReadUserSource source : detail.getRead_user_source()) {
                 String sceneDesc = source.getScene_desc();
-                int userCount = source.getUser_count();
+                Long userCount = source.getUser_count();
 
                 if (sceneDesc != null) {
                     switch (sceneDesc) {
@@ -160,6 +163,40 @@ public class ArticleSummaryDaily {
             detail.getRedirect_ori_page_user(), // redirect_ori_page_user
             detail.getSend_page_count()       // send_page_count
         };
+    }
+
+    public List<DwsBizsummaryChannelDaily> toDwsContentData() {
+        List<DwsBizsummaryChannelDaily> res = new ArrayList<>();
+        if (detail != null && detail.getRead_user_source() != null) {
+            for (ReadUserSource source : detail.getRead_user_source()) {
+                if (source.getScene_desc().equals("全部")) {
+                    res.add(new DwsBizsummaryChannelDaily(
+                            ref_date,
+                            source.getUser_count(),
+                            detail.getShare_user(),
+                            0L,
+                            detail.getRedirect_ori_page_user(),
+                            0L,
+                            detail.getCollection_user(),
+                            detail.getSend_page_count(),
+                            source.getScene_desc()
+                    ));
+                }else {
+                    res.add(new DwsBizsummaryChannelDaily(
+                            ref_date,
+                            source.getUser_count(),
+                            0L,
+                            0L,
+                            0L,
+                            0L,
+                            0L,
+                            0L,
+                            source.getScene_desc()
+                    ));
+                }
+            }
+        }
+        return res;
     }
 
     public String toSting() {

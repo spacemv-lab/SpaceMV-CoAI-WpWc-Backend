@@ -18,12 +18,12 @@ import java.util.List;
 
 /**
  * 页面按钮配置Service业务层处理
- * 
+ *
  * @author txwx
  * @date 2025-12-06
  */
 @Service
-public class PageButtonConfigServiceImpl implements IPageButtonConfigService 
+public class PageButtonConfigServiceImpl implements IPageButtonConfigService
 {
     @Autowired
     private TxwxPageButtonTempMapper pageButtonTempMapper;
@@ -161,7 +161,7 @@ public class PageButtonConfigServiceImpl implements IPageButtonConfigService
     // ========================= 发布操作 =========================
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int publishPageButtonConfig(String pageCode)
     {
         int result = 0;
@@ -210,7 +210,7 @@ public class PageButtonConfigServiceImpl implements IPageButtonConfigService
                 formalButton.setPublishedTime(tempButton.getPublishedTime());
 
                 // 插入正式表，获取新的buttonId
-                pageButtonMapper.insertPageButton(formalButton);
+                result += pageButtonMapper.insertPageButton(formalButton);
 
                 // 4. 如果按钮类型是下拉按钮，将下拉按钮数据从临时表复制到正式表
                 if ("3".equals(tempButton.getButtonType())) {
@@ -237,7 +237,7 @@ public class PageButtonConfigServiceImpl implements IPageButtonConfigService
         // 再清空按钮临时表
         pageButtonTempMapper.clearPageButtonTempByPageCode(pageCode);
 
-        return result;
+        return Math.max(result, 0);
     }
 
     @Override
