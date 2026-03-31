@@ -18,9 +18,15 @@ public class AgeDistribution implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
+    @ExcelProperty("产品id")
+    private Long productId;
+
+    @ExcelProperty("平台id")
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
-        return new Object[]{age, userNumber, proportion};
+        return new Object[]{age, userNumber, proportion, productId, platformId};
     }
 
     @Override

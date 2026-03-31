@@ -32,8 +32,8 @@ public class WebChatUser {
      */
     private int cancel_user;
 
-    public Object[] toObject(){
-        return new Object[]{ref_date, user_source, new_user, cancel_user};
+    public Object[] toObject(Long platformId, Long productId){
+        return new Object[]{ref_date, user_source, new_user, cancel_user, platformId, productId};
     }
 
     public String toSting(){

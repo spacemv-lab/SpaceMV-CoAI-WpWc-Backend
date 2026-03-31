@@ -17,4 +17,8 @@ public class WebChatMaterialPermanentVO {
     String url;
 
     MultipartFile file;
+
+    Long productId;
+
+    Long platformId;
 }

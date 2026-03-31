@@ -17,4 +17,8 @@ public class WebChatGraphicInformationImageVO {
     String url;
 
     MultipartFile file;
+
+    Long productId;
+
+    Long platformId;
 }

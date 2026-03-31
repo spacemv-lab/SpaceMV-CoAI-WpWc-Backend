@@ -13,6 +13,7 @@ public class ClickhouseService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
     public void singleInsert(String sql) {
         jdbcTemplate.update(sql);
     }

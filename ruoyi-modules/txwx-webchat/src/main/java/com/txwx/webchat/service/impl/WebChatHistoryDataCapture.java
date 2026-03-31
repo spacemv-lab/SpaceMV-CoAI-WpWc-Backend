@@ -119,7 +119,7 @@ public class WebChatHistoryDataCapture {
                 logger.info("<------获取的发表内容概况总数据条数------> " + articleSummaryDailyList.size());
                 List<Object[]> batchArgs = new ArrayList<>();
                 for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                    batchArgs.add(article.toObject());
+                    batchArgs.add(article.toObject(-1L, -1L));
                 }
 
                 String insertSql = webChatConfig.getInsertarticlesummarydailysql();

@@ -1,5 +1,6 @@
 package com.txwx.webchat.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
@@ -30,7 +31,10 @@ public class DwsUsersServiceImpl extends ServiceImpl<DwsUsersMapper, DwsUsers> i
                 queryWrapper.between(DwsUsers::getRefDate, condition.getStartTime(), condition.getEndTime());
             }
         }
+        queryWrapper.eq(condition.getProductId() != null , DwsUsers::getProductId,  condition.getProductId());
+        queryWrapper.eq(condition.getPlatformId() != null , DwsUsers::getPlatformId,  condition.getPlatformId());
         queryWrapper.orderByDesc(DwsUsers::getRefDate);
+
         List<DwsUsers> res = dwsUsersMapper.selectList(queryWrapper);
         PageInfo<DwsUsers> pageInfo = new PageInfo<>(res);
         return new PageResult<>(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), pageInfo.getPages(), pageInfo.getList());

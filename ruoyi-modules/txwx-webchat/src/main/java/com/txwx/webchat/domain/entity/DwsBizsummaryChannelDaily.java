@@ -54,6 +54,14 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
     @ExcelProperty("渠道")
     private String channel;
 
+    @Schema(description = "产品ID")
+    @ExcelProperty("产品ID")
+    private Long productId;
+
+    @Schema(description = "平台ID")
+    @ExcelProperty("平台ID")
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
         return new Object[]{
@@ -65,7 +73,9 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
             collectionCount,
             collectionUser,
             sendPageCount,
-            channel
+            channel,
+            productId,
+            platformId
         };
     }
 }

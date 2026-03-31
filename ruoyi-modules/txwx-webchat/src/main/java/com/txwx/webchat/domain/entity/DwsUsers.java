@@ -36,7 +36,13 @@ public class DwsUsers implements IImportBaseModel {
     @ExcelProperty("累积关注人数")
     private Long accumulatedUser;
 
+    @ExcelProperty("产品ID")
+    private Long productId;
+
+    @ExcelProperty("平台ID")
+    private Long platformId;
+
     public Object[] toObject(){
-        return new Object[]{refDate, newUser, cancelUser, netNewUser, accumulatedUser};
+        return new Object[]{refDate, newUser, cancelUser, netNewUser, accumulatedUser, productId, platformId};
     }
 }

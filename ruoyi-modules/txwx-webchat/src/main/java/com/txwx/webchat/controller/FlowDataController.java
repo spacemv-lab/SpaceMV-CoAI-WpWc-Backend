@@ -9,6 +9,7 @@ import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.webchat.domain.common.PageRequest;
 import com.txwx.webchat.domain.common.PageResult;
 import com.txwx.webchat.domain.condition.FlowSearchCondition;
+import com.txwx.webchat.domain.dto.ProductPlatformDto;
 import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
 import com.txwx.webchat.domain.vo.ImportResultVo;
 import com.txwx.webchat.service.IDwsBizsummaryChannelDailyService;
@@ -75,8 +76,8 @@ public class FlowDataController extends BaseController {
         String sql = "INSERT INTO dws_bizsummary_channel_daily " +
                 "(ref_date, read_user_cnt, share_user, " +
                 "redirect_ori_page_count, redirect_ori_page_user, " +
-                "collection_count, collection_user,send_page_count, channel) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "collection_count, collection_user,send_page_count, channel, product_id, platform_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         ImportResultVo res = importServiceImpl.importExcel(file, DwsBizsummaryChannelDaily.class, sql, response, null);
         if (res.getErrors().size() > 0) return null;
         else return success("导入成功!");

@@ -42,9 +42,11 @@ public class WebChatMaterialContorller extends BaseController {
      */
     @GetMapping("/permanentListByPage")
     public AjaxResult permanentListByPage(@RequestParam(defaultValue = "1") int pageNum,
-                                         @RequestParam(defaultValue = "20") int pageSize){
+                                         @RequestParam(defaultValue = "20") int pageSize,
+                                          @RequestParam("platformId") Long platformId,
+                                          @RequestParam("productId") Long productId){
         try {
-            Map<String, Object> result = webChatMaterialService.permanentListByPage(pageNum, pageSize);
+            Map<String, Object> result = webChatMaterialService.permanentListByPage(pageNum, pageSize, platformId, productId);
             return success(result);
         } catch (Exception e) {
             return error("分页获取永久素材列表失败: " + e.getMessage());
@@ -69,12 +71,20 @@ public class WebChatMaterialContorller extends BaseController {
      */
     @PostMapping("/permanentAdd")
     public AjaxResult permanentAdd(@RequestParam("file") MultipartFile file,
-                                    @RequestParam(value = "name", required = false) String name){
+                                    @RequestParam(value = "name", required = false) String name,
+                                   @RequestParam(value = "productId") Long productId,
+                                   @RequestParam(value = "platformId") Long platformId){
         try {
             WebChatMaterialPermanentVO vo = new WebChatMaterialPermanentVO();
             vo.setFile(file);
             if(StringUtils.isNotEmpty(name)){
                 vo.setName(name);
+            }
+            if (productId != null) {
+                vo.setProductId(productId);
+            }
+            if (platformId != null) {
+                vo.setPlatformId(platformId);
             }
 
             WebChatMaterialPermanentVO webChatMaterialPermanentVO = webChatMaterialService.permanentAdd(vo);
@@ -115,9 +125,11 @@ public class WebChatMaterialContorller extends BaseController {
      */
     @GetMapping("/gInfoImgListByPage")
     public AjaxResult GraphicInformationImageListByPage(@RequestParam(defaultValue = "1") int pageNum,
-                                                       @RequestParam(defaultValue = "20") int pageSize){
+                                                       @RequestParam(defaultValue = "20") int pageSize,
+                                                        @RequestParam(value = "productId") Long productId,
+                                                        @RequestParam(value = "platformId") Long platformId){
         try {
-            Map<String, Object> result = webChatMaterialService.GraphicInformationImageListByPage(pageNum, pageSize);
+            Map<String, Object> result = webChatMaterialService.GraphicInformationImageListByPage(pageNum, pageSize, productId, platformId);
             return success(result);
         } catch (Exception e) {
             return error("分页获取图文消息图片列表失败: " + e.getMessage());
@@ -142,12 +154,20 @@ public class WebChatMaterialContorller extends BaseController {
      */
     @PostMapping("/gInfoImgAdd")
     public AjaxResult GraphicInformationImageAdd(@RequestParam("file") MultipartFile file,
-                                                   @RequestParam(value = "name", required = false) String name){
+                                                   @RequestParam(value = "name", required = false) String name,
+                                                 @RequestParam(value = "productId") Long productId,
+                                                 @RequestParam(value = "platformId") Long platformId){
         try {
             WebChatGraphicInformationImageVO vo = new WebChatGraphicInformationImageVO();
             vo.setFile(file);
             if(StringUtils.isNotEmpty(name)){
                 vo.setName(name);
+            }
+            if (productId != null) {
+                vo.setProductId(productId);
+            }
+            if (platformId != null) {
+                vo.setPlatformId(platformId);
             }
             WebChatGraphicInformationImageVO webChatGraphicInformationImageVO = webChatMaterialService.GraphicInformationImageAdd(vo);
             return success(webChatGraphicInformationImageVO);

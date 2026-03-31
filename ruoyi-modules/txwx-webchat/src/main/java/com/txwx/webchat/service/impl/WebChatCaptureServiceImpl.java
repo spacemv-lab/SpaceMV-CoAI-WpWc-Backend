@@ -7,7 +7,6 @@ import com.txwx.webchat.domain.*;
 import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
 import com.txwx.webchat.mapper.DwsBizsummaryChannelDailyMapper;
 import com.txwx.webchat.mapper.DwsContentDataMapper;
-import com.txwx.webchat.service.IDwsBizsummaryChannelDailyService;
 import com.txwx.webchat.service.IDwsUsersService;
 import com.txwx.webchat.service.IOdsUsersService;
 import com.txwx.webchat.service.IWebChatCaptureService;
@@ -93,7 +92,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             // pengyan批量插入
             List<Object[]> batchArgs = new ArrayList<>();
             for(WebChatUser user : userYesterday){
-                batchArgs.add(user.toObject());
+                batchArgs.add(user.toObject(-1L, -1L));
             }
 
             clickhouseService.batchInsert(webChatConfig.getInsertusersql(), batchArgs);
@@ -209,7 +208,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 System.out.println("<------获取的昨天用户------> " + userYesterday.toString());
                 List<Object[]> batchArgs = new ArrayList<>();
                 for(WebChatUser user : userYesterday){
-                    batchArgs.add(user.toObject());
+                    batchArgs.add(user.toObject(-1L, -1L));
                 }
 
                 clickhouseService.batchInsert(webChatConfig.getInsertusersql(), batchArgs);
@@ -362,12 +361,12 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     }
 
     @Override
-    public void capturePublishedArticles(String accessToken) {
+    public void capturePublishedArticles(String accessToken, Long platformId, Long productId) {
         logger.info("<##############################微信公众号已发布消息列表抓取开始##############################>");
         logger.info("传入的凭证->" + accessToken);
 
         // Redis中存储已发布文章mid的key
-        String redisKey = "webchat:published_articles:mid_map";
+        String redisKey = "webchat:published_articles:mid_map" + ":" + platformId + ":" + productId;
 
         // 从Redis获取已有的mid集合
         Map<String, String> existingMidMap = redisService.getCacheMap(redisKey);
@@ -396,7 +395,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 } else {
                     hasMore = false;
                 }
-                Thread.sleep(100);
+//                Thread.sleep(100);
             } catch (Exception ex) {
                 logger.error("获取已发布消息列表失败，offset: " + offset + ", 错误: " + ex.getMessage());
                 hasMore = false;
@@ -453,7 +452,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         if (!newArticles.isEmpty()) {
             List<Object[]> batchArgs = new ArrayList<>();
             for (PublishedArticle article : newArticles) {
-                batchArgs.add(article.toObject());
+                batchArgs.add(article.toObject(platformId, productId));
             }
 
             String insertSql = webChatConfig.getInsertpublishedarticlesql();
@@ -543,7 +542,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             logger.info("<------获取的发表内容概况总数据------> " + articleSummaryDailyList.toString());
             List<Object[]> batchArgs = new ArrayList<>();
             for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                batchArgs.add(article.toObject());
+                batchArgs.add(article.toObject(-1L, -1L));
             }
 
             String insertSql = webChatConfig.getInsertarticlesummarydailysql();
@@ -562,7 +561,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         if (articleSummaryDailyList != null && articleSummaryDailyList.size() > 0) {
             List<DwsBizsummaryChannelDaily> batchArgs = new ArrayList<>();
             for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                batchArgs.addAll(article.toDwsContentData());
+                batchArgs.addAll(article.toDwsContentData(-1L, -1L));
             }
             dwsBizsummaryChannelDailyMapper.insertBatch(batchArgs);
         }
@@ -600,14 +599,14 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             if (articleDetailDailyList != null && articleDetailDailyList.size() > 0) {
                 logger.info("<------获取的发表内容发表详细数据条数------> " + articleDetailDailyList.size());
                 for (ArticleDetailDaily articleDetailDaily : articleDetailDailyList) {
-                    allBatchArgs.addAll(articleDetailDaily.toFlattenObjectList());
+                    allBatchArgs.addAll(articleDetailDaily.toFlattenObjectList(-1L,-1L));
                 }
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
         }
 
         if (!allBatchArgs.isEmpty()) {
@@ -662,6 +661,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                     logger.info("成功插入发表内容每日分享数据到ClickHouse，数量: " + batchArgs.size());
                 } catch (Exception ex) {
                     logger.error("插入发表内容每日分享数据到ClickHouse失败: " + ex.getMessage());
+                    throw ex;
                 }
             } else {
                 logger.warn("未配置insertarticlesharedailysql，无法插入数据到ClickHouse");
@@ -706,7 +706,93 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
             }
         } catch (Exception e) {
             logger.error("解析URL中的mid失败: " + url + ", 错误: " + e.getMessage());
+            throw e;
         }
         return null;
     }
+
+
+
+
+
+
+
+
+
+    public void testCaptureArticleDetailDaily1(String appId, String secret, Long platformId) throws Exception {
+        String accessToken = WebChatUtil.getAccessToken(appId, secret);
+        logger.info("<##############################发表内容发表详细数据抓取开始##############################>");
+        logger.info("传入的凭证->" + accessToken);
+
+        String insertSql = "INSERT INTO ods_article_detail_daily_test1 " +
+                "(stat_date, ref_date, msgid, publish_type, read_user, read_user_source_all, " +
+                "read_user_source_msg, read_user_source_chat, read_user_source_moments, read_user_source_homepage, " +
+                "read_user_source_other, read_user_source_recommend, read_user_source_search, share_user, zaikan_user, " +
+                "like_user, comment_count, collection_user, praise_money, read_subscribe_user, read_delivery_rate, " +
+                "read_finish_rate, read_avg_activetime, title, url, platform_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+
+        if (insertSql == null || insertSql.isEmpty()) {
+            logger.error("ClickHouse 插入 SQL 未配置，任务终止");
+            return;
+        }
+
+        List<Object[]> allBatchArgs = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        String todayFormat = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        for (int i = 1; i <= 30; i++) {
+            LocalDate yesterday = LocalDate.now().minusDays(i);
+            String yesterdayISO = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            logger.info("今天是[{}] ---- 正在抓取发布日期为 [{}] 的文章数据 (回溯第 {} 天) ---", todayFormat, yesterdayISO, i);
+
+            List<ArticleDetailDaily> articleDetailDailyList = null;
+            try {
+                articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, yesterdayISO, yesterdayISO);
+            } catch (Exception ex) {
+                logger.error("抓取发表内容发表详细数据失败: {}", ex.getMessage(), ex);
+                throw ex;
+            }
+
+            if (articleDetailDailyList != null && !articleDetailDailyList.isEmpty()) {
+                logger.info("<------获取的发表内容发表详细数据条数------> {}", articleDetailDailyList.size());
+
+
+                for (ArticleDetailDaily articleDetailDaily : articleDetailDailyList) {
+                    List<Object[]> rowList = articleDetailDaily.toFlattenObjectList(-1L,-1L);
+                    if (rowList == null || rowList.isEmpty()) {
+                        continue;
+                    }
+
+                    for (Object[] row : rowList) {
+                        Object[] newRow = new Object[row.length + 1];
+                        System.arraycopy(row, 0, newRow, 0, row.length);
+                        newRow[row.length] = platformId;
+                        allBatchArgs.add(newRow);
+                    }
+                }
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("线程被中断", e);
+            }
+        }
+
+        if (!allBatchArgs.isEmpty()) {
+            try {
+                clickhouseService.batchInsert(insertSql, allBatchArgs);
+                logger.info("成功插入发表内容发表详细数据到ClickHouse，数量: {}", allBatchArgs.size());
+            } catch (Exception ex) {
+                logger.error("插入发表内容发表详细数据到ClickHouse失败: {}", ex.getMessage(), ex);
+                throw ex;
+            }
+        }
+
+        logger.info("<##############################发表内容发表详细数据抓取结束##############################>");
+    }
+
 }

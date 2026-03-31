@@ -18,9 +18,15 @@ public class ChannelComposition implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
+    @ExcelProperty("产品ID")
+    private Long productId;
+
+    @ExcelProperty("平台ID")
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
-        return new Object[]{channel, userNumber, proportion};
+        return new Object[]{channel, userNumber, proportion, productId, platformId};
     }
 
     @Override

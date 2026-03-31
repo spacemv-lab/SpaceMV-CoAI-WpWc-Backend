@@ -73,8 +73,14 @@ public class OdsArticleDetailDailyDto implements IImportBaseModel {
     @ExcelProperty("内容url")
     private String url;
 
+    @ExcelProperty("产品id")
+    private Long productId;
+
+    @ExcelProperty("平台id")
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
-        return new Object[]{refDate, refDate, title, readUser, shareUser, readSubscribeUser, url};
+        return new Object[]{refDate, refDate, title, readUser, shareUser, readSubscribeUser, url, productId, platformId};
     }
 }

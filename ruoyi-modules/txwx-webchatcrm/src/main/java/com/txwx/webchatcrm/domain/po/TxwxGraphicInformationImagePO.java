@@ -40,4 +40,8 @@ public class TxwxGraphicInformationImagePO extends BaseEntity {
      * 删除标志(0代表存在 1代表删除)
      */
     private String delFlag;
+
+    private Long productId;
+
+    private Long platformId;
 }

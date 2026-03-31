@@ -14,4 +14,10 @@ public class ContentDataSearchCondition extends BaseSearchCondition{
 
     @Schema(description = "标题")
     private String title;
+
+    @Schema(description = "产品ID")
+    private Long productId;
+
+    @Schema(description = "平台ID")
+    private Long platformId;
 }

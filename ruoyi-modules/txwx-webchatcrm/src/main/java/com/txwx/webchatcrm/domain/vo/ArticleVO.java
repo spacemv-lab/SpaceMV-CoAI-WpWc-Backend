@@ -57,4 +57,8 @@ public class ArticleVO {
      * 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      */
     private Integer index;
+
+    private Long productId;
+
+    private Long platformId;
 }

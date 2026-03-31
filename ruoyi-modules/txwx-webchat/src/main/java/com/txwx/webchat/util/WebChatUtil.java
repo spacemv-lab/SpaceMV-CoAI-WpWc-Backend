@@ -1,6 +1,7 @@
 package com.txwx.webchat.util;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.ruoyi.common.core.exception.CheckedException;
 import com.ruoyi.common.http.service.HttpUtil;
 import com.txwx.webchat.domain.*;
 import com.txwx.webchat.domain.dto.GetPublishedListRequest;
@@ -14,7 +15,7 @@ public class WebChatUtil {
     /**
      * @description: 获取微信接口调用接入码
      */
-    public static String getAccessToken(String appId, String secret) throws Exception{
+    public static String getAccessToken(String appId, String secret) {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("grant_type", "client_credential");
         queryParams.put("appid", appId);
@@ -27,7 +28,8 @@ public class WebChatUtil {
             WebChatAccessToken webChatAccessToken = JSONObject.parseObject(paramResponse, WebChatAccessToken.class);
             token = webChatAccessToken.getAccess_token();
         } catch (Exception e) {
-            throw e;
+            // throw e;
+            throw new CheckedException("平台账号或密码不正确,请再次仔细核对!");
         }
 
         return token;

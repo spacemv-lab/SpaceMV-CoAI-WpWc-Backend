@@ -40,7 +40,7 @@ public interface IWebChatCaptureService {
     /**
      * @description: 获取并保存已发布消息列表（定时任务）
      */
-    void capturePublishedArticles(String accessToken);
+    void capturePublishedArticles(String accessToken, Long platformId, Long productId);
 
     /**
      * @description: 获取并保存发表内容每日阅读数据（定时任务）
@@ -78,4 +78,5 @@ public interface IWebChatCaptureService {
     void aggregateArticleDataToDws();
 
     void captureArticleTotalDetailDaily(String accessToken);
+
 }

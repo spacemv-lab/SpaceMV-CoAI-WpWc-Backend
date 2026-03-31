@@ -77,7 +77,7 @@ public class ContentDataController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入内容数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response) throws Exception {
-        String sql = "INSERT INTO ods_article_detail_daily (stat_date, ref_date, title, read_user, share_user, read_subscribe_user, url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ods_article_detail_daily (stat_date, ref_date, title, read_user, share_user, read_subscribe_user, url, product_id, platform_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         ImportResultVo res = importServiceImpl.importExcel(file, OdsArticleDetailDailyDto.class,
                 sql,
                 response, null);

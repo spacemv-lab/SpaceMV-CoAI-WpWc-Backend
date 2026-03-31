@@ -82,18 +82,20 @@ public class ArticleSummaryDaily {
         private String scene_desc;
     }
 
-    public Object[] toObject() {
+    public Object[] toObject(Long platformId, Long productId) {
         if (detail == null) {
             return new Object[]{
                 ref_date,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,  // read_user (9个字段: total + 8个来源)
+                0, 0, 0, 0, 0, 0, 0, 0, 0,     // read_user (9个字段: total + 8个来源)
                 0,                             // share_user
                 0,                             // zaikan_user
                 0,                             // like_user
                 0,                             // comment_count
                 0,                             // collection_user
                 0,                             // redirect_ori_page_user
-                0                              // send_page_count
+                0,                             // send_page_count
+                0,                              // platform_id
+                0                               // product_id
             };
         }
 
@@ -161,11 +163,13 @@ public class ArticleSummaryDaily {
             detail.getComment_count(),        // comment_count
             detail.getCollection_user(),       // collection_user
             detail.getRedirect_ori_page_user(), // redirect_ori_page_user
-            detail.getSend_page_count()       // send_page_count
+            detail.getSend_page_count(),       // send_page_count
+            platformId,                         // platform_id
+            productId
         };
     }
 
-    public List<DwsBizsummaryChannelDaily> toDwsContentData() {
+    public List<DwsBizsummaryChannelDaily> toDwsContentData(Long platformId, Long productId) {
         List<DwsBizsummaryChannelDaily> res = new ArrayList<>();
         if (detail != null && detail.getRead_user_source() != null) {
             for (ReadUserSource source : detail.getRead_user_source()) {
@@ -179,7 +183,9 @@ public class ArticleSummaryDaily {
                             0L,
                             detail.getCollection_user(),
                             detail.getSend_page_count(),
-                            source.getScene_desc()
+                            source.getScene_desc(),
+                            platformId,
+                            productId
                     ));
                 }else {
                     res.add(new DwsBizsummaryChannelDaily(
@@ -191,7 +197,9 @@ public class ArticleSummaryDaily {
                             0L,
                             0L,
                             0L,
-                            source.getScene_desc()
+                            source.getScene_desc(),
+                            platformId,
+                            productId
                     ));
                 }
             }

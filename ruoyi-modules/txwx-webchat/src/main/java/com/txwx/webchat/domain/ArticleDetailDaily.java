@@ -49,7 +49,7 @@ public class ArticleDetailDaily {
         /**
          * 将单日明细转换为 ClickHouse 的一行 (23个字段)
          */
-        public Object[] toClickHouseRow(String refDate, String msgId, Integer pubType, String title, String url) {
+        public Object[] toClickHouseRow(String refDate, String msgId, Integer pubType, String title, String url, Long productId, Long platformId) {
             int[] sources = new int[8]; // all, msg, chat, moments, home, other, rec, search
             if (this.read_user_source != null) {
                 for (ArticleReadDaily.ReadUserSource source : this.read_user_source) {
@@ -89,6 +89,8 @@ public class ArticleDetailDaily {
                     this.read_avg_activetime,  // 23
                     title,
                     url,
+                    productId,
+                    platformId
             };
         }
     }
@@ -99,14 +101,14 @@ public class ArticleDetailDaily {
         private Float rate;
     }
 
-    public List<Object[]> toFlattenObjectList() {
+    public List<Object[]> toFlattenObjectList(Long productId, Long platformId) {
         List<Object[]> rows = new ArrayList<>();
         if (detail_list == null || detail_list.isEmpty()) {
             return rows;
         }
 
         for (DetailList detail : detail_list) {
-            rows.add(detail.toClickHouseRow(this.ref_date, this.msgid, this.publish_type, this.title, this.content_url));
+            rows.add(detail.toClickHouseRow(this.ref_date, this.msgid, this.publish_type, this.title, this.content_url, productId, platformId));
         }
         return rows;
     }

@@ -44,8 +44,10 @@ public class ArticleController extends BaseController {
                                  @RequestParam(required = false) String submitter,
                                  @RequestParam(required = false) String reviewer,
                                  @RequestParam(required = true, defaultValue = "1") Integer pageNum,
-                                 @RequestParam(required = true, defaultValue = "10") Integer pageSize) {
-        List<TxwxArticlePO> list = articleService.getDraftList(status, submitter, reviewer, pageNum, pageSize);
+                                 @RequestParam(required = true, defaultValue = "10") Integer pageSize,
+                                 @RequestParam("platformId") Long platformId,
+                                 @RequestParam("productId") Long productId) {
+        List<TxwxArticlePO> list = articleService.getDraftList(status, submitter, reviewer, pageNum, pageSize, platformId, productId);
         return success(list);
     }
 
@@ -140,8 +142,10 @@ public class ArticleController extends BaseController {
      */
     @GetMapping("/publishedList")
     public AjaxResult getPublishedList(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
-                                     @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
-        List<TxwxArticlePO> list = articleService.getPublishedList(pageNum, pageSize);
+                                     @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+                                        @RequestParam("platformId") Long platformId,
+                                       @RequestParam("productId") Long productId) {
+        List<TxwxArticlePO> list = articleService.getPublishedList(pageNum, pageSize, platformId, productId);
         return success(list);
     }
 

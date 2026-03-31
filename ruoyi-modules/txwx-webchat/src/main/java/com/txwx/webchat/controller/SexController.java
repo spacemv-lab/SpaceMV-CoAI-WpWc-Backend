@@ -11,6 +11,7 @@ import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.webchat.domain.common.PageRequest;
 import com.txwx.webchat.domain.common.PageResult;
 import com.txwx.webchat.domain.condition.ContentDataSearchCondition;
+import com.txwx.webchat.domain.dto.ProductPlatformDto;
 import com.txwx.webchat.domain.entity.DwsContentData;
 import com.txwx.webchat.domain.entity.SexDistribution;
 import com.txwx.webchat.domain.vo.ImportResultVo;
@@ -41,8 +42,10 @@ public class SexController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "性别分布列表")
-    public AjaxResult select() {
+    public AjaxResult select(@RequestBody ProductPlatformDto productPlatformDto) {
         LambdaQueryWrapper<SexDistribution> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SexDistribution::getProductId, productPlatformDto.getProductId());
+        queryWrapper.eq(SexDistribution::getPlatformId, productPlatformDto.getPlatformId());
         queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
         return success(iSexDistributionService.list(queryWrapper));
     }
@@ -58,8 +61,6 @@ public class SexController extends BaseController {
             String fileName = URLEncoder.encode("性别分布数据导入模板", "UTF-8").replaceAll("\\+", "%20");
             response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xlsx");
 
-            // 2. 核心魔法：传一个空的 List 进去！
-            // EasyExcel 会根据 DwsUsers.class 的注解自动画出表头，但因为数据是空的，所以刚好就是个完美的模板
             EasyExcel.write(response.getOutputStream(), SexDistribution.class)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .sheet("导入模板")
@@ -95,13 +96,15 @@ public class SexController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出性别分布")
-    public void exportExcel(HttpServletResponse response) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestBody ProductPlatformDto productPlatformDto) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出性别分布", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         try {
             LambdaQueryWrapper<SexDistribution> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(SexDistribution::getProductId, productPlatformDto.getProductId());
+            queryWrapper.eq(SexDistribution::getPlatformId, productPlatformDto.getPlatformId());
             queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
             List<SexDistribution> list = iSexDistributionService.list(queryWrapper);
 

@@ -29,6 +29,8 @@ public class DwsContentDataServiceImpl extends ServiceImpl<DwsContentDataMapper,
             if (condition.getTitle() != null) queryWrapper.like(DwsContentData::getTitle, condition.getTitle());
             if (condition.getStartTime() != null && condition.getEndTime() != null) queryWrapper.between(DwsContentData::getCreateTime, condition.getStartTime(), condition.getEndTime());
         }
+        queryWrapper.eq(DwsContentData::getProductId, condition.getProductId());
+        queryWrapper.eq(DwsContentData::getPlatformId, condition.getPlatformId());
         queryWrapper.orderByDesc(DwsContentData::getCreateTime);
         List<DwsContentData> res = dwsContentDataMapper.selectList(queryWrapper);
         PageInfo<DwsContentData> pageInfo = new PageInfo<>(res);

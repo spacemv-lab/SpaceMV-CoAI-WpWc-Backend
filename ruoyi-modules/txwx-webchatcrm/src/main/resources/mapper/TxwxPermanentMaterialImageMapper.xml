@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.webchatcrm.mapper.TxwxPermanentMaterialImageMapper">
+    <resultMap type="com.txwx.webchatcrm.domain.po.TxwxPermanentMaterialImagePO" id="TxwxPermanentMaterialImageResult">
+        <result property="id"         column="id"         />
+        <result property="mediaId"    column="media_id"    />
+        <result property="name"       column="name"       />
+        <result property="url"        column="url"        />
+        <result property="delFlag"    column="del_flag"   />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="productId"    column="product_id"    />
+        <result property="platformId"    column="platform_id"    />
+    </resultMap>
+
+    <resultMap type="com.txwx.webchatcrm.domain.vo.WebChatMaterialPermanentVO" id="WebChatPermanentMaterialImageVOResult">
+        <result property="media_id"    column="media_id"    />
+        <result property="name"       column="name"       />
+        <result property="update_time" column="update_time" />
+        <result property="url"        column="url"        />
+    </resultMap>
+
+<!--    &lt;!&ndash; 查询图文消息图片列表 &ndash;&gt;-->
+<!--    <select id="selectPermanentMaterialImageList" resultMap="TxwxPermanentMaterialImageResult">-->
+<!--        select id, media_id, name, url, create_time, create_by, del_flag, product_id, platform_id-->
+<!--        from txwx_permanent_material_image-->
+<!--        where platform_id in (-->
+<!--            select platform_id-->
+<!--            from txwx_media_user_platform-->
+<!--            where user_id = #{userId}-->
+<!--            )-->
+<!--        and del_flag = '0'-->
+<!--    </select>-->
+
+    <!-- 分页查询图文消息图片列表 -->
+    <select id="selectPermanentMaterialImageListByPage" resultMap="WebChatPermanentMaterialImageVOResult">
+        select media_id, name, update_time, url, product_id, platform_id
+        from txwx_permanent_material_image
+
+        where platform_id = #{platformId}
+            and product_id = #{productId}
+        and del_flag = '0'
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <!-- 查询图文消息图片总数 -->
+    <select id="selectPermanentMaterialImageTotalCount" resultType="int">
+        select count(1)
+        from txwx_permanent_material_image
+        where platform_id = #{platformId}
+            and product_id = #{productId}
+        and del_flag = '0'
+    </select>
+
+    <!-- 插入图文消息图片 -->
+    <insert id="insertPermanentMaterialImage" parameterType="com.txwx.webchatcrm.domain.po.TxwxPermanentMaterialImagePO" useGeneratedKeys="true" keyProperty="id">
+        insert into txwx_permanent_material_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">media_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="url != null and url != ''">url,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="platformId != null and platformId != ''">platform_id,</if>
+            <if test="productId != null and productId != ''">product_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">#{mediaId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="url != null and url != ''">#{url},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="platformId != null and platformId != ''">#{platformId},</if>
+            <if test="productId != null and productId != ''">#{productId},</if>
+        </trim>
+    </insert>
+
+    <!-- 根据mediaId删除图文消息图片(逻辑删除) -->
+    <update id="deletePermanentMaterialImage">
+        update txwx_permanent_material_image set del_flag = '1'
+        where media_id = #{mediaId}
+    </update>
+
+    <select id="selectPermanentMaterialImageByMediaId" resultMap="TxwxPermanentMaterialImageResult">
+        select id, media_id, name, url, create_time, create_by, del_flag, product_id, platform_id
+        from txwx_permanent_material_image
+        where media_id = #{mediaId}
+        and del_flag = '0'
+    </select>
+
+    <select id="selectPlatformByPlatformId" resultType="com.txwx.webchatcrm.domain.vo.MediaPlatformVO">
+        select id, name, product_id as productId,
+               app_id as appId, secret,
+               is_delete isDelete,
+               sync_status as syncStatus, remark, uuid, create_by, create_time, modify_by, modify_time, create_by_name, modify_by_name
+        from txwx_media_platform
+        where id = #{platformId}
+        and is_delete = '0'
+    </select>
+</mapper>

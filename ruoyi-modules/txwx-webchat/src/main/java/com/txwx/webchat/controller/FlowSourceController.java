@@ -8,6 +8,7 @@ import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.webchat.domain.common.PageRequest;
 import com.txwx.webchat.domain.common.PageResult;
 import com.txwx.webchat.domain.condition.FlowSearchCondition;
+import com.txwx.webchat.domain.dto.ProductPlatformDto;
 import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
 import com.txwx.webchat.domain.vo.FlowSourceVo;
 import com.txwx.webchat.service.IDwsBizsummaryChannelDailyService;
@@ -34,20 +35,20 @@ public class FlowSourceController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "流量来源分析列表")
-    public AjaxResult select() {
-        List<FlowSourceVo> res = iDwsBizsummaryChannelDailyService.selectSource();
+    public AjaxResult select(@RequestBody ProductPlatformDto productPlatformDto) {
+        List<FlowSourceVo> res = iDwsBizsummaryChannelDailyService.selectSource(productPlatformDto);
         return success(res);
     }
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出流量来源分析")
-    public void exportExcel(HttpServletResponse response) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestBody ProductPlatformDto productPlatformDto) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("流量来源分析导出", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         try {
-            List<FlowSourceVo> res = iDwsBizsummaryChannelDailyService.selectSource();
+            List<FlowSourceVo> res = iDwsBizsummaryChannelDailyService.selectSource(productPlatformDto);
             EasyExcel.write(response.getOutputStream(), FlowSourceVo.class)
                     .sheet("流量来源分析")
                     .doWrite(res);

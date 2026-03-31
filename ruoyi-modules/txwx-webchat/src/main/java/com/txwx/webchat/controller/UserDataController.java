@@ -74,7 +74,7 @@ public class UserDataController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入用户数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response) throws Exception {
-        String sql = "INSERT INTO dws_users (ref_date, new_user, cancel_user, net_new_user, accumulated_user) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO dws_users (ref_date, new_user, cancel_user, net_new_user, accumulated_user, product_id, platform_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         ImportResultVo res = importServiceImpl.importExcel(file, DwsUsers.class,
                 sql,
                 response, null);

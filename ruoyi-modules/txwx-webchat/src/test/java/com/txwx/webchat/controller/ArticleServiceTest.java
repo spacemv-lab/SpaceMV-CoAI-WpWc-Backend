@@ -5,10 +5,14 @@ import com.txwx.webchat.config.WebChatConfig;
 import com.txwx.webchat.domain.ArticleDetailDaily;
 import com.txwx.webchat.domain.ArticleSummaryDaily;
 import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
+import com.txwx.webchat.domain.vo.MediaProductVo;
+import com.txwx.webchat.domain.vo.UserPlatformVo;
 import com.txwx.webchat.mapper.DwsBizsummaryChannelDailyMapper;
 import com.txwx.webchat.mapper.DwsContentDataMapper;
 import com.txwx.webchat.service.IDwsBizsummaryChannelDailyService;
+import com.txwx.webchat.service.IMediaProductsService;
 import com.txwx.webchat.service.IWebChatCaptureService;
+import com.txwx.webchat.service.impl.SyncDataServiceImpl;
 import com.txwx.webchat.service.impl.WebChatCaptureServiceImpl;
 import com.txwx.webchat.util.WebChatUtil;
 import org.junit.jupiter.api.Test;
@@ -60,63 +64,43 @@ public class ArticleServiceTest {
         dwsContentDataMapper.aggregateArticleDetailsDataToDws();
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+
+    @Autowired
+    private IMediaProductsService iMediaProductsService;
+    @Autowired
+    private SyncDataServiceImpl syncDataServiceImpl;
     @Test
-    void testAggregateArticleDataToDws() throws Exception {
-        String accessToken = webChatCaptureService.getAccessToken();
-        List<ArticleSummaryDaily> articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, "2026-03-16", "2026-03-16");
-        if (articleSummaryDailyList != null && articleSummaryDailyList.size() > 0) {
-            List<DwsBizsummaryChannelDaily> batchArgs = new ArrayList<>();
-            for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                batchArgs.addAll(article.toDwsContentData());
+    void testAggregateArticleDataToDws2() throws Exception {
+
+        List<MediaProductVo> mediaProductVos = iMediaProductsService.selectList();
+        if (mediaProductVos == null || mediaProductVos.size() == 0) {
+            logger.error("未建立自媒体产品及平台!");
+            throw new RuntimeException("未建立自媒体产品及平台!");
+        }
+        for (MediaProductVo mediaProductVo : mediaProductVos) {
+            // 获取当前系统绑定的平台及产品id
+            Long productId = mediaProductVo.getId();
+            for (UserPlatformVo platformVo : mediaProductVo.getUserPlatformList()) {
+                Long platformId = platformVo.getMediaPlatform().getId();
+
+                // String accessToken = webChatCaptureService.getAccessToken();
+                String accessToken = WebChatUtil.getAccessToken(platformVo.getMediaPlatform().getAppId(), platformVo.getMediaPlatform().getSecret());
+                if (accessToken == null) {
+                    logger.error("获取微信公众号access_token失败!");
+                    continue;
+                }
+                LocalDate today = LocalDate.now().minusDays(1);
+
+                test111(accessToken, platformId, productId, today);
             }
-            dwsBizsummaryChannelDailyMapper.insertBatch(batchArgs);
         }
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @Test
-    void testArticleDetailDaily() {
-        String accessToken = webChatCaptureService.getAccessToken();
-        String insertSql = webChatConfig.getInsertarticledetaildailysql();
-        if (insertSql == null || insertSql.isEmpty()) {
-            logger.error("ClickHouse 插入 SQL 未配置，任务终止");
-            return;
-        }
-        List<Object[]> allBatchArgs = new ArrayList<>();
-        for (int i = 1; i <= 30; i++) {
-            LocalDate yesterday = LocalDate.now().minusDays(i);
-            String yesterdayISO = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
-            // (1)定义抓取日期
-            List<ArticleDetailDaily> articleDetailDailyList = null;
-            try {
-                articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, yesterdayISO, yesterdayISO);
-            } catch (Exception ex) {
-                logger.error("抓取发表内容发表详细数据失败:" + ex.getMessage());
-            }
-            if (articleDetailDailyList != null && articleDetailDailyList.size() > 0) {
-                logger.info("<------获取的发表内容发表详细数据条数------> " + articleDetailDailyList.size());
-                for (ArticleDetailDaily articleDetailDaily : articleDetailDailyList) {
-                    allBatchArgs.addAll(articleDetailDaily.toFlattenObjectList());
-                }
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (!allBatchArgs.isEmpty()) {
-            try {
-                clickhouseService.batchInsert(insertSql, allBatchArgs);
-                logger.info("成功插入发表内容发表详细数据到ClickHouse，数量: " + allBatchArgs.size());
-            } catch (Exception ex) {
-                logger.error("插入发表内容发表详细数据到ClickHouse失败: " + ex.getMessage());
-            }
-        }
-        // 将数据聚合到 dws_content_data
-        dwsContentDataMapper.truncateDwsContentData();
-        dwsContentDataMapper.aggregateArticleDetailsDataToDws();
-        logger.info("<##############################发表内容发表详细数据抓取结束##############################>");
+    private void test111(String accessToken, Long platformId, Long productId, LocalDate today) {
+        syncDataServiceImpl.syncUserOneDay(accessToken, platformId, productId, today);
+        syncDataServiceImpl.syncArticleSummaryDailyOneDay(accessToken, platformId, productId, today);
+        String formatted = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        syncDataServiceImpl.syncArticleTotalDetailHistoryRange(accessToken, productId, platformId, formatted, formatted);
+        webChatCaptureService.capturePublishedArticles(accessToken, platformId, productId);
     }
 }

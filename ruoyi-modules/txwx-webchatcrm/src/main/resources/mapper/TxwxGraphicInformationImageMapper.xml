@@ -29,16 +29,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 查询图文消息图片列表 -->
     <select id="selectGraphicInformationImageList" resultMap="TxwxGraphicInformationImageResult">
-        select id, media_id, name, url, create_time, create_by, del_flag
+        select id, media_id, name, url, create_time, create_by, del_flag, product_id, platform_id
         from txwx_graphic_information_image
-        where del_flag = '0'
+        where platform_id in (
+            select platform_id
+            from txwx_media_user_platform
+            where user_id = #{userId}
+            )
+        and del_flag = '0'
     </select>
 
     <!-- 分页查询图文消息图片列表 -->
     <select id="selectGraphicInformationImageListByPage" resultMap="WebChatGraphicInformationImageVOResult">
-        select media_id, name, update_time, url
+        select media_id, name, update_time, url, product_id, platform_id
         from txwx_graphic_information_image
-        where del_flag = '0'
+
+        where platform_id = #{platformId}
+            and product_id = #{productId}
+        and del_flag = '0'
         order by create_time desc
         limit #{offset}, #{limit}
     </select>
@@ -47,7 +55,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectGraphicInformationImageTotalCount" resultType="int">
         select count(1)
         from txwx_graphic_information_image
-        where del_flag = '0'
+        where platform_id = #{platformId}
+            and product_id = #{productId}
+        and del_flag = '0'
     </select>
 
     <!-- 插入图文消息图片 -->
@@ -59,6 +69,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="url != null and url != ''">url,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
+            <if test="platformId != null">platform_id,</if>
+            <if test="productId != null">product_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="mediaId != null and mediaId != ''">#{mediaId},</if>
@@ -66,6 +78,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="url != null and url != ''">#{url},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
+            <if test="platformId != null">#{platformId},</if>
+            <if test="productId != null">#{productId},</if>
         </trim>
     </insert>
 

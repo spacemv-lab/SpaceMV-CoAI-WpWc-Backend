@@ -18,9 +18,15 @@ public class TerrainDistribution implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
+    @ExcelProperty("产品ID")
+    private Long productId;
+
+    @ExcelProperty("平台ID")
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
-        return new Object[]{terrain, userNumber, proportion};
+        return new Object[]{terrain, userNumber, proportion, productId, platformId};
     }
 
     @Override
