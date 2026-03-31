@@ -6,6 +6,7 @@ import com.txwx.webchatcrm.domain.vo.*;
 import com.txwx.webchatcrm.dto.*;
 import com.txwx.webchatcrm.enums.ArticleStatusEnum;
 import com.txwx.webchatcrm.mapper.TxwxArticleMapper;
+import com.txwx.webchatcrm.mapper.TxwxPermanentMaterialImageMapper;
 import com.txwx.webchatcrm.service.IArticleService;
 import com.txwx.webchatcrm.util.Base64Util;
 import com.txwx.webchatcrm.util.WebChatUtil;
@@ -35,18 +36,24 @@ public class ArticleServiceImpl implements IArticleService {
     @Autowired
     private TxwxArticleMapper txwxArticleMapper;
 
-    @Value("${weixin.appId}")
-    private String appId;
+//    @Value("${weixin.appId}")
+//    private String appId;
+//
+//    @Value("${weixin.secret}")
+//    private String secret;
 
-    @Value("${weixin.secret}")
-    private String secret;
+    @Autowired
+    private TxwxPermanentMaterialImageMapper txwxPermanentMaterialImageMapper;
 
     @Override
     @Transactional
     public void addDraft(ArticleVO articleVO) {
         try {
-            // 1. 调用微信API新增草稿
-            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+//            // 1. 调用微信API新增草稿
+//            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+
+            MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(articleVO.getPlatformId());
+            String accessToken = WebChatUtil.getAccessToken(mediaPlatformVO.getAppId(), mediaPlatformVO.getSecret());
 
             ArticleItemDTO articleItem = new ArticleItemDTO();
             articleItem.setArticle_type(articleVO.getArticleType() != null ? articleVO.getArticleType() : "news");
@@ -93,6 +100,9 @@ public class ArticleServiceImpl implements IArticleService {
             article.setCreateTime(new Date());
             article.setUpdateTime(new Date());
 
+            article.setProductId(articleVO.getProductId());
+            article.setPlatformId(articleVO.getPlatformId());
+
             txwxArticleMapper.insertArticle(article);
         } catch (Exception e) {
             throw new RuntimeException("新增草稿失败: " + e.getMessage(), e);
@@ -100,11 +110,12 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public List<TxwxArticlePO> getDraftList(String status, String submitter, String reviewer, Integer pageNum, Integer pageSize) {
+    public List<TxwxArticlePO> getDraftList(String status, String submitter, String reviewer, Integer pageNum, Integer pageSize, Long platformId, Long productId) {
         try {
+
             // 计算分页偏移量
             int offset = (pageNum - 1) * pageSize;
-            return txwxArticleMapper.selectDraftList(status, submitter, reviewer, offset, pageSize);
+            return txwxArticleMapper.selectDraftList(status, submitter, reviewer, offset, pageSize, platformId, productId);
         } catch (Exception e) {
             throw new RuntimeException("查询草稿列表失败: " + e.getMessage(), e);
         }
@@ -129,7 +140,9 @@ public class ArticleServiceImpl implements IArticleService {
             }
 
             // 2. 调用微信API获取草稿详情
-            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            // String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(article.getPlatformId());
+            String accessToken = WebChatUtil.getAccessToken(mediaPlatformVO.getAppId(), mediaPlatformVO.getSecret());
             GetDraftDetailResponse response = WebChatUtil.getDraftDetail(accessToken, article.getMediaId());
 
             // 3. 转换为VO对象
@@ -167,7 +180,8 @@ public class ArticleServiceImpl implements IArticleService {
             int count = pageSize;
 
             // 调用微信API获取草稿列表
-            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+//            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            String accessToken = WebChatUtil.getAccessToken("appId", "secret");
             GetDraftListResponse response = WebChatUtil.getDraftList(accessToken, offset, count, noContent);
 
             // 转换为VO对象
@@ -228,7 +242,9 @@ public class ArticleServiceImpl implements IArticleService {
             }
 
             // 2. 调用微信API查询发布状态
-            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+//            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(article.getPlatformId());
+            String accessToken = WebChatUtil.getAccessToken(mediaPlatformVO.getAppId(), mediaPlatformVO.getSecret());
             GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
 
             // 3. 转换为VO对象
@@ -297,7 +313,8 @@ public class ArticleServiceImpl implements IArticleService {
             int count = pageSize;
 
             // 调用微信API获取已发布消息列表
-            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            // String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            String accessToken = WebChatUtil.getAccessToken("appId", "secret");
             GetPublishedListResponse response = WebChatUtil.getPublishedList(accessToken, offset, count, noContent);
 
             // 转换为VO对象
@@ -354,7 +371,9 @@ public class ArticleServiceImpl implements IArticleService {
             }
 
             // 2. 更新微信草稿
-            String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            // String accessToken = WebChatUtil.getAccessToken(appId, secret);
+            MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(existingArticle.getPlatformId());
+            String accessToken = WebChatUtil.getAccessToken(mediaPlatformVO.getAppId(), mediaPlatformVO.getSecret());
 
             ArticleItemDTO articleItem = new ArticleItemDTO();
             articleItem.setArticle_type(articleVO.getArticleType() != null ? articleVO.getArticleType() : "news");
@@ -407,6 +426,9 @@ public class ArticleServiceImpl implements IArticleService {
 
             // 2. 调用微信API删除草稿
             if (StringUtils.isNotEmpty(article.getMediaId())) {
+                MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(article.getPlatformId());
+                String appId = mediaPlatformVO.getAppId();
+                String secret = mediaPlatformVO.getSecret();
                 String accessToken = WebChatUtil.getAccessToken(appId, secret);
                 WebChatUtil.deleteDraft(accessToken, article.getMediaId());
             }
@@ -480,6 +502,9 @@ public class ArticleServiceImpl implements IArticleService {
             }
 
             // 2. 调用微信API发布
+            MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(article.getPlatformId());
+            String appId = mediaPlatformVO.getAppId();
+            String secret = mediaPlatformVO.getSecret();
             String accessToken = WebChatUtil.getAccessToken(appId, secret);
             PublishDraftResponse response = WebChatUtil.publishDraft(accessToken, article.getMediaId());
 
@@ -504,11 +529,11 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public List<TxwxArticlePO> getPublishedList(Integer pageNum, Integer pageSize) {
+    public List<TxwxArticlePO> getPublishedList(Integer pageNum, Integer pageSize, Long platformId, Long productId) {
         try {
             // 计算分页偏移量
             int offset = (pageNum - 1) * pageSize;
-            return txwxArticleMapper.selectPublishedList(offset, pageSize);
+            return txwxArticleMapper.selectPublishedList(offset, pageSize, platformId, productId);
         } catch (Exception e) {
             throw new RuntimeException("查询已发布文章列表失败: " + e.getMessage(), e);
         }
@@ -535,6 +560,9 @@ public class ArticleServiceImpl implements IArticleService {
 
             // 2. 调用微信API删除已发布文章
             if(StringUtils.isNotEmpty(article.getPublishId())){
+                MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(article.getPlatformId());
+                String appId = mediaPlatformVO.getAppId();
+                String secret = mediaPlatformVO.getSecret();
                 String accessToken = WebChatUtil.getAccessToken(appId, secret);
                 GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
 
@@ -581,6 +609,10 @@ public class ArticleServiceImpl implements IArticleService {
             logger.info("需要更新发布文章状态的数量:" + publishingArticles.size());
             // 2. 准备批量更新的文章列表
             List<TxwxArticlePO> articlesToUpdate = new ArrayList<>();
+            TxwxArticlePO txwxArticlePO = publishingArticles.get(0);
+            MediaPlatformVO mediaPlatformVO = txwxPermanentMaterialImageMapper.selectPlatformByPlatformId(txwxArticlePO.getPlatformId());
+            String appId = mediaPlatformVO.getAppId();
+            String secret = mediaPlatformVO.getSecret();
             String accessToken = WebChatUtil.getAccessToken(appId, secret);
 
             // 3. 遍历每篇文章，查询发布状态

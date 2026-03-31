@@ -19,7 +19,7 @@ public interface IWebChatMaterialService {
     /**
      * @description: 分页获取永久素材列表
      */
-    Map<String, Object> permanentListByPage(int pageNum, int pageSize);
+    Map<String, Object> permanentListByPage(int pageNum, int pageSize, Long platformId, Long productId);
 
     /**
      * @description: 获取永久素材总数
@@ -44,7 +44,7 @@ public interface IWebChatMaterialService {
     /**
      * @description: 分页获取图文消息图片列表
      */
-    Map<String, Object> GraphicInformationImageListByPage(int pageNum, int pageSize);
+    Map<String, Object> GraphicInformationImageListByPage(int pageNum, int pageSize, Long platformId, Long productId);
 
     /**
      * @description: 获取图文消息图片总数

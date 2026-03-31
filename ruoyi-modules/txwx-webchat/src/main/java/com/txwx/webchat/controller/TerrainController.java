@@ -12,6 +12,7 @@ import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.webchat.domain.common.PageRequest;
 import com.txwx.webchat.domain.common.PageResult;
+import com.txwx.webchat.domain.dto.ProductPlatformDto;
 import com.txwx.webchat.domain.entity.AgeDistribution;
 import com.txwx.webchat.domain.entity.ChannelComposition;
 import com.txwx.webchat.domain.entity.DwsUsers;
@@ -45,9 +46,11 @@ public class TerrainController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "地域分布列表")
-    public AjaxResult select(Integer pageNum, Integer pageSize) {
+    public AjaxResult select(Integer pageNum, Integer pageSize, @RequestBody ProductPlatformDto productPlatformDto) {
         PageHelper.startPage(pageNum, pageSize);
         LambdaQueryWrapper<TerrainDistribution> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TerrainDistribution::getPlatformId, productPlatformDto.getPlatformId());
+        queryWrapper.eq(TerrainDistribution::getProductId, productPlatformDto.getProductId());
         queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
         List<TerrainDistribution> list = iTerrainDistributionService.list(queryWrapper);
         PageInfo<TerrainDistribution> pageInfo = new PageInfo<>(list);
@@ -65,8 +68,6 @@ public class TerrainController extends BaseController {
             String fileName = URLEncoder.encode("地域分布数据导入模板", "UTF-8").replaceAll("\\+", "%20");
             response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xlsx");
 
-            // 2. 核心魔法：传一个空的 List 进去！
-            // EasyExcel 会根据 DwsUsers.class 的注解自动画出表头，但因为数据是空的，所以刚好就是个完美的模板
             EasyExcel.write(response.getOutputStream(), TerrainDistribution.class)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .sheet("导入模板")
@@ -91,7 +92,7 @@ public class TerrainController extends BaseController {
         }catch (Exception e) {
             logger.warn("清空terrain_distribution表失败（可能是第一次运行）: " + e.getMessage());
         }
-        String sql = "insert into terrain_distribution (terrain, user_number, proportion) values (?, ?, ?)";
+        String sql = "insert into terrain_distribution (terrain, user_number, proportion, product_id, platform_id) values (?, ?, ?, ?, ?)";
         ImportResultVo res = importServiceImpl.importExcel(file, TerrainDistribution.class, sql, response, null);
         if (res.getErrors().size() > 0) return null;
         else return success("导入成功!");
@@ -99,7 +100,7 @@ public class TerrainController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出地域分布")
-    public void exportExcel(HttpServletResponse response) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestBody ProductPlatformDto productPlatformDto) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出地域分布", "UTF-8").replaceAll("\\+", "%20");
@@ -115,6 +116,8 @@ public class TerrainController extends BaseController {
             while (hasNext) {
                 PageHelper.startPage(pageNum, pageSize);
                 LambdaQueryWrapper<TerrainDistribution> queryWrapper = new LambdaQueryWrapper<>();
+                queryWrapper.eq(TerrainDistribution::getPlatformId, productPlatformDto.getPlatformId());
+                queryWrapper.eq(TerrainDistribution::getProductId, productPlatformDto.getProductId());
                 queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
                 List<TerrainDistribution> dataList = iTerrainDistributionService.list(queryWrapper);
                 if (dataList == null || dataList.isEmpty()) {

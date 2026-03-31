@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.txwx.webchat.domain.dto.ProductPlatformDto;
 import com.txwx.webchat.domain.entity.AgeDistribution;
 import com.txwx.webchat.domain.entity.SexDistribution;
 import com.txwx.webchat.domain.vo.ImportResultVo;
@@ -36,8 +37,11 @@ public class AgeController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "年龄分布列表")
-    public AjaxResult select() {
+    public AjaxResult select(@RequestBody ProductPlatformDto productPlatformDto) {
         LambdaQueryWrapper<AgeDistribution> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AgeDistribution::getProductId, productPlatformDto.getProductId());
+        queryWrapper.eq(AgeDistribution::getPlatformId, productPlatformDto.getPlatformId());
+
         queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
         return success(iAgeDistributionService.list(queryWrapper));
     }
@@ -53,8 +57,6 @@ public class AgeController extends BaseController {
             String fileName = URLEncoder.encode("年龄分布数据导入模板", "UTF-8").replaceAll("\\+", "%20");
             response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xlsx");
 
-            // 2. 核心魔法：传一个空的 List 进去！
-            // EasyExcel 会根据 DwsUsers.class 的注解自动画出表头，但因为数据是空的，所以刚好就是个完美的模板
             EasyExcel.write(response.getOutputStream(), AgeDistribution.class)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .sheet("导入模板")
@@ -79,7 +81,7 @@ public class AgeController extends BaseController {
         }catch (Exception e) {
             logger.warn("清空age_distribution表失败（可能是第一次运行）: " + e.getMessage());
         }
-        String sql = "insert into age_distribution (age, user_number, proportion) values (?, ?, ?)";
+        String sql = "insert into age_distribution (age, user_number, proportion, product_id, platform_id) values (?, ?, ?, ?, ?)";
         ImportResultVo res = importServiceImpl.importExcel(file, AgeDistribution.class, sql, response, null);
         if (res.getErrors().size() > 0) return null;
         else return success("导入成功!");
@@ -87,13 +89,15 @@ public class AgeController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出年龄分布")
-    public void exportExcel(HttpServletResponse response) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestBody ProductPlatformDto productPlatformDto) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出年龄分布", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         try {
             LambdaQueryWrapper<AgeDistribution> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(AgeDistribution::getProductId, productPlatformDto.getProductId());
+            queryWrapper.eq(AgeDistribution::getPlatformId, productPlatformDto.getPlatformId());
             queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
             List<AgeDistribution> list = iAgeDistributionService.list(queryWrapper);
 

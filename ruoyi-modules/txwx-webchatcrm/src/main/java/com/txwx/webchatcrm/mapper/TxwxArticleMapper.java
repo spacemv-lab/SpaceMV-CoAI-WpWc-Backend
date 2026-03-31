@@ -40,7 +40,9 @@ public interface TxwxArticleMapper {
                                    @Param("submitter") String submitter,
                                    @Param("reviewer") String reviewer,
                                    @Param("offset") Integer offset,
-                                   @Param("limit") Integer limit);
+                                   @Param("limit") Integer limit,
+                                        @Param("platformId") Long platformId,
+                                        @Param("productId") Long productId);
 
     /**
      * @description: 查询草稿总数
@@ -52,7 +54,8 @@ public interface TxwxArticleMapper {
     /**
      * @description: 查询已发布文章列表
      */
-    List<TxwxArticlePO> selectPublishedList(@Param("offset") Integer offset, @Param("limit") Integer limit);
+    List<TxwxArticlePO> selectPublishedList(@Param("offset") Integer offset, @Param("limit") Integer limit,
+                                            @Param("platformId") Long platformId, @Param("productId") Long productId);
 
     /**
      * @description: 查询已发布文章总数

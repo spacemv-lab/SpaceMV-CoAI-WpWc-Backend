@@ -7,6 +7,7 @@ import com.github.pagehelper.PageInfo;
 import com.txwx.webchat.domain.common.PageRequest;
 import com.txwx.webchat.domain.common.PageResult;
 import com.txwx.webchat.domain.condition.FlowSearchCondition;
+import com.txwx.webchat.domain.dto.ProductPlatformDto;
 import com.txwx.webchat.domain.entity.DwsBizsummaryChannelDaily;
 import com.txwx.webchat.domain.vo.FlowSourceVo;
 import com.txwx.webchat.mapper.DwsBizsummaryChannelDailyMapper;
@@ -31,6 +32,8 @@ public class DwsBizsummaryChannelDailyServiceImpl extends ServiceImpl<DwsBizsumm
             }
             if (condition.getStartTime() != null && condition.getEndTime() != null) queryWrapper.between(DwsBizsummaryChannelDaily::getRefDate, condition.getStartTime(), condition.getEndTime());
         }
+        queryWrapper.eq(condition.getProductId() != null , DwsBizsummaryChannelDaily::getProductId,  condition.getProductId());
+        queryWrapper.eq(condition.getPlatformId() != null , DwsBizsummaryChannelDaily::getPlatformId,  condition.getPlatformId());
         queryWrapper.orderByDesc(DwsBizsummaryChannelDaily::getRefDate);
         List<DwsBizsummaryChannelDaily> res = dwsBizsummaryChannelDailyMapper.selectList(queryWrapper);
         PageInfo<DwsBizsummaryChannelDaily> pageInfo = new PageInfo<>(res);
@@ -38,7 +41,7 @@ public class DwsBizsummaryChannelDailyServiceImpl extends ServiceImpl<DwsBizsumm
     }
 
     @Override
-    public List<FlowSourceVo> selectSource() {
-        return dwsBizsummaryChannelDailyMapper.selectSource();
+    public List<FlowSourceVo> selectSource(ProductPlatformDto productPlatformDto) {
+        return dwsBizsummaryChannelDailyMapper.selectSource(productPlatformDto);
     }
 }

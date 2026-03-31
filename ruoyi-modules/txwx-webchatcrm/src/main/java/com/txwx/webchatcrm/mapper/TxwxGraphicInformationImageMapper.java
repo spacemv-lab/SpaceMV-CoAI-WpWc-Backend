@@ -22,12 +22,15 @@ public interface TxwxGraphicInformationImageMapper {
     /**
      * @description: 分页查询图文消息图片列表
      */
-    List<WebChatGraphicInformationImageVO> selectGraphicInformationImageListByPage(@Param("offset") int offset, @Param("limit") int limit);
+    List<WebChatGraphicInformationImageVO> selectGraphicInformationImageListByPage(@Param("offset") int offset, @Param("limit") int limit,
+                                                                                   @Param("platformId") Long platformId,
+                                                                                   @Param("productId") Long productId);
 
     /**
      * @description: 查询图文消息图片总数
      */
-    int selectGraphicInformationImageTotalCount();
+    int selectGraphicInformationImageTotalCount(@Param("platformId") Long platformId,
+                                                @Param("productId") Long productId);
 
     /**
      * @description: 向数据库中插入图文消息图片

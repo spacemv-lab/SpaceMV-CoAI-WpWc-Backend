@@ -34,7 +34,7 @@ public class PublishedArticle {
     /**
      * 转换为Object数组，用于批量插入ClickHouse
      */
-    public Object[] toObject() {
+    public Object[] toObject(Long platformId, Long productId) {
         // 将Unix时间戳转换为LocalDate
         LocalDate createDate = null;
         if (createTime != null) {
@@ -42,6 +42,6 @@ public class PublishedArticle {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate();
         }
-        return new Object[]{mid, title, createDate, author, url};
+        return new Object[]{mid, title, createDate, author, url, platformId, productId};
     }
 }

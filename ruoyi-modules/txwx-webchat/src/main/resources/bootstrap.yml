@@ -17,11 +17,13 @@ spring:
         server-addr: nacos-server:8848
 #        namespace: 7a77dea7-1529-4bd6-8d0c-79c5ab7eb49c
         namespace: 0897c032-0653-4049-afbc-a39f39d89131
+#        namespace: 6b5e989c-ad74-4363-b488-9c221bea9913
       config:
         # 配置中心地址
         server-addr: nacos-server:8848
 #        namespace: 7a77dea7-1529-4bd6-8d0c-79c5ab7eb49c
         namespace: 0897c032-0653-4049-afbc-a39f39d89131
+#        namespace: 6b5e989c-ad74-4363-b488-9c221bea9913
         # 配置文件格式
         file-extension: yml
         # 共享配置

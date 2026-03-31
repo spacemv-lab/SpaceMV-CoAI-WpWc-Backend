@@ -22,9 +22,17 @@ public class SexDistribution implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
+    @Schema(description = "产品ID")
+    @ExcelProperty("产品ID")
+    private Long productId;
+
+    @Schema(description = "平台ID")
+    @ExcelProperty("平台ID")
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
-        return new Object[]{sex, userNumber, proportion};
+        return new Object[]{sex, userNumber, proportion, productId, platformId};
     }
 
     @Override

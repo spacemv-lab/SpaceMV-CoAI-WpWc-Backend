@@ -25,7 +25,8 @@ public interface IArticleService {
     /**
      * @description: 查询草稿列表
      */
-    List<TxwxArticlePO> getDraftList(String status, String submitter, String reviewer, Integer pageNum, Integer pageSize);
+    List<TxwxArticlePO> getDraftList(String status, String submitter, String reviewer, Integer pageNum, Integer pageSize,
+                                     Long platformId, Long productId);
 
     /**
      * @description: 查询草稿总数
@@ -80,7 +81,7 @@ public interface IArticleService {
     /**
      * @description: 查询已发布文章列表
      */
-    List<TxwxArticlePO> getPublishedList(Integer pageNum, Integer pageSize);
+    List<TxwxArticlePO> getPublishedList(Integer pageNum, Integer pageSize, Long platformId, Long productId);
 
     /**
      * @description: 查询已发布文章总数

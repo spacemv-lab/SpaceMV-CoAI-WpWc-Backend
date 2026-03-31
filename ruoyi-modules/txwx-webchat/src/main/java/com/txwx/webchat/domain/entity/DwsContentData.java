@@ -55,8 +55,12 @@ public class DwsContentData implements IImportBaseModel {
     @ExcelProperty("内容url")
     private String url;
 
+    private Long productId;
+
+    private Long platformId;
+
     @Override
     public Object[] toObject() {
-        return new Object[]{createTime, title, readUserTotal, shareUser, readSubscribeUser, url};
+        return new Object[]{createTime, title, readUserTotal, shareUser, readSubscribeUser, url, productId, platformId};
     }
 }

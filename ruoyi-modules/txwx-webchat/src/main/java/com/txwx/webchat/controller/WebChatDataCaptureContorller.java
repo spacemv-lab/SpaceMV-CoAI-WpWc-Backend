@@ -75,7 +75,7 @@ public class WebChatDataCaptureContorller extends BaseController {
     public AjaxResult capturePublishedArticles(){
         String accessToken = webChatCaptureService.getAccessToken();
         // 已发布消息列表
-        webChatCaptureService.capturePublishedArticles(accessToken);
+        webChatCaptureService.capturePublishedArticles(accessToken, -1L, -1L);
         return success();
     }
 

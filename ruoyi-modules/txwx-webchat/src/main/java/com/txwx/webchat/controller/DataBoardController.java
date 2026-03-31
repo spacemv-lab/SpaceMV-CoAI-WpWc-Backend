@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
@@ -24,43 +25,52 @@ public class DataBoardController extends BaseController {
 
     @Operation(summary = "用户总数+总阅读人数+总分享人数")
     @GetMapping("/userTotal")
-    public AjaxResult userTotal() {
-        List<UserTotalVo> res = iDataBoardService.selectUserTotal();
+    public AjaxResult userTotal(@RequestParam(value = "productId") Long productId,
+                                @RequestParam(value = "platformId") Long platformId) {
+        List<UserTotalVo> res = iDataBoardService.selectUserTotal(productId, platformId);
         return success(res);
     }
 
     @Operation(summary = "新关注人数趋势图")
     @GetMapping("/netUserTrend")
-    public AjaxResult netUserTrend(Integer filterDimension) {
-        List<Map<String, Object>> res = iDataBoardService.netUserTrend(filterDimension);
+    public AjaxResult netUserTrend(@RequestParam(value = "filterDimension") Integer filterDimension,
+                                   @RequestParam(value = "productId") Long productId,
+                                   @RequestParam(value = "platformId") Long platformId) {
+        List<Map<String, Object>> res = iDataBoardService.netUserTrend(filterDimension, productId, platformId);
         return success(res);
     }
 
     @Operation(summary = "累计关注人数趋势图")
     @GetMapping("/accumulatedUserTrend")
-    public AjaxResult accumulatedUserTrend(Integer filterDimension) {
-        List<Map<String, Object>> res = iDataBoardService.accumulatedUserTrend(filterDimension);
+    public AjaxResult accumulatedUserTrend(@RequestParam(value = "filterDimension") Integer filterDimension,
+                                           @RequestParam(value = "productId") Long productId,
+                                           @RequestParam(value = "platformId") Long platformId) {
+        List<Map<String, Object>> res = iDataBoardService.accumulatedUserTrend(filterDimension, productId, platformId);
         return success(res);
     }
 
     @Operation(summary = "阅读流量+分享流量趋势图+阅读人数流量来源")
     @GetMapping("/readFlowTrend")
-    public AjaxResult readFlowTrend(Integer filterDimension) {
-        List<List<Map<String, Object>>> res = iDataBoardService.readFlowTrend(filterDimension);
+    public AjaxResult readFlowTrend(@RequestParam(value = "filterDimension") Integer filterDimension,
+                                    @RequestParam(value = "productId") Long productId,
+                                    @RequestParam(value = "platformId") Long platformId) {
+        List<List<Map<String, Object>>> res = iDataBoardService.readFlowTrend(filterDimension, productId, platformId);
         return success(res);
     }
 
     @Operation(summary = "最佳阅读人数+分享人数")
     @GetMapping("/optimumReaderShareNum")
-    public AjaxResult optimumReaderShareNum() {
-        List<UserTotalVo> res = iDataBoardService.optimumReaderShareNum();
+    public AjaxResult optimumReaderShareNum(@RequestParam(value = "productId") Long productId,
+                                            @RequestParam(value = "platformId") Long platformId) {
+        List<UserTotalVo> res = iDataBoardService.optimumReaderShareNum(productId, platformId);
         return success(res);
     }
 
     @Operation(summary = "阅读后关注人数排行榜")
     @GetMapping("/subscribeUserAfterRead")
-    public AjaxResult subscribeUserAfterRead() {
-        List<Map<String, Object>> res = iDataBoardService.subscribeUserAfterRead();
+    public AjaxResult subscribeUserAfterRead(@RequestParam(value = "productId") Long productId,
+                                             @RequestParam(value = "platformId") Long platformId) {
+        List<Map<String, Object>> res = iDataBoardService.subscribeUserAfterRead(productId, platformId);
         return success(res);
     }
 }

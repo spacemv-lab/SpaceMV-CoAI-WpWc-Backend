@@ -15,7 +15,9 @@
             collection_count,
             collection_user,
             send_page_count,
-            channel
+            channel,
+            platform_id,
+            product_id
         )
         VALUES
         <foreach collection="list" item="item" separator=",">
@@ -28,7 +30,9 @@
             #{item.collectionCount},
             #{item.collectionUser},
             #{item.sendPageCount},
-            #{item.channel}
+            #{item.channel},
+            #{item.platformId},
+            #{item.productId}
             )
         </foreach>
     </insert>
@@ -48,6 +52,8 @@
                      sum(sum(read_user_cnt)) OVER () AS total_read_users
                  FROM dws_bizsummary_channel_daily
                  WHERE channel != '全部'
+                 and product_id = #{productPlatformDto.productId}
+                 and platform_id = #{productPlatformDto.platformId}
                  GROUP BY channel_fixed
              )
         ORDER BY read_users DESC
@@ -59,6 +65,8 @@
             sum(share_user) as shareTotal
         FROM dws_bizsummary_channel_daily
         WHERE channel = '全部'
+        and platform_id = #{platformId}
+        and product_id = #{productId}
     </select>
 
 <!--    <select id="selectTotalReadShare" resultType="java.util.Map">-->
@@ -83,6 +91,8 @@
             sum(read_user_cnt) AS read_users
         FROM dws_bizsummary_channel_daily
         WHERE channel != '全部'
+        and platform_id = #{platformId}
+        and product_id = #{productId}
         GROUP BY channel_fixed
         ORDER BY read_users DESC
     </select>
