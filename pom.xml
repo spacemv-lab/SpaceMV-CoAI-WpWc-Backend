@@ -38,6 +38,7 @@
         <tomcat.version>9.0.108</tomcat.version>
         <logback.version>1.2.13</logback.version>
         <spring-framework.version>5.3.39</spring-framework.version>
+        <lombok.version>1.18.24</lombok.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -189,6 +190,12 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>txwx-social-api</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
             <!-- 接口模块 -->
             <dependency>
                 <groupId>com.ruoyi</groupId>
@@ -249,6 +256,25 @@
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>ruoyi-api-system</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
+            <!-- 系统接口 -->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>ruoyi-common-http</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>ruoyi-common-clickhouse</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>txwx-social-crm</artifactId>
                 <version>${ruoyi.version}</version>
             </dependency>
 
