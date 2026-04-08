@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxProductBasicInfoMapper">
+    
+    <resultMap type="TxwxProductBasicInfo" id="ProductBasicInfoResult">
+        <result property="id"    column="id"    />
+        <result property="productType"    column="product_type"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productIntroduction"    column="product_introduction"    />
+        <result property="backgroundImageUrl"    column="background_image_url"    />
+        <result property="detailedIntroduction"    column="detailed_introduction"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectProductBasicInfoVo">
+        select id, product_type, product_name, product_introduction, background_image_url, detailed_introduction, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_product_basic_info
+    </sql>
+
+    <select id="selectProductBasicInfoById" parameterType="Long" resultMap="ProductBasicInfoResult">
+        <include refid="selectProductBasicInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectProductBasicInfoByProductType" parameterType="String" resultMap="ProductBasicInfoResult">
+        <include refid="selectProductBasicInfoVo"/>
+        where product_type = #{productType}
+        limit 1
+    </select>
+        
+    <insert id="insertProductBasicInfo" parameterType="TxwxProductBasicInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into txwx_product_basic_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="productIntroduction != null">product_introduction,</if>
+            <if test="backgroundImageUrl != null">background_image_url,</if>
+            <if test="detailedIntroduction != null">detailed_introduction,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productType != null and productType != ''">#{productType},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="productIntroduction != null">#{productIntroduction},</if>
+            <if test="backgroundImageUrl != null">#{backgroundImageUrl},</if>
+            <if test="detailedIntroduction != null">#{detailedIntroduction},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProductBasicInfo" parameterType="TxwxProductBasicInfo">
+        update txwx_product_basic_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productType != null and productType != ''">product_type = #{productType},</if>
+            <if test="productName != null and productName != ''">product_name = #{productName},</if>
+            <if test="productIntroduction != null">product_introduction = #{productIntroduction},</if>
+            <if test="backgroundImageUrl != null">background_image_url = #{backgroundImageUrl},</if>
+            <if test="detailedIntroduction != null">detailed_introduction = #{detailedIntroduction},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProductBasicInfoById" parameterType="Long">
+        delete from txwx_product_basic_info where id = #{id}
+    </delete>
+
+    <delete id="deleteProductBasicInfoByProductType" parameterType="String">
+        delete from txwx_product_basic_info where product_type = #{productType}
+    </delete>
+
+    <delete id="clearProductBasicInfo">
+        truncate table txwx_product_basic_info
+    </delete>
+
+    <update id="updateByAndTime">
+        update txwx_product_basic_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+        </trim>
+    </update>
+
+</mapper>

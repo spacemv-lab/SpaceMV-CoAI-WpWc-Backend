@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.sync.center.mapper.SyncLogMapper">
+
+    <resultMap id="SyncLogResult" type="com.txwx.sync.center.domain.po.SyncLogPO">
+        <id property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="channelType" column="channel_type"/>
+        <result property="accountId" column="account_id"/>
+        <result property="dataType" column="data_type"/>
+        <result property="dataCount" column="data_count"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="sync_log_columns">
+        id, task_id, channel_type, account_id, data_type,
+        data_count, start_time, end_time, status, error_message,
+        create_by, create_time, update_by, update_time, del_flag
+    </sql>
+
+    <select id="selectLogList" parameterType="com.txwx.sync.center.domain.po.SyncLogPO" resultMap="SyncLogResult">
+        SELECT
+        <include refid="sync_log_columns"/>
+        FROM txwx_sync_log
+        WHERE del_flag = '0'
+        <if test="taskId != null">
+            AND task_id = #{taskId}
+        </if>
+        <if test="channelType != null and channelType != ''">
+            AND channel_type = #{channelType}
+        </if>
+        <if test="accountId != null">
+            AND account_id = #{accountId}
+        </if>
+        <if test="dataType != null and dataType != ''">
+            AND data_type = #{dataType}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectLogById" parameterType="java.lang.Long" resultMap="SyncLogResult">
+        SELECT
+        <include refid="sync_log_columns"/>
+        FROM txwx_sync_log
+        WHERE id = #{id} AND del_flag = '0'
+    </select>
+
+    <insert id="insertLog" parameterType="com.txwx.sync.center.domain.po.SyncLogPO">
+        INSERT INTO txwx_sync_log (
+            task_id, channel_type, account_id, data_type,
+            data_count, start_time, end_time, status, error_message,
+            create_by, create_time, update_by, update_time, del_flag
+        ) VALUES (
+            #{taskId}, #{channelType}, #{accountId}, #{dataType},
+            #{dataCount}, #{startTime}, #{endTime}, #{status}, #{errorMessage},
+            #{createBy}, NOW(), #{updateBy}, NOW(), '0'
+        )
+    </insert>
+
+</mapper>
