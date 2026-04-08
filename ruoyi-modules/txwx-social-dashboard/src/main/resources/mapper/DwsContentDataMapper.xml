@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.dashboard.mapper.DwsContentDataMapper">
+
+    <delete id="truncateDwsContentData">
+        TRUNCATE TABLE dws_content_data
+    </delete>
+
+    <insert id="aggregateArticleDetailsDataToDws">
+        INSERT INTO dws_content_data
+        (
+            title,
+            create_time,
+            latest_stat_date,
+            msgid,
+            author,
+            read_user_total,
+            read_user_source_all,
+            read_user_source_msg,
+            read_user_source_chat,
+            read_user_source_moments,
+            read_user_source_homepage,
+            read_user_source_other,
+            read_user_source_recommend,
+            read_user_source_search,
+            share_user,
+            read_subscribe_user,
+            url,
+            platform_id,
+            product_id,
+            pull_time
+        )
+        SELECT
+            if(ifNull(a.msgid, '') = '', d.detail_title, a.article_title) AS title,
+            if(ifNull(a.msgid, '') = '', d.ref_date, toDate(a.article_create_time)) AS create_time,
+            d.latest_stat_date,
+            d.msgid,
+            if(ifNull(a.msgid, '') = '', '', a.article_author) AS author,
+            d.read_user_total,
+            d.read_user_source_all,
+            d.read_user_source_msg,
+            d.read_user_source_chat,
+            d.read_user_source_moments,
+            d.read_user_source_homepage,
+            d.read_user_source_other,
+            d.read_user_source_recommend,
+            d.read_user_source_search,
+            d.share_user,
+            d.read_subscribe_user,
+            if(ifNull(a.msgid, '') = '', d.detail_url, a.article_url) AS url,
+            d.platform_id,
+            d.product_id,
+            now() AS pull_time
+        FROM
+            (
+                SELECT
+                    msgid,
+                    argMax(title, tuple(stat_date, update_time)) AS detail_title,
+                    argMax(ref_date, tuple(stat_date, update_time)) AS ref_date,
+                    max(stat_date) AS latest_stat_date,
+                    argMax(read_user, tuple(stat_date, update_time)) AS read_user_total,
+                    argMax(read_user_source_all, tuple(stat_date, update_time)) AS read_user_source_all,
+                    argMax(read_user_source_msg, tuple(stat_date, update_time)) AS read_user_source_msg,
+                    argMax(read_user_source_chat, tuple(stat_date, update_time)) AS read_user_source_chat,
+                    argMax(read_user_source_moments, tuple(stat_date, update_time)) AS read_user_source_moments,
+                    argMax(read_user_source_homepage, tuple(stat_date, update_time)) AS read_user_source_homepage,
+                    argMax(read_user_source_other, tuple(stat_date, update_time)) AS read_user_source_other,
+                    argMax(read_user_source_recommend, tuple(stat_date, update_time)) AS read_user_source_recommend,
+                    argMax(read_user_source_search, tuple(stat_date, update_time)) AS read_user_source_search,
+                    argMax(share_user, tuple(stat_date, update_time)) AS share_user,
+                    argMax(read_subscribe_user, tuple(stat_date, update_time)) AS read_subscribe_user,
+                    argMax(url, tuple(stat_date, update_time)) AS detail_url,
+                    platform_id,
+                    product_id
+                FROM ods_article_detail_daily
+                GROUP BY
+                    msgid,
+                    platform_id,
+                    product_id
+            ) d
+            LEFT ANY JOIN
+        (
+            SELECT
+                msgid,
+                product_id,
+                platform_id,
+                argMax(title, tuple(update_time, create_time)) AS article_title,
+                argMax(create_time, tuple(update_time, create_time)) AS article_create_time,
+                argMax(author, tuple(update_time, create_time)) AS article_author,
+                argMax(url, tuple(update_time, create_time)) AS article_url
+            FROM ods_article
+            GROUP BY
+                msgid,
+                platform_id,
+                product_id
+        ) a
+        ON d.msgid = a.msgid
+        AND d.platform_id = a.platform_id
+        AND d.product_id = a.product_id
+    </insert>
+
+
+    <!--    <insert id="aggregateArticleDetailsDataToDws">-->
+<!--        INSERT INTO dws_content_data-->
+<!--        (-->
+<!--            title,-->
+<!--            create_time,-->
+<!--            latest_stat_date,-->
+<!--            msgid,-->
+<!--            author,-->
+<!--            read_user_total,-->
+<!--            read_user_source_all,-->
+<!--            read_user_source_msg,-->
+<!--            read_user_source_chat,-->
+<!--            read_user_source_moments,-->
+<!--            read_user_source_homepage,-->
+<!--            read_user_source_other,-->
+<!--            read_user_source_recommend,-->
+<!--            read_user_source_search,-->
+<!--            share_user,-->
+<!--            read_subscribe_user,-->
+<!--            url,-->
+<!--            pull_time-->
+<!--        )-->
+<!--        SELECT-->
+<!--            if(ifNull(a.msgid, '') = '', d.detail_title, a.article_title) AS title,-->
+<!--            if(ifNull(a.msgid, '') = '', d.ref_date, toDate(a.article_create_time)) AS create_time,-->
+<!--            d.latest_stat_date,-->
+<!--            d.msgid,-->
+<!--            if(ifNull(a.msgid, '') = '', '', a.article_author) AS author,-->
+<!--            d.read_user_total,-->
+<!--            d.read_user_source_all,-->
+<!--            d.read_user_source_msg,-->
+<!--            d.read_user_source_chat,-->
+<!--            d.read_user_source_moments,-->
+<!--            d.read_user_source_homepage,-->
+<!--            d.read_user_source_other,-->
+<!--            d.read_user_source_recommend,-->
+<!--            d.read_user_source_search,-->
+<!--            d.share_user,-->
+<!--            d.read_subscribe_user,-->
+<!--            if(ifNull(a.msgid, '') = '', d.detail_url, a.article_url) AS url,-->
+<!--            now() AS pull_time-->
+<!--        FROM-->
+<!--            (-->
+<!--                SELECT-->
+<!--                    msgid,-->
+<!--                    argMax(title, tuple(stat_date, update_time)) AS detail_title,-->
+<!--                    argMax(ref_date, tuple(stat_date, update_time)) AS ref_date,-->
+<!--                    max(stat_date) AS latest_stat_date,-->
+<!--                    argMax(read_user, tuple(stat_date, update_time)) AS read_user_total,-->
+<!--                    argMax(read_user_source_all, tuple(stat_date, update_time)) AS read_user_source_all,-->
+<!--                    argMax(read_user_source_msg, tuple(stat_date, update_time)) AS read_user_source_msg,-->
+<!--                    argMax(read_user_source_chat, tuple(stat_date, update_time)) AS read_user_source_chat,-->
+<!--                    argMax(read_user_source_moments, tuple(stat_date, update_time)) AS read_user_source_moments,-->
+<!--                    argMax(read_user_source_homepage, tuple(stat_date, update_time)) AS read_user_source_homepage,-->
+<!--                    argMax(read_user_source_other, tuple(stat_date, update_time)) AS read_user_source_other,-->
+<!--                    argMax(read_user_source_recommend, tuple(stat_date, update_time)) AS read_user_source_recommend,-->
+<!--                    argMax(read_user_source_search, tuple(stat_date, update_time)) AS read_user_source_search,-->
+<!--                    argMax(share_user, tuple(stat_date, update_time)) AS share_user,-->
+<!--                    argMax(read_subscribe_user, tuple(stat_date, update_time)) AS read_subscribe_user,-->
+<!--                    argMax(url, tuple(stat_date, update_time)) AS detail_url-->
+<!--                FROM wcai.ods_article_detail_daily-->
+
+<!--                GROUP BY msgid-->
+<!--            ) d-->
+<!--            LEFT ANY JOIN-->
+<!--            (-->
+<!--                SELECT-->
+<!--                    msgid,-->
+<!--                    argMax(title, tuple(update_time, create_time)) AS article_title,-->
+<!--                    argMax(create_time, tuple(update_time, create_time)) AS article_create_time,-->
+<!--                    argMax(author, tuple(update_time, create_time)) AS article_author,-->
+<!--                    argMax(url, tuple(update_time, create_time)) AS article_url-->
+<!--                FROM wcai.ods_article-->
+<!--                GROUP BY msgid-->
+<!--            ) a-->
+<!--        ON d.msgid = a.msgid;-->
+<!--    </insert>-->
+</mapper>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxCompanyInfoMapper">
+    
+    <resultMap type="TxwxCompanyInfo" id="CompanyInfoResult">
+        <result property="id"    column="id"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="copyrightInfo"    column="copyright_info"    />
+        <result property="versionNumber"    column="version_number"    />
+        <result property="companyAddress"    column="company_address"    />
+        <result property="securityRecord"    column="security_record"    />
+        <result property="icpRecord"    column="icp_record"    />
+        <result property="businessCooperation"    column="business_cooperation"    />
+        <result property="resumeDelivery"    column="resume_delivery"    />
+        <result property="logoUrl"    column="logo_url"    />
+        <result property="addrUrl"    column="addr_url"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectCompanyInfoVo">
+        select id, company_name, copyright_info, version_number, company_address, security_record, icp_record, business_cooperation, resume_delivery, logo_url, addr_url, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_company_info
+    </sql>
+
+    <select id="selectCompanyInfoById" parameterType="Long" resultMap="CompanyInfoResult">
+        <include refid="selectCompanyInfoVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectCompanyInfo" resultMap="CompanyInfoResult">
+        <include refid="selectCompanyInfoVo"/>
+        limit 1
+    </select>
+        
+    <insert id="insertCompanyInfo" parameterType="TxwxCompanyInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into txwx_company_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyName != null and companyName != ''">company_name,</if>
+            <if test="copyrightInfo != null">copyright_info,</if>
+            <if test="versionNumber != null">version_number,</if>
+            <if test="companyAddress != null">company_address,</if>
+            <if test="securityRecord != null">security_record,</if>
+            <if test="icpRecord != null">icp_record,</if>
+            <if test="businessCooperation != null">business_cooperation,</if>
+            <if test="resumeDelivery != null">resume_delivery,</if>
+            <if test="logoUrl != null">logo_url,</if>
+            <if test="addrUrl != null">addr_url,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyName != null and companyName != ''">#{companyName},</if>
+            <if test="copyrightInfo != null">#{copyrightInfo},</if>
+            <if test="versionNumber != null">#{versionNumber},</if>
+            <if test="companyAddress != null">#{companyAddress},</if>
+            <if test="securityRecord != null">#{securityRecord},</if>
+            <if test="icpRecord != null">#{icpRecord},</if>
+            <if test="businessCooperation != null">#{businessCooperation},</if>
+            <if test="resumeDelivery != null">#{resumeDelivery},</if>
+            <if test="logoUrl != null">#{logoUrl},</if>
+            <if test="addrUrl != null">#{addrUrl},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCompanyInfo" parameterType="TxwxCompanyInfo">
+        update txwx_company_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyName != null and companyName != ''">company_name = #{companyName},</if>
+            <if test="copyrightInfo != null">copyright_info = #{copyrightInfo},</if>
+            <if test="versionNumber != null">version_number = #{versionNumber},</if>
+            <if test="companyAddress != null">company_address = #{companyAddress},</if>
+            <if test="securityRecord != null">security_record = #{securityRecord},</if>
+            <if test="icpRecord != null">icp_record = #{icpRecord},</if>
+            <if test="businessCooperation != null">business_cooperation = #{businessCooperation},</if>
+            <if test="resumeDelivery != null">resume_delivery = #{resumeDelivery},</if>
+            <if test="logoUrl != null">logo_url = #{logoUrl},</if>
+            <if test="addrUrl != null">addr_url = #{addrUrl},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCompanyInfoById" parameterType="Long">
+        delete from txwx_company_info where id = #{id}
+    </delete>
+
+    <delete id="clearCompanyInfo">
+        truncate table txwx_company_info
+    </delete>
+
+    <update id="updateByAndTime">
+        update txwx_company_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+        </trim>
+    </update>
+
+</mapper>

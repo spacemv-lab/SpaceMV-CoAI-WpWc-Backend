@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.TxwxUserPermissionMapper">
+
+    <resultMap type="com.txwx.social.crm.domain.po.TxwxUserPermissionPO" id="TxwxUserPermissionResult">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="relationType" column="relation_type"/>
+        <result property="relationIds" column="relation_ids"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectPermissionVo">
+        select id, user_id, relation_type, relation_ids, del_flag, create_by, create_time, update_by, update_time from txwx_user_permission
+    </sql>
+
+    <select id="selectPermissionList" parameterType="com.txwx.social.crm.domain.po.TxwxUserPermissionPO" resultMap="TxwxUserPermissionResult">
+        <include refid="selectPermissionVo"/>
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="relationType != null">
+                and relation_type = #{relationType}
+            </if>
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectPermissionById" parameterType="Long" resultMap="TxwxUserPermissionResult">
+        <include refid="selectPermissionVo"/>
+        where id = #{id} and del_flag = '0'
+    </select>
+
+    <insert id="insertPermission" parameterType="com.txwx.social.crm.domain.po.TxwxUserPermissionPO">
+        insert into txwx_user_permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="relationType != null">relation_type,</if>
+            <if test="relationIds != null and relationIds != ''">relation_ids,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="relationType != null">#{relationType},</if>
+            <if test="relationIds != null and relationIds != ''">#{relationIds},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePermission" parameterType="com.txwx.social.crm.domain.po.TxwxUserPermissionPO">
+        update txwx_user_permission
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="relationType != null">relation_type = #{relationType},</if>
+            <if test="relationIds != null and relationIds != ''">relation_ids = #{relationIds},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePermissionByIds" parameterType="Long">
+        update txwx_user_permission set del_flag = '1' where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectPermissionByUserId" parameterType="Long" resultMap="TxwxUserPermissionResult">
+        <include refid="selectPermissionVo"/>
+        where user_id = #{userId} and del_flag = '0'
+    </select>
+
+    <delete id="deletePermissionByUserId" parameterType="Long">
+        delete from txwx_user_permission where user_id = #{userId}
+    </delete>
+
+</mapper>

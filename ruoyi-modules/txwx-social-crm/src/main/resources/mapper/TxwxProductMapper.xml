@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.TxwxProductMapper">
+
+    <resultMap type="com.txwx.social.crm.domain.po.TxwxProductPO" id="TxwxProductResult">
+        <result property="id" column="id"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCode" column="product_code"/>
+        <result property="productDesc" column="product_desc"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <sql id="selectProductVo">
+        select id, user_id, product_name, product_code, product_desc, del_flag, create_by, create_time, update_by, update_time from txwx_product
+    </sql>
+
+    <select id="selectProductList" parameterType="com.txwx.social.crm.domain.po.TxwxProductPO" resultMap="TxwxProductResult">
+        <include refid="selectProductVo"/>
+        <where>
+            <choose>
+                <when test="_parameter != null">
+                    <if test="productName != null and productName != ''">
+                        and product_name like concat('%', #{productName}, '%')
+                    </if>
+                    <if test="productCode != null and productCode != ''">
+                        and product_code = #{productCode}
+                    </if>
+                </when>
+            </choose>
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectProductById" parameterType="Long" resultMap="TxwxProductResult">
+        <include refid="selectProductVo"/>
+        where id = #{id} and del_flag = '0'
+    </select>
+
+    <insert id="insertProduct" parameterType="com.txwx.social.crm.domain.po.TxwxProductPO">
+        insert into txwx_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="productCode != null and productCode != ''">product_code,</if>
+            <if test="productDesc != null and productDesc != ''">product_desc,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="productCode != null and productCode != ''">#{productCode},</if>
+            <if test="productDesc != null and productDesc != ''">#{productDesc},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateProduct" parameterType="com.txwx.social.crm.domain.po.TxwxProductPO">
+        update txwx_product
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productName != null and productName != ''">product_name = #{productName},</if>
+            <if test="productCode != null and productCode != ''">product_code = #{productCode},</if>
+            <if test="productDesc != null and productDesc != ''">product_desc = #{productDesc},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProductByIds" parameterType="Long">
+        update txwx_product set del_flag = '1' where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

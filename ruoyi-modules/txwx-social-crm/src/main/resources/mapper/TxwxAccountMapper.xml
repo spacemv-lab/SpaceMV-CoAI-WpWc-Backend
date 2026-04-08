@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.TxwxAccountMapper">
+
+    <resultMap type="com.txwx.social.crm.domain.po.TxwxAccountPO" id="TxwxAccountResult">
+        <result property="id" column="id"/>
+        <result property="channelId" column="channel_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="accountName" column="account_name"/>
+        <result property="accountNo" column="account_no"/>
+        <result property="appid" column="appid"/>
+        <result property="secret" column="secret"/>
+        <result property="token" column="token"/>
+        <result property="encodingAesKey" column="encoding_aes_key"/>
+        <result property="status" column="status"/>
+        <result property="lastSyncTime" column="last_sync_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectAccountVo">
+        select id, channel_id, product_id, account_name, account_no, appid, secret, token, encoding_aes_key, status, last_sync_time, del_flag, create_by, create_time, update_by, update_time from txwx_account
+    </sql>
+
+    <select id="selectAccountList" parameterType="com.txwx.social.crm.domain.po.TxwxAccountPO" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        <where>
+            <if test="channelId != null">
+                and channel_id = #{channelId}
+            </if>
+            <if test="productId != null">
+                and product_id = #{productId}
+            </if>
+            <if test="accountName != null and accountName != ''">
+                and account_name like concat('%', #{accountName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectAccountById" parameterType="Long" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        where id = #{id} and del_flag = '0'
+    </select>
+
+    <insert id="insertAccount" parameterType="com.txwx.social.crm.domain.po.TxwxAccountPO">
+        insert into txwx_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="channelId != null">channel_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="accountName != null and accountName != ''">account_name,</if>
+            <if test="accountNo != null and accountNo != ''">account_no,</if>
+            <if test="appid != null and appid != ''">appid,</if>
+            <if test="secret != null and secret != ''">secret,</if>
+            <if test="token != null and token != ''">token,</if>
+            <if test="encodingAesKey != null and encodingAesKey != ''">encoding_aes_key,</if>
+            <if test="status != null">status,</if>
+            <if test="lastSyncTime != null">last_sync_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="channelId != null">#{channelId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="accountName != null and accountName != ''">#{accountName},</if>
+            <if test="accountNo != null and accountNo != ''">#{accountNo},</if>
+            <if test="appid != null and appid != ''">#{appid},</if>
+            <if test="secret != null and secret != ''">#{secret},</if>
+            <if test="token != null and token != ''">#{token},</if>
+            <if test="encodingAesKey != null and encodingAesKey != ''">#{encodingAesKey},</if>
+            <if test="status != null">#{status},</if>
+            <if test="lastSyncTime != null">#{lastSyncTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAccount" parameterType="com.txwx.social.crm.domain.po.TxwxAccountPO">
+        update txwx_account
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="channelId != null">channel_id = #{channelId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="accountName != null and accountName != ''">account_name = #{accountName},</if>
+            <if test="accountNo != null and accountNo != ''">account_no = #{accountNo},</if>
+            <if test="appid != null and appid != ''">appid = #{appid},</if>
+            <if test="secret != null and secret != ''">secret = #{secret},</if>
+            <if test="token != null and token != ''">token = #{token},</if>
+            <if test="encodingAesKey != null and encodingAesKey != ''">encoding_aes_key = #{encodingAesKey},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAccountByIds" parameterType="Long">
+        update txwx_account set del_flag = '1' where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectAccountByProductId" parameterType="Long" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        where product_id = #{productId} and del_flag = '0'
+    </select>
+
+    <select id="selectAccountByProductIds" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        where del_flag = '0'
+        <if test="productIds != null and productIds.size() > 0">
+            and product_id in
+            <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                #{productId}
+            </foreach>
+        </if>
+        <if test="productIds == null or productIds.size() == 0">
+            and 1=0
+        </if>
+    </select>
+
+
+    <select id="selectAccountByChannelIds" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        where del_flag = '0'
+        <if test="channelIds != null and channelIds.size() > 0">
+            and channel_id in
+            <foreach collection="channelIds" item="channelId" open="(" separator="," close=")">
+                #{channelId}
+            </foreach>
+        </if>
+        <if test="channelIds == null or channelIds.size() == 0">
+            and 1=0
+        </if>
+    </select>
+
+    <select id="selectAccountByChannelId" parameterType="Long" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        where channel_id = #{channelId} and del_flag = '0'
+    </select>
+
+</mapper>

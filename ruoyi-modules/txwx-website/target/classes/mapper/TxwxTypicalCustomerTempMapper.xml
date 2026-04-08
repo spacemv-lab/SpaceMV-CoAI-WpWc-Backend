@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.web.mapper.TxwxTypicalCustomerTempMapper">
+    
+    <resultMap type="TxwxTypicalCustomerTemp" id="TypicalCustomerTempResult">
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="jumpUrl"    column="jump_url"    />
+        <result property="isShow"    column="is_show"    />
+        <result property="sortOrder"    column="sort_order"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="savedBy"    column="saved_by"    />
+        <result property="savedTime"    column="saved_time"    />
+        <result property="publishedBy"    column="published_by"    />
+        <result property="publishedTime"    column="published_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectTypicalCustomerTempVo">
+        select customer_id, customer_name, image_url, jump_url, is_show, sort_order, create_by, create_time, update_by, update_time, saved_by, saved_time, published_by, published_time, remark from txwx_typical_customer_temp
+    </sql>
+
+    <select id="selectTypicalCustomerTempList" parameterType="TxwxTypicalCustomerTemp" resultMap="TypicalCustomerTempResult">
+        <include refid="selectTypicalCustomerTempVo"/>
+        <where>  
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url like concat('%', #{imageUrl}, '%')</if>
+            <if test="jumpUrl != null  and jumpUrl != ''"> and jump_url like concat('%', #{jumpUrl}, '%')</if>
+            <if test="isShow != null  and isShow != ''"> and is_show = #{isShow}</if>
+            <if test="sortOrder != null "> and sort_order = #{sortOrder}</if>
+        </where>
+        order by sort_order asc, create_time desc
+    </select>
+    
+    <select id="selectTypicalCustomerTempByCustomerId" parameterType="Long" resultMap="TypicalCustomerTempResult">
+        <include refid="selectTypicalCustomerTempVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectShowTypicalCustomerTempList" parameterType="String" resultMap="TypicalCustomerTempResult">
+        <include refid="selectTypicalCustomerTempVo"/>
+        where is_show = #{isShow}
+        order by sort_order asc, create_time desc
+    </select>
+        
+    <insert id="insertTypicalCustomerTemp" parameterType="TxwxTypicalCustomerTemp" useGeneratedKeys="true" keyProperty="customerId">
+        insert into txwx_typical_customer_temp
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerName != null and customerName != ''">customer_name,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="jumpUrl != null">jump_url,</if>
+            <if test="isShow != null">is_show,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="savedBy != null">saved_by,</if>
+            <if test="savedTime != null">saved_time,</if>
+            <if test="publishedBy != null">published_by,</if>
+            <if test="publishedTime != null">published_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerName != null and customerName != ''">#{customerName},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="jumpUrl != null">#{jumpUrl},</if>
+            <if test="isShow != null">#{isShow},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="savedBy != null">#{savedBy},</if>
+            <if test="savedTime != null">#{savedTime},</if>
+            <if test="publishedBy != null">#{publishedBy},</if>
+            <if test="publishedTime != null">#{publishedTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTypicalCustomerTemp" parameterType="TxwxTypicalCustomerTemp">
+        update txwx_typical_customer_temp
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerName != null and customerName != ''">customer_name = #{customerName},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="jumpUrl != null">jump_url = #{jumpUrl},</if>
+            <if test="isShow != null">is_show = #{isShow},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="savedBy != null">saved_by = #{savedBy},</if>
+            <if test="savedTime != null">saved_time = #{savedTime},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            <if test="publishedTime != null">published_time = #{publishedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where customer_id = #{customerId}
+    </update>
+
+    <update id="updateCustomerSort">
+        update txwx_typical_customer_temp set sort_order = #{sortOrder} where customer_id = #{customerId}
+    </update>
+
+    <delete id="deleteTypicalCustomerTempByCustomerId" parameterType="Long">
+        delete from txwx_typical_customer_temp where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteTypicalCustomerTempByCustomerIds" parameterType="String">
+        delete from txwx_typical_customer_temp where customer_id in 
+        <foreach item="customerId" collection="array" open="(" separator="," close=")">
+            #{customerId}
+        </foreach>
+    </delete>
+
+    <delete id="clearTypicalCustomerTemp">
+        truncate table txwx_typical_customer_temp
+    </delete>
+
+    <select id="getMaxSortOrder" resultType="Integer">
+        select COALESCE(max(sort_order), 0) from txwx_typical_customer_temp
+    </select>
+
+    <!-- 将临时表数据复制到正式表 -->
+    <insert id="copyTempToFormal">
+        insert into txwx_typical_customer (
+            customer_name, image_url, jump_url, is_show, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        select 
+            customer_name, image_url, jump_url, is_show, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        from txwx_typical_customer_temp
+    </insert>
+
+    <!-- 批量插入典型客户配置 -->
+    <insert id="batchInsertTypicalCustomerTemp" parameterType="java.util.List">
+        insert into txwx_typical_customer_temp (
+            customer_name, image_url, jump_url, is_show, sort_order, create_by, create_time, 
+            update_by, update_time, saved_by, saved_time, published_by, published_time, remark
+        )
+        values
+        <foreach collection="typicalCustomerTempList" item="item" separator=",">
+            (
+                #{item.customerName}, #{item.imageUrl}, #{item.jumpUrl}, #{item.isShow}, #{item.sortOrder}, 
+                #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, 
+                #{item.savedBy}, #{item.savedTime}, #{item.publishedBy}, #{item.publishedTime}, #{item.remark}
+            )
+        </foreach>
+    </insert>
+
+</mapper>
