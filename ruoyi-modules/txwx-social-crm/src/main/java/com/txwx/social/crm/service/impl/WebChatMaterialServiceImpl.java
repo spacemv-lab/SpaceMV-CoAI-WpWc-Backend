@@ -128,9 +128,13 @@ public class WebChatMaterialServiceImpl implements IWebChatMaterialService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void permanentDelete(String mediaId, Long accountId) {
+    public void permanentDelete(String mediaId) {
         try {
-            String accessToken = buildAccessToken(accountId);
+            TxwxPermanentMaterialImagePO permanentMaterialImagePO = txwxPermanentMaterialImageMapper.selectPermanentMaterialImageByMediaId(mediaId);
+            if (permanentMaterialImagePO == null) {
+                return;
+            }
+            String accessToken = buildAccessToken(permanentMaterialImagePO.getAccountId());
 
             // 先删除微信远程的数据
             WebChatUtil.deleteMaterialPermanent(accessToken, mediaId);
@@ -226,7 +230,7 @@ public class WebChatMaterialServiceImpl implements IWebChatMaterialService {
 
     @Override
     @Transactional
-    public void GraphicInformationImageDelete(String mediaId, Long accountId) {
+    public void GraphicInformationImageDelete(String mediaId) {
         try {
             //TODO 这里还没有做完，还没有去删除微信侧的
             int result = txwxGraphicInformationImageMapper.deleteGraphicInformationImage(mediaId);
@@ -240,6 +244,6 @@ public class WebChatMaterialServiceImpl implements IWebChatMaterialService {
 
     private String buildAccessToken(Long articleVO) throws Exception {
         TxwxAccountPO accountPO = accountService.selectAccountById(articleVO);
-        return WebChatUtil.getAccessToken(accountPO.getAppid(), accountPO.getSecret());
+        return WebChatUtil.getAccessToken(accountPO.getAppId(), accountPO.getSecret());
     }
 }

@@ -56,7 +56,7 @@ public interface IArticleService {
     /**
      * @description: 删除草稿
      */
-    void deleteDraft(Long id, Long accountId);
+    void deleteDraft(Long id);
 
     /**
      * @description: 提交审核
@@ -71,7 +71,7 @@ public interface IArticleService {
     /**
      * @description: 发布草稿
      */
-    void publishDraft(Long id, Long accountId);
+    void publishDraft(Long id);
 
     /**
      * @description: 查询已发布文章列表
@@ -86,10 +86,10 @@ public interface IArticleService {
     /**
      * @description: 删除已发布文章
      */
-    void deletePublishedArticle(Long id, Long accountId);
+    void deletePublishedArticle(Long id);
 
     /**
      * @description: 定时任务：更新发布中文章的状态
      */
-    void updatePublishingArticleStatus(List<Long> accountIds);
+    void updatePublishingArticleStatus();
 }

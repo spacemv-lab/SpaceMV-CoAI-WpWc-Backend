@@ -2,6 +2,9 @@ package com.txwx.social.api.domain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -41,7 +44,7 @@ public class AccountDTO implements Serializable {
     private String status;
 
     @Schema(description = "应用ID")
-    private String appid;
+    private String appId;
 
     @Schema(description = "应用密钥")
     private String secret;

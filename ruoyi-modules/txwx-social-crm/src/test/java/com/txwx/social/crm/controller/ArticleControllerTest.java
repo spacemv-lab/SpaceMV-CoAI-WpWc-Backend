@@ -97,7 +97,7 @@ public class ArticleControllerTest {
     @Test
     void testDeleteDraft_Success() throws Exception {
         // 准备测试数据
-        doNothing().when(articleService).deleteDraft(anyLong(),anyLong());
+        doNothing().when(articleService).deleteDraft(anyLong());
 
         // 执行测试
         mockMvc.perform(delete("/article/deleteDraft/1"))

@@ -1,4 +1,4 @@
-package com.txwx.social.crm.service.Impl;
+package com.txwx.social.crm.service.impl;
 
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.crm.domain.po.TxwxAccountPO;
@@ -107,7 +107,7 @@ public class ArticleServiceImpl implements IArticleService {
 
     private String buildAccessToken(Long articleVO) throws Exception {
         TxwxAccountPO accountPO = accountService.selectAccountById(articleVO);
-        return WebChatUtil.getAccessToken(accountPO.getAppid(), accountPO.getSecret());
+        return WebChatUtil.getAccessToken(accountPO.getAppId(), accountPO.getSecret());
     }
 
     @Override
@@ -414,7 +414,7 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     @Transactional
-    public void deleteDraft(Long id, Long accountId) {
+    public void deleteDraft(Long id) {
         try {
             // 1. 查询文章
             TxwxArticlePO article = txwxArticleMapper.selectArticleById(id);
@@ -424,7 +424,7 @@ public class ArticleServiceImpl implements IArticleService {
 
             // 2. 调用微信API删除草稿
             if (StringUtils.isNotEmpty(article.getMediaId())) {
-                String accessToken = buildAccessToken(accountId);
+                String accessToken = buildAccessToken(article.getAccountId());
                 WebChatUtil.deleteDraft(accessToken, article.getMediaId());
             }
 
@@ -488,7 +488,7 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     @Transactional
-    public void publishDraft(Long id, Long accountId) {
+    public void publishDraft(Long id) {
         try {
             // 1. 查询文章
             TxwxArticlePO article = txwxArticleMapper.selectArticleById(id);
@@ -497,7 +497,7 @@ public class ArticleServiceImpl implements IArticleService {
             }
 
             // 2. 调用微信API发布
-            String accessToken = buildAccessToken(accountId);
+            String accessToken = buildAccessToken(article.getAccountId());
             PublishDraftResponse response = WebChatUtil.publishDraft(accessToken, article.getMediaId());
 
             // 3. 转换为VO对象
@@ -542,7 +542,7 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     @Transactional
-    public void deletePublishedArticle(Long id, Long accountId) {
+    public void deletePublishedArticle(Long id) {
         try {
             // 1. 查询文章
             TxwxArticlePO article = txwxArticleMapper.selectArticleById(id);
@@ -552,7 +552,7 @@ public class ArticleServiceImpl implements IArticleService {
 
             // 2. 调用微信API删除已发布文章
             if(StringUtils.isNotEmpty(article.getPublishId())){
-                String accessToken = buildAccessToken(accountId);
+                String accessToken = buildAccessToken(article.getAccountId());
                 GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
 
                 if(response.getPublish_status() == 0){
@@ -587,10 +587,10 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     @Transactional
-    public void updatePublishingArticleStatus(List<Long> accountIds) {
+    public void updatePublishingArticleStatus() {
         try {
             // 1. 查询所有发布中的文章
-            List<TxwxArticlePO> publishingArticles = txwxArticleMapper.selectPublishingArticles(accountIds);
+            List<TxwxArticlePO> publishingArticles = txwxArticleMapper.selectPublishingArticles();
             if (publishingArticles == null || publishingArticles.isEmpty()) {
                 return;
             }
@@ -599,15 +599,15 @@ public class ArticleServiceImpl implements IArticleService {
             // 2. 准备批量更新的文章列表
             List<TxwxArticlePO> articlesToUpdate = new ArrayList<>();
 
-            //TODO 这里的批量化没改造完
-            String accessToken = buildAccessToken(accountIds.get(0));
-
             // 3. 遍历每篇文章，查询发布状态
             for (TxwxArticlePO article : publishingArticles) {
                 try {
                     if (StringUtils.isEmpty(article.getPublishId())) {
                         continue;
                     }
+
+                    //TODO 这里的批量化没改造完
+                    String accessToken = buildAccessToken(article.getAccountId());
 
                     // 调用微信API查询发布状态
                     GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());

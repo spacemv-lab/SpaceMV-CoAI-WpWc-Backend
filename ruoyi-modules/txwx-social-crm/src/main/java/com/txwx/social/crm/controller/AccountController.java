@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -66,10 +67,7 @@ public class AccountController extends BaseController implements AccountApiClien
     @PostMapping
     @Operation(summary = "添加账号")
     public AjaxResult addAccount(@Parameter(description = "账号信息") @RequestBody AccountDTO account) {
-        TxwxAccountPO po = new TxwxAccountPO();
-        BeanUtils.copyProperties(account, po);
-        fillBaseInfo(po);
-        return toAjax(accountService.insertAccount(po));
+        return toAjax(accountService.insertAccount(account));
     }
 
     private void fillBaseInfo(TxwxAccountPO po) {

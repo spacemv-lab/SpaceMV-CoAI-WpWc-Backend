@@ -34,7 +34,7 @@ public interface IWebChatMaterialService {
     /**
      * @description: 根据mediaId删除永久素材
      */
-    void permanentDelete(String mediaId, Long accountId);
+    void permanentDelete(String mediaId);
 
     /**
      * @description: 获取图文消息图片列表
@@ -59,5 +59,5 @@ public interface IWebChatMaterialService {
     /**
      * @description: 根据mediaId删除图文消息图片
      */
-    void GraphicInformationImageDelete(String mediaId, Long accountId);
+    void GraphicInformationImageDelete(String mediaId);
 }

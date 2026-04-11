@@ -8,7 +8,7 @@
         <result property="productId" column="product_id"/>
         <result property="accountName" column="account_name"/>
         <result property="accountNo" column="account_no"/>
-        <result property="appid" column="appid"/>
+        <result property="appId" column="appid"/>
         <result property="secret" column="secret"/>
         <result property="token" column="token"/>
         <result property="encodingAesKey" column="encoding_aes_key"/>
@@ -57,7 +57,7 @@
             <if test="productId != null">product_id,</if>
             <if test="accountName != null and accountName != ''">account_name,</if>
             <if test="accountNo != null and accountNo != ''">account_no,</if>
-            <if test="appid != null and appid != ''">appid,</if>
+            <if test="appId != null and appId != ''">appid,</if>
             <if test="secret != null and secret != ''">secret,</if>
             <if test="token != null and token != ''">token,</if>
             <if test="encodingAesKey != null and encodingAesKey != ''">encoding_aes_key,</if>
@@ -75,7 +75,7 @@
             <if test="productId != null">#{productId},</if>
             <if test="accountName != null and accountName != ''">#{accountName},</if>
             <if test="accountNo != null and accountNo != ''">#{accountNo},</if>
-            <if test="appid != null and appid != ''">#{appid},</if>
+            <if test="appId != null and appId != ''">#{appId},</if>
             <if test="secret != null and secret != ''">#{secret},</if>
             <if test="token != null and token != ''">#{token},</if>
             <if test="encodingAesKey != null and encodingAesKey != ''">#{encodingAesKey},</if>

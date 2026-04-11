@@ -112,12 +112,12 @@ public class ArticleServiceTest {
     @Test
     void testDeleteDraft_Success() {
         // 准备测试数据
-        doNothing().when(articleService).deleteDraft(anyLong(), anyLong());
+        doNothing().when(articleService).deleteDraft(anyLong());
 
         // 执行测试
-        assertDoesNotThrow(() -> articleService.deleteDraft(1L, 1L));
+        assertDoesNotThrow(() -> articleService.deleteDraft(1L));
 
         // 验证调用
-        verify(articleService, times(1)).deleteDraft(1L, 1L);
+        verify(articleService, times(1)).deleteDraft(1L);
     }
 }

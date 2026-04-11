@@ -39,6 +39,14 @@ public interface IProductService {
     int insertProduct(TxwxProductPO product);
 
     /**
+     * 新增产品
+     *
+     * @param product 产品信息
+     * @return 结果
+     */
+    Long insertProductReturnID(TxwxProductPO product);
+
+    /**
      * 修改产品
      *
      * @param product 产品信息
