@@ -43,7 +43,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询草稿列表
      */
-    @GetMapping("/draftList")
+    @PostMapping("/draftList")
     @Operation(summary = "查询草稿列表")
     public AjaxResult getDraftList(@Parameter(description = "草稿查询请求") @Valid @RequestBody ArticleDraftReqVO reqVO) {
         List<TxwxArticlePO> list = articleService.getDraftList(reqVO);
@@ -53,7 +53,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询草稿总数
      */
-    @GetMapping("/draftCount")
+    @PostMapping("/draftCount")
     @Operation(summary = "查询草稿总数")
     public AjaxResult getDraftCount(@Parameter(description = "草稿查询请求")@Valid @RequestBody ArticleDraftReqVO reqVO) {
         int count = articleService.getDraftCount(reqVO);
@@ -108,11 +108,10 @@ public class ArticleController extends BaseController {
     /**
      * @description: 删除草稿
      */
-    @DeleteMapping("/{accountId}/deleteDraft/{id}")
+    @DeleteMapping("/deleteDraft/{id}")
     @Operation(summary = "删除草稿")
-    public AjaxResult deleteDraft(@PathVariable("id") Long id,
-                                  @PathVariable("accountId") Long accountId) {
-        articleService.deleteDraft(id, accountId);
+    public AjaxResult deleteDraft(@PathVariable("id") Long id) {
+        articleService.deleteDraft(id);
         return success("删除草稿成功");
     }
 
@@ -142,20 +141,19 @@ public class ArticleController extends BaseController {
      */
     @PostMapping("/publishDraft")
     @Operation(summary = "发布草稿")
-    public AjaxResult publishDraft(@RequestParam Long id,
-                                   @NotBlank(message = "账号不能为空")@RequestParam("accountId") Long accountId) {
-        articleService.publishDraft(id, accountId);
+    public AjaxResult publishDraft(@RequestParam Long id) {
+        articleService.publishDraft(id);
         return success("发布草稿成功");
     }
 
     /**
      * @description: 查询已发布文章列表
      */
-    @GetMapping("/publishedList")
+    @PostMapping("/publishedList")
     @Operation(summary = "查询已发布文章记录")
     public AjaxResult getPublishedList(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                      @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-                                       @NotEmpty(message = "账号列表不能为空")  @RequestParam("accountIds") List<Long> accountIds) {
+                                       @NotEmpty(message = "账号列表不能为空")  @RequestBody List<Long> accountIds) {
         List<TxwxArticlePO> list = articleService.getPublishedList(pageNum, pageSize, accountIds);
         return success(list);
     }
@@ -183,11 +181,10 @@ public class ArticleController extends BaseController {
     /**
      * @description: 删除已发布文章
      */
-    @DeleteMapping("/{accountId}/deletePublishedArticle/{id}")
+    @DeleteMapping("/deletePublishedArticle/{id}")
     @Operation(summary = "删除已发布文章")
-    public AjaxResult deletePublishedArticle(@PathVariable("id") Long id,
-                                             @PathVariable("accountId") Long accountId) {
-        articleService.deletePublishedArticle(id, accountId);
+    public AjaxResult deletePublishedArticle(@PathVariable("id") Long id) {
+        articleService.deletePublishedArticle(id);
         return success("删除已发布文章成功");
     }
 }

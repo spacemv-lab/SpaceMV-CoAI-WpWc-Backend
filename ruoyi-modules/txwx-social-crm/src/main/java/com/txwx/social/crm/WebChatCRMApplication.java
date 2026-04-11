@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication
 @MapperScan("com.txwx.social.crm.mapper")
-@ComponentScan(basePackages = {"com.ruoyi.common.security.service", "com.txwx.social.crm", "com.txwx.social.api"})
+@ComponentScan(basePackages = "com.txwx.social.crm")
 public class WebChatCRMApplication {
 
     public static void main(String[] args){

@@ -32,9 +32,7 @@ public class ArticleScheduledTask {
     public void updatePublishingArticleStatus() {
         try {
             logger.info("开始执行定时任务：更新发布中文章的状态");
-            List<Long> accountIds = Lists.newArrayList();
-            accountIds.add(1L);
-            articleService.updatePublishingArticleStatus(accountIds);
+            articleService.updatePublishingArticleStatus();
             logger.info("定时任务执行完成：更新发布中文章的状态");
         } catch (Exception e) {
             logger.error("定时任务执行失败：更新发布中文章的状态", e);

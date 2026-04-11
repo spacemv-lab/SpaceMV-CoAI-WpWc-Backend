@@ -31,9 +31,9 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取永久素材列表
      */
-    @GetMapping("/permanentList")
+    @PostMapping("/permanentList")
     @Operation(summary = "获取永久素材列表")
-    public AjaxResult permanentList(@NotEmpty(message = "账号列表不能为空")@RequestParam("accountIds") List<Long> accountIds){
+    public AjaxResult permanentList(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
         try {
             List<WebChatMaterialPermanentVO> webChatMaterialPermanentVOS = webChatMaterialService.permanentList(accountIds);
             return success(webChatMaterialPermanentVOS);
@@ -45,11 +45,11 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 分页获取永久素材列表
      */
-    @GetMapping("/permanentListByPage")
+    @PostMapping("/permanentListByPage")
     @Operation(summary = "分页获取永久素材")
     public AjaxResult permanentListByPage(@Parameter(description = "pageNum") @RequestParam(defaultValue = "1") int pageNum,
                                          @Parameter(description = "pageSize")@RequestParam(defaultValue = "20") int pageSize,
-                                          @NotEmpty(message = "账号列表不能为空")@RequestParam("accountIds") List<Long> accountIds){
+                                          @NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
         try {
             Map<String, Object> result = webChatMaterialService.permanentListByPage(pageNum, pageSize, accountIds);
             return success(result);
@@ -61,9 +61,9 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取永久素材总数
      */
-    @GetMapping("/permanentTotalCount")
+    @PostMapping("/permanentTotalCount")
     @Operation(summary = "获取永久素材总数")
-    public AjaxResult getPermanentTotalCount(@NotEmpty(message = "账号列表不能为空")@RequestParam("accountIds") List<Long> accountIds){
+    public AjaxResult getPermanentTotalCount(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
         try {
             int total = webChatMaterialService.getPermanentTotalCount(accountIds);
             return success(total);
@@ -99,9 +99,9 @@ public class WebChatMaterialContorller extends BaseController {
      */
     @DeleteMapping("/{accountId}/permanentDelete/{mediaId}")
     @Operation(summary = "删除永久素材")
-    public AjaxResult permanentDelete(@PathVariable("accountId") Long accountId, @PathVariable("mediaId") String mediaId){
+    public AjaxResult permanentDelete(@PathVariable("mediaId") String mediaId){
         try {
-            webChatMaterialService.permanentDelete(mediaId, accountId);
+            webChatMaterialService.permanentDelete(mediaId);
             return success("删除永久素材成功");
         } catch (Exception e) {
             return error("删除永久素材失败: " + e.getMessage());
@@ -111,9 +111,9 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取图文消息图片列表
      */
-    @GetMapping("/gInfoImgList")
+    @PostMapping("/gInfoImgList")
     @Operation(summary = "获取图文消息列表")
-    public AjaxResult GraphicInformationImageList(@NotEmpty(message = "账号列表不能为空")@RequestParam("accountIds") List<Long> accountIds){
+    public AjaxResult GraphicInformationImageList(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
         try {
             List<TxwxGraphicInformationImagePO> list = webChatMaterialService.GraphicInformationImageList(accountIds);
             return success(list);
@@ -126,10 +126,10 @@ public class WebChatMaterialContorller extends BaseController {
      * @description: 分页获取图文消息图片列表
      */
     @Operation(summary = "分页获取图文消息列表")
-    @GetMapping("/gInfoImgListByPage")
+    @PostMapping("/gInfoImgListByPage")
     public AjaxResult GraphicInformationImageListByPage(@RequestParam(defaultValue = "1") int pageNum,
                                                        @RequestParam(defaultValue = "20") int pageSize,
-                                                        @NotEmpty(message = "账号列表不能为空")@RequestParam("accountIds") List<Long> accountIds){
+                                                        @NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
         try {
             Map<String, Object> result = webChatMaterialService.GraphicInformationImageListByPage(pageNum, pageSize, accountIds);
             return success(result);
@@ -141,9 +141,9 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取图文消息图片总数
      */
-    @GetMapping("/gInfoImgTotalCount")
+    @PostMapping("/gInfoImgTotalCount")
     @Operation(summary = "获取图文消息总数")
-    public AjaxResult getGraphicInformationImageTotalCount(@NotEmpty(message = "账号列表不能为空")@RequestParam("accountIds") List<Long> accountIds){
+    public AjaxResult getGraphicInformationImageTotalCount(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
         try {
             int total = webChatMaterialService.getGraphicInformationImageTotalCount(accountIds);
             return success(total);
@@ -177,11 +177,11 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 根据mediaId删除图文消息图片
      */
-    @DeleteMapping("/{accountId}/gInfoImgDelete/{mediaId}")
+    @DeleteMapping("/gInfoImgDelete/{mediaId}")
     @Operation(summary = "查询图文消息详情")
-    public AjaxResult GraphicInformationImageDelete(@PathVariable("accountId") Long accountId, @PathVariable("mediaId") String mediaId){
+    public AjaxResult GraphicInformationImageDelete( @PathVariable("mediaId") String mediaId){
         try {
-            webChatMaterialService.GraphicInformationImageDelete(mediaId, accountId);
+            webChatMaterialService.GraphicInformationImageDelete(mediaId);
             return success("删除图文消息图片成功");
         } catch (Exception e) {
             return error("删除图文消息图片失败: " + e.getMessage());

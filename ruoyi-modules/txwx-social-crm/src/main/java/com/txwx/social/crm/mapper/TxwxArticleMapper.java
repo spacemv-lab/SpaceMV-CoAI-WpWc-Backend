@@ -67,7 +67,7 @@ public interface TxwxArticleMapper {
     /**
      * @description: 查询发布中的文章列表
      */
-    List<TxwxArticlePO> selectPublishingArticles(@Param("accountIds") List<Long> accountIds);
+    List<TxwxArticlePO> selectPublishingArticles();
 
     /**
      * @description: 批量更新文章状态

@@ -229,17 +229,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 查询发布中的文章列表 -->
     <select id="selectPublishingArticles" resultMap="TxwxArticleResult">
         <include refid="selectTxwxArticleVo"/>
-        <if test="accountIds != null and accountIds.size() > 0">
-            AND account_id IN
-            <foreach collection="accountIds" item="accountId"
-                     open="(" separator="," close=")">
-                #{accountId}
-            </foreach>
-        </if>
-        <!-- 如果不希望列表为空时返回所有记录，可以添加一个永远不会成立的WHERE条件 -->
-        <if test="accountIds == null or accountIds.size() == 0">
-            AND 1 = 0
-        </if>
         and status = '5'
         order by create_time asc
     </select>

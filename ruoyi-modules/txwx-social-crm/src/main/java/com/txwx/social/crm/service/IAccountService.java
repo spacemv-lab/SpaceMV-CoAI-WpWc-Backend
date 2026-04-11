@@ -1,5 +1,6 @@
 package com.txwx.social.crm.service;
 
+import com.txwx.social.api.domain.dto.AccountDTO;
 import com.txwx.social.crm.domain.po.TxwxAccountPO;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public interface IAccountService {
      */
     int insertAccount(TxwxAccountPO account);
 
+    int insertAccount(AccountDTO accountDTO);
     /**
      * 修改账号
      *

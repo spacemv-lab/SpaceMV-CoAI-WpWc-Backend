@@ -1,5 +1,6 @@
 package com.txwx.social.crm.controller;
 
+import com.alibaba.nacos.shaded.com.google.gson.Gson;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
@@ -51,6 +52,7 @@ public class ProductController extends BaseController implements ProductApiClien
         if (query != null) {
             queryPO = new TxwxProductPO();
             BeanUtils.copyProperties(query, queryPO);
+            queryPO.setUserId(SecurityUtils.getUserId());
         }
 
         List<TxwxProductPO> list = productService.selectProductList(queryPO);
@@ -76,6 +78,8 @@ public class ProductController extends BaseController implements ProductApiClien
             dto.setProductName(simple.getProductName());
             dto.setProductCode(simple.getProductCode());
             dto.setProductDesc(simple.getProductDesc());
+            dto.setCreateTime(simple.getCreateTime());
+            dto.setUpdateTime(simple.getUpdateTime());
             return dto;
         }).toList();
         Map<Long, List<ChannelDTO>> p2cMap = productService.getProduct2ChannelMap(pids);
@@ -104,7 +108,7 @@ public class ProductController extends BaseController implements ProductApiClien
         TxwxProductPO po = new TxwxProductPO();
         BeanUtils.copyProperties(product, po);
         fillBaseInfo(po);
-        return toAjax(productService.insertProduct(po));
+        return AjaxResult.success(productService.insertProductReturnID(po));
     }
 
     @Override

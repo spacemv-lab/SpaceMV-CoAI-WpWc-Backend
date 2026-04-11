@@ -37,4 +37,5 @@ public interface TxwxPermanentMaterialImageMapper {
     int deletePermanentMaterialImage(@Param("mediaId") String mediaId);
 
 
+    TxwxPermanentMaterialImagePO selectPermanentMaterialImageByMediaId(@Param("mediaId") String mediaId);
 }

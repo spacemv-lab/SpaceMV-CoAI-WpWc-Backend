@@ -34,7 +34,7 @@ public class TxwxAccountPO extends BaseEntity {
     private String accountNo;
 
     @Schema(description = "微信appid")
-    private String appid;
+    private String appId;
 
     @Schema(description = "微信secret")
     private String secret;

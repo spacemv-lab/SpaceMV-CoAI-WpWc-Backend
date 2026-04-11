@@ -1,5 +1,7 @@
 package com.txwx.social.crm.domain.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -19,6 +21,7 @@ public class TxwxProductPO extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键ID")
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     @Schema(description = "用户id")

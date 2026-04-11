@@ -57,6 +57,18 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    public Long insertProductReturnID(TxwxProductPO product) {
+        int affectedRows = productMapper.insertProductReturnID(product);
+
+        if (affectedRows > 0) {
+            // 2. 主键ID自动设置到product对象
+            return product.getId();
+        }
+
+        throw new RuntimeException("插入失败");
+    }
+
+    @Override
     public int updateProduct(TxwxProductPO product) {
         return productMapper.updateProduct(product);
     }

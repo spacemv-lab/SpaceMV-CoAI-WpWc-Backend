@@ -44,7 +44,6 @@
     <insert id="insertProduct" parameterType="com.txwx.social.crm.domain.po.TxwxProductPO">
         insert into txwx_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">id,</if>
             <if test="productName != null and productName != ''">product_name,</if>
             <if test="productCode != null and productCode != ''">product_code,</if>
             <if test="productDesc != null and productDesc != ''">product_desc,</if>
@@ -56,7 +55,35 @@
             <if test="userId != null">user_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">#{id},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="productCode != null and productCode != ''">#{productCode},</if>
+            <if test="productDesc != null and productDesc != ''">#{productDesc},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertProductReturnID" parameterType="com.txwx.social.crm.domain.po.TxwxProductPO">
+        <selectKey keyProperty="id" resultType="java.lang.Long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into txwx_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="productCode != null and productCode != ''">product_code,</if>
+            <if test="productDesc != null and productDesc != ''">product_desc,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="productName != null and productName != ''">#{productName},</if>
             <if test="productCode != null and productCode != ''">#{productCode},</if>
             <if test="productDesc != null and productDesc != ''">#{productDesc},</if>
