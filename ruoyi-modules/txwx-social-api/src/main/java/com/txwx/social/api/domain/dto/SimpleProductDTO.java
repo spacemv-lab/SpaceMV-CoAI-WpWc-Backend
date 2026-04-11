@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 产品信息传输对象
@@ -28,4 +29,10 @@ public class SimpleProductDTO implements Serializable {
 
     @Schema(description = "产品描述")
     private String productDesc;
+
+    @Schema(description = "创建时间")
+    private Date createTime;
+
+    @Schema(description = "修改时间")
+    private Date updateTime;
 }
