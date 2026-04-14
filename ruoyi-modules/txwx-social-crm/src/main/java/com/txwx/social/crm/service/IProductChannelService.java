@@ -53,6 +53,8 @@ public interface IProductChannelService {
      */
     int deleteProductChannelByChannelIds(List<Long> ids);
 
+    int deleteProductChannelByProductIds(List<Long> ids);
+
     /**
      * 根据产品ID查询渠道ID列表
      *

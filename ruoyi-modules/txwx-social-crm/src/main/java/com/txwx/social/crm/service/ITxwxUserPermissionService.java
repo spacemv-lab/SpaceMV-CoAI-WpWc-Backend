@@ -60,6 +60,15 @@ public interface ITxwxUserPermissionService {
      */
     List<TxwxUserPermissionPO> selectPermissionByUserId(Long userId);
 
+
+    /**
+     * 根据用户ID查询权限列表
+     *
+     * @param userId 用户ID
+     * @return 权限列表
+     */
+    List<TxwxUserPermissionPO> selectPermissionByUserIdAndRelType(Long userId, Integer relType);
+
     /**
      * 删除用户的所有权限
      *
@@ -67,4 +76,6 @@ public interface ITxwxUserPermissionService {
      * @return 结果
      */
     int deletePermissionByUserId(Long userId);
+
+    int deleteUserPermissionByProductId(Long productId);
 }

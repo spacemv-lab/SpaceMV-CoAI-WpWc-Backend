@@ -1,6 +1,5 @@
-package com.txwx.social.crm.service.Impl;
+package com.txwx.social.crm.service.impl;
 
-import com.alibaba.nacos.shaded.com.google.gson.Gson;
 import com.txwx.social.api.domain.dto.AccountDTO;
 import com.txwx.social.api.domain.dto.ChannelDTO;
 import com.txwx.social.crm.domain.po.TxwxAccountPO;
@@ -12,10 +11,13 @@ import com.txwx.social.crm.service.IAccountService;
 import com.txwx.social.crm.service.IChannelService;
 import com.txwx.social.crm.service.IProductChannelService;
 import com.txwx.social.crm.service.IProductService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -27,6 +29,8 @@ import java.util.*;
  * @date 2026-04-03
  */
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ProductServiceImpl implements IProductService {
 
     @Autowired
@@ -40,6 +44,8 @@ public class ProductServiceImpl implements IProductService {
 
     @Autowired
     private IProductChannelService productChannelService;
+
+
 
     @Override
     public List<TxwxProductPO> selectProductList(TxwxProductPO product) {

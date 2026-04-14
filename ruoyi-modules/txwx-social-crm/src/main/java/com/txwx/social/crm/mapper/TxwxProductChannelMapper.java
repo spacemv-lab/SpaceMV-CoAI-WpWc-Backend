@@ -66,6 +66,14 @@ public interface TxwxProductChannelMapper {
     int deleteProductChannelBycIds(@Param("cids") List<Long> cids);
 
     /**
+     * 删除产品渠道关联
+     *
+     * @param pids 主键ID列表
+     * @return 结果
+     */
+    int deleteProductChannelBypIds(@Param("pids") List<Long> pids);
+
+    /**
      * 根据产品ID查询渠道ID列表
      *
      * @param productId 产品ID
