@@ -106,6 +106,18 @@ public class AccountServiceImpl implements IAccountService {
         return accountPOList.stream().collect(Collectors.groupingBy(TxwxAccountPO::getChannelId));
     }
 
+    @Override
+    public int deleteByProductIds(List<Long> productIds) {
+        List<TxwxAccountPO> accountPOList = accountMapper.selectAccountByProductIds(productIds);
+        List<Long> ids = accountPOList.stream().map(TxwxAccountPO::getId).toList();
+        return accountMapper.deleteAccountByIds(ids);
+    }
+
+    @Override
+    public List<TxwxAccountPO> selectAccountByQuery(TxwxAccountPO query) {
+        return accountMapper.selectAccountList(query);
+    }
+
     private void fillBaseInfo(BaseEntity po) {
         //TODO 测试用
         String operator = SecurityUtils.getUsername();

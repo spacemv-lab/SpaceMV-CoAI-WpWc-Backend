@@ -56,6 +56,14 @@ public class ProductChannelServiceImpl implements IProductChannelService {
     }
 
     @Override
+    public int deleteProductChannelByProductIds(List<Long> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return 0;
+        }
+        return productChannelMapper.deleteProductChannelBypIds(ids);
+    }
+
+    @Override
     public List<Long> selectChannelIdsByProductId(Long productId) {
         return productChannelMapper.selectChannelIdsByProductId(productId);
     }

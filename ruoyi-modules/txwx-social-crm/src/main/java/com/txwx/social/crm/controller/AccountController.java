@@ -3,23 +3,39 @@ package com.txwx.social.crm.controller;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.client.AccountApiClient;
 import com.txwx.social.api.domain.dto.AccountDTO;
+import com.txwx.social.api.domain.dto.ProductChannelDTO;
+import com.txwx.social.api.domain.dto.UserPermissionDTO;
+import com.txwx.social.crm.bizchain.account.service.AccountChainService;
+import com.txwx.social.crm.bizchain.product.service.ProductChainService;
+import com.txwx.social.crm.domain.AccountAddOrUpdateRequest;
+import com.txwx.social.crm.domain.AccountQueryRequest;
+import com.txwx.social.crm.domain.ProductAddOrUpdateRequest;
+import com.txwx.social.crm.domain.ProductQueryRequest;
 import com.txwx.social.crm.domain.po.TxwxAccountPO;
+import com.txwx.social.crm.enums.PermissionTypeEnum;
 import com.txwx.social.crm.service.IAccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.ruoyi.common.core.web.page.TableSupport.getPageDomain;
 
 /**
  * 账号控制器（实现 AccountApiClient 接口，提供远程调用能力）
@@ -29,12 +45,69 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/account")
+@RequiredArgsConstructor
+@Validated
 @Tag(name = "05--【CRM】--账号管理")
 public class AccountController extends BaseController implements AccountApiClient {
 
     @Autowired
     private IAccountService accountService;
 
+    private final AccountChainService accountChainService;
+
+    /**
+     * 获取账号列表
+     * @param request 账号查询条件
+     * @return 分页结果
+     */
+    //TODO 角色权限分配
+    //@PreAuthorize("@ss.hasPermi('system:account:list')")
+    @PostMapping("/management/list")
+    @Operation(summary = "查询账号列表")
+    public TableDataInfo list(@RequestBody AccountQueryRequest request) {
+        // 1. 调用责任链Service
+        return accountChainService.selectAccountList(request.getQuery(),
+                getPageDomain()
+        );
+    }
+
+    /**
+     * 新增账号
+     * @param request 产品请求
+     * @return 产品ID
+     */
+    //@PreAuthorize("@ss.hasPermi('system:account:add')")
+    @PostMapping("/management")
+    public AjaxResult add(@RequestBody AccountAddOrUpdateRequest request) {
+        accountChainService.insertAccount(request.getAccountDTO());
+        return AjaxResult.success("账号新增成功");
+    }
+
+    /**
+     * 修改账号
+     * @param request 账号主体
+     * @return 结果
+     */
+    //@PreAuthorize("@ss.hasPermi('system:product:edit')")
+    @PutMapping("/management")
+    public AjaxResult edit(@RequestBody AccountAddOrUpdateRequest request) {
+        accountChainService.updateAccount(request.getAccountDTO());
+        return AjaxResult.success("产品修改成功");
+    }
+
+    /**
+     * 删除产品
+     * @param accountId 产品ID
+     * @return 结果
+     */
+    //@PreAuthorize("@ss.hasPermi('system:product:remove')")
+    @DeleteMapping("/management/{accountId}")
+    public AjaxResult remove(
+            @PathVariable @NotNull(message = "账号ID不能为空") Long accountId
+    ) {
+        accountChainService.deleteAccount(accountId);
+        return AjaxResult.success("账号删除成功");
+    }
     /* ========== 以下是 AccountApiClient 接口的实现 ========== */
 
     @Override

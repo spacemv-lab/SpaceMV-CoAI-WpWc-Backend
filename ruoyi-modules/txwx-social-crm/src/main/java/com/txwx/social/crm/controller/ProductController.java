@@ -1,32 +1,37 @@
 package com.txwx.social.crm.controller;
 
-import com.alibaba.nacos.shaded.com.google.gson.Gson;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.client.ProductApiClient;
-import com.txwx.social.api.domain.dto.ChannelDTO;
-import com.txwx.social.api.domain.dto.ProductDTO;
-import com.txwx.social.api.domain.dto.SimpleProductDTO;
+import com.txwx.social.api.domain.dto.*;
+import com.txwx.social.crm.bizchain.product.service.ProductChainService;
+import com.txwx.social.crm.domain.ProductAddOrUpdateRequest;
+import com.txwx.social.crm.domain.ProductQueryRequest;
 import com.txwx.social.crm.domain.po.TxwxProductPO;
-import com.txwx.social.crm.service.IAccountService;
-import com.txwx.social.crm.service.IChannelService;
-import com.txwx.social.crm.service.IProductChannelService;
+import com.txwx.social.crm.enums.PermissionTypeEnum;
 import com.txwx.social.crm.service.IProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.ruoyi.common.core.web.page.TableSupport.getPageDomain;
 
 /**
  * 产品控制器（实现 ProductApiClient 接口，提供远程调用能力）
@@ -37,10 +42,15 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/product")
 @Tag(name = "03--【CRM】--产品管理")
+@RequiredArgsConstructor
+@Validated
 public class ProductController extends BaseController implements ProductApiClient {
 
     @Autowired
     private IProductService productService;
+
+    private final ProductChainService productChainService;
+
 
     /* ========== 以下是 ProductApiClient 接口的实现 ========== */
 
@@ -74,20 +84,79 @@ public class ProductController extends BaseController implements ProductApiClien
         List<Long> pids = simpleProductDTOList.stream().mapToLong(SimpleProductDTO::getId).boxed().toList();
         List<ProductDTO> fullList = simpleProductDTOList.stream().map(simple -> {
             ProductDTO dto = new ProductDTO();
-            dto.setId(simple.getId());
-            dto.setProductName(simple.getProductName());
-            dto.setProductCode(simple.getProductCode());
-            dto.setProductDesc(simple.getProductDesc());
-            dto.setCreateTime(simple.getCreateTime());
-            dto.setUpdateTime(simple.getUpdateTime());
+            BeanUtils.copyProperties(simple, dto);
             return dto;
         }).toList();
         Map<Long, List<ChannelDTO>> p2cMap = productService.getProduct2ChannelMap(pids);
         fullList.forEach(productDTO -> {
-            List<ChannelDTO> channelDTOList = p2cMap.getOrDefault(productDTO.getId(), Lists.newArrayList());
+            List<ChannelDTO> channelDTOList = p2cMap.getOrDefault(productDTO.getBaseInfo().getId(), Lists.newArrayList());
             productDTO.setChannelDTOList(channelDTOList);
         });
         return AjaxResult.success(fullList);
+    }
+
+    /**
+     * 获取产品列表
+     * @param request 产品查询条件
+     * @return 分页结果
+     */
+    //TODO 角色权限分配
+    //@PreAuthorize("@ss.hasPermi('system:product:list')")
+    @PostMapping("/management/list")
+    @Operation(summary = "查询产品列表")
+    public TableDataInfo list(@RequestBody ProductQueryRequest request) {
+        // 1. 调用责任链Service
+        return productChainService.selectProductList(
+                request.getQuery(),
+                getPageDomain(),
+                request.getQueryConfig()
+        );
+    }
+
+    /**
+     * 新增产品
+     * @param request 产品请求
+     * @return 产品ID
+     */
+    //@PreAuthorize("@ss.hasPermi('system:product:add')")
+    @PostMapping("/management")
+    public AjaxResult add(@RequestBody ProductAddOrUpdateRequest request) {
+        List<UserPermissionDTO> userPermissions = Lists.newArrayList();
+        UserPermissionDTO userPermissionDTO = new UserPermissionDTO();
+        userPermissions.add(userPermissionDTO);
+        userPermissionDTO.setRelationType(PermissionTypeEnum.PRODUCT_LEVEL.getCode());
+        List<ProductChannelDTO> productChannels = Lists.newArrayList();
+        ProductChannelDTO productChannelDTO = new ProductChannelDTO();
+        productChannels.add(productChannelDTO);
+        productChannelDTO.setChannelId(1L);
+        Long productId = productChainService.insertProduct(request.getProductDTO(), userPermissions, productChannels);
+        return AjaxResult.success("产品新增成功", productId);
+    }
+
+    /**
+     * 修改产品
+     * @param request 产品主体
+     * @return 结果
+     */
+    //@PreAuthorize("@ss.hasPermi('system:product:edit')")
+    @PutMapping("/management")
+    public AjaxResult edit(@RequestBody ProductAddOrUpdateRequest request) {
+        productChainService.updateProduct(request.getProductDTO(), request.getUserPermissions(), request.getProductChannels());
+        return AjaxResult.success("产品修改成功");
+    }
+
+    /**
+     * 删除产品
+     * @param productId 产品ID
+     * @return 结果
+     */
+    //@PreAuthorize("@ss.hasPermi('system:product:remove')")
+    @DeleteMapping("/management/{productId}")
+    public AjaxResult remove(
+            @PathVariable @NotNull(message = "产品ID不能为空") Long productId
+    ) {
+        productChainService.deleteProduct(productId);
+        return AjaxResult.success("产品删除成功");
     }
 
     @Override
@@ -155,9 +224,6 @@ public class ProductController extends BaseController implements ProductApiClien
         //TODO 测试用
         String operator = SecurityUtils.getUsername();
         Long userId = SecurityUtils.getUserId();
-        if (StringUtils.isEmpty(operator)) {
-            operator = "管理员";
-        }
         po.setCreateBy(operator);
         po.setUpdateBy(operator);
         po.setUserId(userId);

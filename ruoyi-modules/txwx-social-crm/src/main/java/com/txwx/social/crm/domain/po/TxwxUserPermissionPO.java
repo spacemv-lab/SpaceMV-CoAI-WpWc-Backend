@@ -1,9 +1,11 @@
 package com.txwx.social.crm.domain.po;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * 用户协作权限分配表
@@ -13,6 +15,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("txwx_user_permission")
 @Schema(description = "用户协作权限分配表")
 public class TxwxUserPermissionPO extends BaseEntity {
 

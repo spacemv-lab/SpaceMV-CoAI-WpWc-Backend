@@ -80,4 +80,8 @@ public interface IAccountService {
     List<TxwxAccountPO> selectAccountByChannelId(Long channelId);
 
     Map<Long, List<TxwxAccountPO>> selectAccountByChannelIds(List<Long> cids);
+
+    int deleteByProductIds(List<Long> productIds);
+
+    List<TxwxAccountPO> selectAccountByQuery(TxwxAccountPO query);
 }
