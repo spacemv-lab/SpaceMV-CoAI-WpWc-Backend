@@ -3,14 +3,8 @@ package com.txwx.social.crm.util;
 import com.ruoyi.common.core.utils.bean.BeanUtils;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 import com.ruoyi.common.security.utils.SecurityUtils;
-import com.txwx.social.api.domain.dto.AccountDTO;
-import com.txwx.social.api.domain.dto.ProductChannelDTO;
-import com.txwx.social.api.domain.dto.SimpleProductDTO;
-import com.txwx.social.api.domain.dto.UserPermissionDTO;
-import com.txwx.social.crm.domain.po.TxwxAccountPO;
-import com.txwx.social.crm.domain.po.TxwxProductChannelPO;
-import com.txwx.social.crm.domain.po.TxwxProductPO;
-import com.txwx.social.crm.domain.po.TxwxUserPermissionPO;
+import com.txwx.social.api.domain.dto.*;
+import com.txwx.social.crm.domain.po.*;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.util.CollectionUtils;
 
@@ -45,6 +39,12 @@ public class EntityConvertor {
         return po;
     }
 
+    public static TxwxProductPO convert2PO(SimpleProductDTO simpleProductDTO, List<Long> productIds, boolean fillBase) {
+        TxwxProductPO txwxProductPO = convert2PO(simpleProductDTO, fillBase);
+        txwxProductPO.setIds(productIds);
+        return txwxProductPO;
+    }
+
 
     public static TxwxAccountPO convert2PO(AccountDTO accountDTO, boolean fillBase) {
         TxwxAccountPO po = new TxwxAccountPO();
@@ -61,6 +61,15 @@ public class EntityConvertor {
         AccountDTO dto = new AccountDTO();
         if (accountPO != null) {
             BeanUtils.copyProperties(accountPO, dto);
+        }
+        return dto;
+    }
+
+
+    public static ChannelDTO convert2DTO(TxwxChannelPO channelPO) {
+        ChannelDTO dto = new ChannelDTO();
+        if (channelPO != null) {
+            BeanUtils.copyProperties(channelPO, dto);
         }
         return dto;
     }

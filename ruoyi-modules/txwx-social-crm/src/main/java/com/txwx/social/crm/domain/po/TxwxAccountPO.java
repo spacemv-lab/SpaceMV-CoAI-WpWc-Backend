@@ -1,6 +1,5 @@
 package com.txwx.social.crm.domain.po;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -17,7 +16,6 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @Schema(description = "账号表")
-@TableName("txwx_account")
 public class TxwxAccountPO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

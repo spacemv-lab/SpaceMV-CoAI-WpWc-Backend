@@ -18,4 +18,6 @@ public class OdsUsers {
     private Integer newUser;
 
     private Integer cancelUser;
+
+    private Long accountId;
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 产品信息传输对象
@@ -18,24 +19,13 @@ public class ProductDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "产品ID")
-    private Long id;
 
-    @Schema(description = "产品名称")
-    private String productName;
-
-    @Schema(description = "产品编码")
-    private String productCode;
-
-    @Schema(description = "产品描述")
-    private String productDesc;
+    @Schema(description = "产品基本信息")
+    private SimpleProductDTO baseInfo;
 
     @Schema(description = "渠道信息")
     private List<ChannelDTO> channelDTOList;
 
-    @Schema(description = "创建时间")
-    private Date createTime;
+    private Map<String, Object> extraInfo;
 
-    @Schema(description = "修改时间")
-    private Date updateTime;
 }

@@ -79,6 +79,11 @@ public class ProductChannelServiceImpl implements IProductChannelService {
     }
 
     @Override
+    public List<TxwxProductChannelPO> selectChannelByProductIds(List<Long> productIds) {
+        return productChannelMapper.selectChannelIdsByProductIds(productIds);
+    }
+
+    @Override
     public List<Long> selectProductIdsByChannelId(Long channelId) {
         return productChannelMapper.selectProductIdsByChannelId(channelId);
     }

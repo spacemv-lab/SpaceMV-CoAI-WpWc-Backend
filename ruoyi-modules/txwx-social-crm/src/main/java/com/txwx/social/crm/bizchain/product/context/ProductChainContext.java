@@ -1,9 +1,6 @@
 package com.txwx.social.crm.bizchain.product.context;
 
-import com.txwx.social.api.domain.dto.AccountDTO;
-import com.txwx.social.api.domain.dto.ProductChannelDTO;
-import com.txwx.social.api.domain.dto.SimpleProductDTO;
-import com.txwx.social.api.domain.dto.UserPermissionDTO;
+import com.txwx.social.api.domain.dto.*;
 import com.txwx.social.crm.common.chain.BaseChainContext;
 import com.txwx.social.crm.common.config.QueryConfig;
 import com.txwx.social.crm.domain.po.TxwxProductPO;
@@ -20,11 +17,15 @@ public class ProductChainContext extends BaseChainContext {
     private List<Long> productIds;
     private SimpleProductDTO queryParams;
 
+    //修改输入
+    private SimpleProductDTO simpleProductInfo;
+
     // 输出结果
     private Long productId;
-    private List<SimpleProductDTO> productList;
-    private SimpleProductDTO productInfo;
-    private Map<Long, List<ProductChannelDTO>> productChannelMap;
+    private List<ProductDTO> productList;
+    private ProductDTO productInfo;
+
+    private Map<Long, List<Long>> productChannelMap;
     private Map<Long, List<AccountDTO>> channelAccountMap;
 
     public QueryConfig queryConfig;

@@ -16,7 +16,7 @@ public class ProductBaseUpdateHandler extends AbstractChainHandler<ProductChainC
 
     @Override
     protected void doHandle(ProductChainContext context) {
-        SimpleProductDTO product = context.getProductInfo();
+        SimpleProductDTO product = context.getSimpleProductInfo();
         if (product == null || product.getId() == null) {
             context.interruptWithError("产品ID不能为空");
             return;

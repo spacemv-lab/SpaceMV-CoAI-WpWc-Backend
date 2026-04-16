@@ -4,7 +4,7 @@ import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.txwx.social.dashboard.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -55,12 +55,10 @@ public class DwsContentData implements IImportBaseModel {
     @ExcelProperty("内容url")
     private String url;
 
-    private Long productId;
-
-    private Long platformId;
+    private Long accountId;
 
     @Override
-    public Object[] toObject() {
-        return new Object[]{createTime, title, readUserTotal, shareUser, readSubscribeUser, url, productId, platformId};
+    public Object[] toObject(Long accountId) {
+        return new Object[]{createTime, title, readUserTotal, shareUser, readSubscribeUser, url, accountId};
     }
 }

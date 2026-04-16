@@ -65,6 +65,8 @@ public interface IProductChannelService {
 
     Map<Long, List<TxwxProductChannelPO>> selectChannelIdsByProductIds(List<Long> productIds);
 
+    List<TxwxProductChannelPO> selectChannelByProductIds(List<Long> productIds);
+
     /**
      * 根据渠道ID查询产品ID列表
      *

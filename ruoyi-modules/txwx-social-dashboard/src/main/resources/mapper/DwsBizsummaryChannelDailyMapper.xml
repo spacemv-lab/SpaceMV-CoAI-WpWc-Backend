@@ -2,22 +2,22 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.txwx.social.dashboard.mapper.DwsBizsummaryChannelDailyMapper">
+<mapper namespace="com.txwx.webchat.mapper.DwsBizsummaryChannelDailyMapper">
+
 
     <insert id="insertBatch" parameterType="java.util.List">
         INSERT INTO dws_bizsummary_channel_daily
         (
-            ref_date,
-            read_user_cnt,
-            share_user,
-            redirect_ori_page_count,
-            redirect_ori_page_user,
-            collection_count,
-            collection_user,
-            send_page_count,
-            channel,
-            platform_id,
-            product_id
+        ref_date,
+        read_user_cnt,
+        share_user,
+        redirect_ori_page_count,
+        redirect_ori_page_user,
+        collection_count,
+        collection_user,
+        send_page_count,
+        channel,
+        account_id
         )
         VALUES
         <foreach collection="list" item="item" separator=",">
@@ -31,13 +31,12 @@
             #{item.collectionUser},
             #{item.sendPageCount},
             #{item.channel},
-            #{item.platformId},
-            #{item.productId}
+            #{item.accountId}
             )
         </foreach>
     </insert>
 
-    <select id="selectSource" resultType="com.txwx.social.dashboard.domain.vo.FlowSourceVo">
+    <select id="selectSource" resultType="com.txwx.social.dashboard.domain.entity.FlowSource">
         SELECT
             channel_fixed AS channel,
             read_users AS readUser,
@@ -52,48 +51,33 @@
                      sum(sum(read_user_cnt)) OVER () AS total_read_users
                  FROM dws_bizsummary_channel_daily
                  WHERE channel != '全部'
-                 and product_id = #{productPlatformDto.productId}
-                 and platform_id = #{productPlatformDto.platformId}
+                 and account_id = #{accountId}
                  GROUP BY channel_fixed
              )
         ORDER BY read_users DESC
     </select>
-
     <select id="selectTotalReadShare" resultType="java.util.Map">
         SELECT
-            sum(read_user_cnt) as readTotal,
-            sum(share_user) as shareTotal
+        sum(read_user_cnt) as readTotal,
+        sum(share_user) as shareTotal
         FROM dws_bizsummary_channel_daily
         WHERE channel = '全部'
-        and platform_id = #{platformId}
-        and product_id = #{productId}
+        and account_id = #{accountId}
     </select>
 
-<!--    <select id="selectTotalReadShare" resultType="java.util.Map">-->
-<!--        SELECT-->
-<!--            sum(CASE WHEN channel != '全部' THEN read_user_cnt ELSE 0 END) as readTotal,-->
-<!--            sum(-->
-<!--                CASE-->
-<!--                WHEN ref_date &lt; '2025-11-01' AND channel != '全部' THEN share_user-->
-<!--                WHEN ref_date >= '2025-11-01' AND channel = '全部' THEN share_user-->
-<!--                ELSE 0-->
-<!--                END-->
-<!--            ) as shareTotal-->
-<!--        FROM dws_bizsummary_channel_daily-->
-<!--    </select>-->
 
     <select id="selectDataBoardReadSource" resultType="java.util.Map">
         SELECT
-            CASE
-                WHEN channel IN ('其它', '其他') THEN '其他'
-                ELSE channel
-                END AS channel_fixed,
-            sum(read_user_cnt) AS read_users
+        CASE
+        WHEN channel IN ('其它', '其他') THEN '其他'
+        ELSE channel
+        END AS channel_fixed,
+        sum(read_user_cnt) AS read_users
         FROM dws_bizsummary_channel_daily
         WHERE channel != '全部'
-        and platform_id = #{platformId}
-        and product_id = #{productId}
+        and account_id = #{accountId}
         GROUP BY channel_fixed
         ORDER BY read_users DESC
     </select>
+
 </mapper>
