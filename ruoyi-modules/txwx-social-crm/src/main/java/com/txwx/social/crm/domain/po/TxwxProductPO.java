@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * 产品表
  *
@@ -42,4 +44,7 @@ public class TxwxProductPO extends BaseEntity {
 
     @Schema(description = "删除标志(0代表存在 1代表删除)")
     private int delFlag;
+
+    // 扩展查询，不写库
+    private List<Long> ids;
 }

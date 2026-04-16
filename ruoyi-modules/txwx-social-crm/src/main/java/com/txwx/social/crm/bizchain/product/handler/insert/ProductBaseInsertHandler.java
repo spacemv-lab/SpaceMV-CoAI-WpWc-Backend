@@ -18,7 +18,7 @@ public class ProductBaseInsertHandler extends AbstractChainHandler<ProductChainC
 
     @Override
     protected void doHandle(ProductChainContext context) {
-        SimpleProductDTO product= context.getQueryParams();
+        SimpleProductDTO product= context.getSimpleProductInfo();
         if (product == null) {
             context.interruptWithError("产品信息不能为空");
             return;

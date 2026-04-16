@@ -1,12 +1,14 @@
 package com.txwx.social.dashboard.domain.entity;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.txwx.social.dashboard.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@TableName("channel_composition")
+@TableName("dim_channel_composition")
 public class ChannelComposition implements IImportBaseModel {
 
     @ExcelProperty("渠道构成")
@@ -18,20 +20,18 @@ public class ChannelComposition implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
-    @ExcelProperty("产品ID")
-    private Long productId;
-
-    @ExcelProperty("平台ID")
-    private Long platformId;
+    @Schema(description = "自媒体账号ID")
+    @ExcelIgnore
+    private Long accountId;
 
     @Override
-    public Object[] toObject() {
-        return new Object[]{channel, userNumber, proportion, productId, platformId};
+    public Object[] toObject(Long accountId) {
+        return new Object[]{channel, userNumber, proportion, accountId};
     }
 
     @Override
     public void validate() {
-        if (channel == null || "".equals(channel) || userNumber == null || proportion == null) {
+        if (channel == null || channel.isEmpty() || userNumber == null || proportion == null) {
             throw new RuntimeException("每行数据不能为空!");
         }
     }

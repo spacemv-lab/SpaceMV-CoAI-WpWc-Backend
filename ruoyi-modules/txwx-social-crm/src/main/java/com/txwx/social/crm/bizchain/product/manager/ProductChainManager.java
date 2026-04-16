@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -149,6 +150,12 @@ public class ProductChainManager {
         context.setQueryConfig(queryConfig);
 
         executeQueryChain(context);
+        // 手动修正了实体
+        if (context.getPageResult() != null &&
+                !CollectionUtils.isEmpty(context.getPageResult().getRows())) {
+            context.getPageResult().setRows(context.getProductList());
+        }
+
         checkResult(context);
         return context.getPageResult();
     }
@@ -159,7 +166,7 @@ public class ProductChainManager {
         validateObject(product, ValidationGroups.Add.class);
 
         ProductChainContext context = new ProductChainContext();
-        context.setProductList(List.of(product));
+        context.setSimpleProductInfo(product);
         context.putExt("userPermissions", userPermissions);
         context.putExt("productChannels", productChannels);
         context.setPermissionCode("system:product:add");
@@ -176,7 +183,7 @@ public class ProductChainManager {
         validateObject(product, ValidationGroups.Update.class);
 
         ProductChainContext context = new ProductChainContext();
-        context.setProductInfo(product);
+        context.setSimpleProductInfo(product);
         context.setProductId(product.getId());
         context.putExt("userPermissions", userPermissions);
         context.putExt("productChannels", productChannels);
@@ -202,7 +209,7 @@ public class ProductChainManager {
         validateObject(product, ValidationGroups.Add.class);
 
         ProductChainContext context = new ProductChainContext();
-        context.setProductInfo(product);
+        context.setSimpleProductInfo(product);
         context.setPermissionCode("system:product:add");
         context.setSentinelResourceName("product:insert");
 

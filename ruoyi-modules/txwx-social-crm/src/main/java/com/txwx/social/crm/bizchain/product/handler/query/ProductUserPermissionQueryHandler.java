@@ -7,16 +7,18 @@ import com.txwx.social.api.domain.dto.SimpleProductDTO;
 import com.txwx.social.crm.bizchain.product.context.ProductChainContext;
 import com.txwx.social.crm.common.chain.AbstractChainHandler;
 import com.txwx.social.crm.domain.po.TxwxUserPermissionPO;
+import com.txwx.social.crm.enums.PermissionTypeEnum;
 import com.txwx.social.crm.mapper.TxwxUserPermissionMapper;
+import com.txwx.social.crm.util.EntityConvertor;
 import com.txwx.social.crm.util.StreamUtil;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.compress.utils.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class ProductUserPermissionQueryHandler extends AbstractChainHandler<ProductChainContext> {
@@ -25,41 +27,25 @@ public class ProductUserPermissionQueryHandler extends AbstractChainHandler<Prod
 
     @Override
     protected void doHandle(ProductChainContext context) {
-
-        List<SimpleProductDTO> productList = context.getProductList();
-        if (productList == null || productList.isEmpty()) {
-            context.skipCurrentHandler("产品列表为空");
-            return;
-        }
-
         Long userId = SecurityUtils.getUserId();
-        List<Long> productIds = productList.stream().map(SimpleProductDTO::getId).toList();
-        if (CollectionUtils.isEmpty(productIds)) {
-            return;
-        }
-        List<Long> queryProductIds = Lists.newArrayList();
+
         List<TxwxUserPermissionPO> permissions = permissionMapper.selectPermissionByUserId(userId);
         if (CollectionUtils.isEmpty(permissions)) {
-            context.interruptWithError("该用户对该产品没有权限");
             return;
         }
-        permissions.forEach(permission -> {
-            // TODO 这里先简单地写成常量
-            if (permission.getRelationType() == 1) {
-                String relIds = permission.getRelationIds();
-                if (!StringUtils.hasText(relIds)) {
-                    List<Long> longList = Arrays.stream(relIds.split(","))
-                            .map(String::trim)
-                            .filter(s -> !s.isEmpty())
-                            .map(Long::valueOf)
-                            .toList();
-                    queryProductIds.addAll(longList);
-                }
-            }
+
+        List<String> queryProductStrIds = permissions.stream()
+                .filter(po -> po.getRelationType().equals(PermissionTypeEnum.PRODUCT_LEVEL.getCode()))
+                .map(TxwxUserPermissionPO::getRelationIds)
+                .toList();
+
+        List<Long> authProductIds = Lists.newArrayList();
+
+        queryProductStrIds.forEach(strId -> {
+            List<Long> curList = EntityConvertor.convertToLongList(strId);
+            authProductIds.addAll(curList);
         });
 
-        if (!StreamUtil.isListEqualIgnoreOrder(productIds, queryProductIds)) {
-            throw new BizException(ErrorCode.OPERATION_NOT_ALLOWED);
-        }
+        context.setProductIds(authProductIds);
     }
 }

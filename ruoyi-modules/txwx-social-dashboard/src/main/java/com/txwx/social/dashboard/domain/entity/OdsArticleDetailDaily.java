@@ -4,7 +4,6 @@ import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -65,4 +64,6 @@ public class OdsArticleDetailDaily {
     private String title;
 
     private String url;
+
+    private Long accountId;
 }

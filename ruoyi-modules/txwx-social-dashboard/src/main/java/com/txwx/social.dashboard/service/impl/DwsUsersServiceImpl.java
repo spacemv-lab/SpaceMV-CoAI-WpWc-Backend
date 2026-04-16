@@ -1,0 +1,56 @@
+package com.txwx.social.dashboard.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.txwx.social.dashboard.domain.condition.BaseSearchCondition;
+import com.txwx.social.dashboard.domain.entity.DwsContentData;
+import com.txwx.social.dashboard.domain.entity.DwsUsers;
+import com.txwx.social.dashboard.domain.mapper.DwsUsersMapper;
+import com.txwx.social.dashboard.service.IDwsUsersService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class DwsUsersServiceImpl extends ServiceImpl<DwsUsersMapper, DwsUsers> implements IDwsUsersService {
+
+    @Autowired
+    private DwsUsersMapper dwsUsersMapper;
+
+    @Override
+    public List<DwsUsers> select(BaseSearchCondition condition) {
+        LambdaQueryWrapper<DwsUsers> queryWrapper = buildQueryWrapper(condition);
+
+        return dwsUsersMapper.selectList(queryWrapper);
+    }
+
+    private LambdaQueryWrapper<DwsUsers> buildQueryWrapper(BaseSearchCondition condition) {
+        LambdaQueryWrapper<DwsUsers> queryWrapper = new LambdaQueryWrapper<>();
+        if (condition != null) {
+            if (condition.getStartTime() != null && condition.getEndTime() != null) {
+                queryWrapper.between(DwsUsers::getRefDate, condition.getStartTime(), condition.getEndTime());
+            }
+        }
+        if (condition != null) {
+            queryWrapper.eq(DwsUsers::getAccountId, condition.getAccountId());
+        }
+
+        queryWrapper.orderByDesc(DwsUsers::getRefDate);
+        return queryWrapper;
+    }
+
+    @Override
+    public Page<DwsUsers> selectPage(Integer pageNum, Integer pageSize, BaseSearchCondition condition) {
+        Page<DwsUsers> page = new Page<>(pageNum, pageSize);
+
+        // 构建 LambdaQueryWrapper
+        LambdaQueryWrapper<DwsUsers> queryWrapper = buildQueryWrapper(condition);
+
+        // 执行分页查询
+        return dwsUsersMapper.selectPage(page, queryWrapper);
+    }
+}

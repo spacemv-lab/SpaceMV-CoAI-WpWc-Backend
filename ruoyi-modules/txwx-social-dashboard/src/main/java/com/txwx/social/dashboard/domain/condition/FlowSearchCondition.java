@@ -15,10 +15,4 @@ public class FlowSearchCondition extends BaseSearchCondition{
 
     @Schema(description = "渠道")
     private List<String> channel;
-
-    @Schema(description = "产品ID")
-    private Long productId;
-
-    @Schema(description = "平台ID")
-    private Long platformId;
 }

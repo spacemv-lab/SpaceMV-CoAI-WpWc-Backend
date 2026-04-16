@@ -1,9 +1,10 @@
 package com.txwx.social.dashboard.domain.entity;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.txwx.social.dashboard.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
     @Schema(description = "日期")
     @ExcelProperty("日期")
     @DateTimeFormat("yyyyMMdd")
-    private LocalDate refDate;
+    private String refDate;
 
     @Schema(description = "阅读人数")
     @ExcelProperty("阅读人数")
@@ -54,16 +55,12 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
     @ExcelProperty("渠道")
     private String channel;
 
-    @Schema(description = "产品ID")
-    @ExcelProperty("产品ID")
-    private Long productId;
-
-    @Schema(description = "平台ID")
-    @ExcelProperty("平台ID")
-    private Long platformId;
+    @Schema(description = "自媒体账号ID")
+    @ExcelIgnore
+    private Long accountId;
 
     @Override
-    public Object[] toObject() {
+    public Object[] toObject(Long accountId) {
         return new Object[]{
             refDate,
             readUserCnt,
@@ -74,8 +71,7 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
             collectionUser,
             sendPageCount,
             channel,
-            productId,
-            platformId
+            accountId
         };
     }
 }

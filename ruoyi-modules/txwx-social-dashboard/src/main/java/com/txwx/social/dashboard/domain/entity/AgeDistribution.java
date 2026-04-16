@@ -1,12 +1,14 @@
 package com.txwx.social.dashboard.domain.entity;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.txwx.social.dashboard.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@TableName("age_distribution")
+@TableName("dim_age_distribution")
 public class AgeDistribution implements IImportBaseModel {
 
     @ExcelProperty("年龄")
@@ -18,20 +20,18 @@ public class AgeDistribution implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
-    @ExcelProperty("产品id")
-    private Long productId;
-
-    @ExcelProperty("平台id")
-    private Long platformId;
+    @Schema(description = "自媒体账号ID，不暴露给用户")
+    @ExcelIgnore
+    private Long accountId;
 
     @Override
-    public Object[] toObject() {
-        return new Object[]{age, userNumber, proportion, productId, platformId};
+    public Object[] toObject(Long accountId) {
+        return new Object[]{age, userNumber, proportion, accountId};
     }
 
     @Override
     public void validate() {
-        if (age == null || "".equals(age) || userNumber == null || proportion == null) {
+        if (age == null || age.isEmpty() || userNumber == null || proportion == null) {
             throw new RuntimeException("每行数据不能为空!");
         }
     }

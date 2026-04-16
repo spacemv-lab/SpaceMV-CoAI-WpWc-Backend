@@ -122,7 +122,6 @@
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>txwx-social-api</artifactId>
-            <version>3.6.6</version>
         </dependency>
 
 
@@ -133,6 +132,11 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-annotation</artifactId>
+            <scope>compile</scope>
         </dependency>
 
 

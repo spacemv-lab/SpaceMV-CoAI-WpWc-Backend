@@ -1,6 +1,5 @@
 package com.txwx.social.dashboard.domain.vo;
 
-import com.txwx.social.dashboard.domain.entity.DwsUsers;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
