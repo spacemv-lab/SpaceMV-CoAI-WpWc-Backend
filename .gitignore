@@ -33,3 +33,7 @@
 /.vscode/
 /.claude/
 /ruoyi-modules/txwx-website/target/
+*.log
+*.DS_Store
+*.env
+**/target/
