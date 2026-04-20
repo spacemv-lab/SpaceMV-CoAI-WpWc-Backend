@@ -1,5 +1,6 @@
 package com.txwx.social.crm.bizchain.product.handler.insert;
 
+import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.domain.dto.UserPermissionDTO;
 import com.txwx.social.crm.bizchain.product.context.ProductChainContext;
 import com.txwx.social.crm.common.chain.AbstractChainHandler;
@@ -33,6 +34,7 @@ public class UserPermissionInsertHandler extends AbstractChainHandler<ProductCha
         }
         TxwxUserPermissionPO userPermissionPO = EntityConvertor.convert2PO(userPermissionDTOS.get(0), true);
         userPermissionPO.setRelationIds(EntityConvertor.convertToString(List.of(productId)));
+        userPermissionPO.setUserId(SecurityUtils.getUserId());
         permissionMapper.insertPermission(userPermissionPO);
     }
 }

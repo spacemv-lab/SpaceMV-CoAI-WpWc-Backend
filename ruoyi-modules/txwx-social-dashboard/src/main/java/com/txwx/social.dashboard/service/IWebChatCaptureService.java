@@ -9,10 +9,6 @@ public interface IWebChatCaptureService {
 
     Boolean dataSync(Long accountId, String startdate, String enddate);
 
-    void syncPlatformData(Long accountId, String startdate, String enddate);
-
-    String getAccessToken(String appId, String secret);
-
     /**
      * @description: 通过调用微信公众号接口查询关注或取消关注人数
      */
@@ -109,11 +105,6 @@ public interface IWebChatCaptureService {
      * @description: 通过调用微信公众号接口查询每日图文阅读概括数据
      */
     void webChatUserReadCaptureHistory(String startdate, String endDate, String accessToken, Long accountId);
-
-    /**
-     * @description: 获取并保存已发布消息列表（定时任务）
-     */
-    void capturePublishedArticles(String accessToken, Long accountId);
 
     /**
      * @description: 获取并保存发表内容每日阅读数据（定时任务）

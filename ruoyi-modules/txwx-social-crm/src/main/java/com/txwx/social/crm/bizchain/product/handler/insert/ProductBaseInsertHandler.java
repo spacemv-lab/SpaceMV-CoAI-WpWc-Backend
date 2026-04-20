@@ -1,8 +1,10 @@
 package com.txwx.social.crm.bizchain.product.handler.insert;
 
+import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.domain.dto.SimpleProductDTO;
 import com.txwx.social.crm.bizchain.product.context.ProductChainContext;
 import com.txwx.social.crm.common.chain.AbstractChainHandler;
+import com.txwx.social.crm.domain.po.TxwxProductPO;
 import com.txwx.social.crm.mapper.TxwxProductMapper;
 import com.txwx.social.crm.service.IProductService;
 import com.txwx.social.crm.util.EntityConvertor;
@@ -24,7 +26,9 @@ public class ProductBaseInsertHandler extends AbstractChainHandler<ProductChainC
             return;
         }
 
-        Long productId = productService.insertProductReturnID(EntityConvertor.convert2PO(product, true));
+        TxwxProductPO po = EntityConvertor.convert2PO(product, true);
+        po.setUserId(SecurityUtils.getUserId());
+        Long productId = productService.insertProductReturnID(po);
         context.setProductId(productId);
     }
 }

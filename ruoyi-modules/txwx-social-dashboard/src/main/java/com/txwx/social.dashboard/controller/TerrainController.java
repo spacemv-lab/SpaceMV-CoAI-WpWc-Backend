@@ -15,6 +15,7 @@ import com.txwx.social.dashboard.domain.entity.TerrainDistribution;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.service.ITerrainDistributionService;
 import com.txwx.social.dashboard.util.ImportUtil;
+import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @RequestMapping("/terrainData")
@@ -43,10 +42,10 @@ public class TerrainController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "地域分布列表")
-    public TableDataInfo select(@RequestBody List<Long> accountIds) {
+    public TableDataInfo select(@RequestParam Long accountId) {
 
         LambdaQueryWrapper<TerrainDistribution> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(TerrainDistribution::getAccountId, accountIds.get(0));
+        queryWrapper.eq(TerrainDistribution::getAccountId, accountId);
         queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
         List<TerrainDistribution> list = iTerrainDistributionService.list(queryWrapper);
         return getDataTable(list);
@@ -80,14 +79,14 @@ public class TerrainController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入地域分布数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-        String truncateSql = "truncate table dim_terrain_distribution";
+        String truncateSql = SqlUtils.deleteSql("dim_terrain_distribution");
         try {
-            clickhouseService.singleInsert(truncateSql);
+            clickhouseService.singleInsert(truncateSql, accountId);
             logger.info("清空terrain_distribution表成功");
         }catch (Exception e) {
             logger.warn("清空terrain_distribution表失败（可能是第一次运行）: " + e.getMessage());
         }
-        String sql = "insert into dim_terrain_distribution (terrain, user_number, proportion, account_id) values (?, ?, ?, ?, ?, ?)";
+        String sql = "insert into dim_terrain_distribution (terrain, user_number, proportion, pull_time, account_id) values (?, ?, ?, ?, ?)";
         Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
         ImportResultVo res = importUtil.importExcel(file,
@@ -102,7 +101,7 @@ public class TerrainController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出地域分布")
-    public void exportExcel(HttpServletResponse response, @RequestBody List<Long> accountIds) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestParam("accountId") Long accountId) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出地域分布", "UTF-8").replaceAll("\\+", "%20");
@@ -118,7 +117,7 @@ public class TerrainController extends BaseController {
             while (hasNext) {
                 PageHelper.startPage(pageNum, pageSize);
                 LambdaQueryWrapper<TerrainDistribution> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.eq(TerrainDistribution::getAccountId, accountIds.get(0));
+                queryWrapper.eq(TerrainDistribution::getAccountId, accountId);
                 queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
                 List<TerrainDistribution> dataList = iTerrainDistributionService.list(queryWrapper);
                 if (dataList == null || dataList.isEmpty()) {

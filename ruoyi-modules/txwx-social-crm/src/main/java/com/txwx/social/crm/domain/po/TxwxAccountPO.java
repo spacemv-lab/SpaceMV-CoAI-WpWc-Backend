@@ -53,6 +53,9 @@ public class TxwxAccountPO extends BaseEntity {
     @Schema(description = "最后同步时间")
     private String lastSyncTime;
 
+    @Schema(description = "创建用户id")
+    private Long userId;
+
     @Schema(description = "删除标志(0代表存在 1代表删除)")
     private String delFlag;
 }

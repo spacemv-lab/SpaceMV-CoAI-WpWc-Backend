@@ -5,7 +5,6 @@ import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 import com.ruoyi.common.security.utils.SecurityUtils;
-import com.txwx.social.api.client.ChannelApiClient;
 import com.txwx.social.api.domain.dto.AccountDTO;
 import com.txwx.social.api.domain.dto.ChannelDTO;
 import com.txwx.social.crm.domain.po.TxwxAccountPO;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/channel")
 @Tag(name = "04--【CRM】--渠道管理")
-public class ChannelController extends BaseController implements ChannelApiClient {
+public class ChannelController extends BaseController {
 
     @Autowired
     private IChannelService channelService;
@@ -48,7 +47,7 @@ public class ChannelController extends BaseController implements ChannelApiClien
 
     /* ========== 以下是 ChannelApiClient 接口的实现 ========== */
 
-    @Override
+
     @PostMapping("/list")
     @Operation(summary = "查询渠道列表（client调用）")
     public AjaxResult getChannelList(@Parameter(description = "查询条件") @RequestBody(required = false) ChannelDTO query) {
@@ -65,7 +64,7 @@ public class ChannelController extends BaseController implements ChannelApiClien
         return AjaxResult.success(dtoList);
     }
 
-    @Override
+
     @PostMapping("/list/simple")
     @Operation(summary = "查询简单渠道列表（client调用）")
     public AjaxResult getSimpleChannelList(@Parameter(description = "查询条件") @RequestBody(required = false) ChannelDTO query) {
@@ -80,7 +79,7 @@ public class ChannelController extends BaseController implements ChannelApiClien
         return AjaxResult.success(dtoList);
     }
 
-    @Override
+
     @GetMapping("/{id}")
     @Operation(summary = "查询渠道（client调用）")
     public AjaxResult getChannelById(@Parameter(description = "渠道ID") @PathVariable("id") Long id) {
@@ -91,7 +90,6 @@ public class ChannelController extends BaseController implements ChannelApiClien
         return AjaxResult.success(convertPoToDto(po));
     }
 
-    @Override
     @PostMapping
     @Operation(summary = "新增渠道（client调用）")
     public AjaxResult addChannel(@Parameter(description = "渠道信息") @RequestBody ChannelDTO channel) {
@@ -110,7 +108,7 @@ public class ChannelController extends BaseController implements ChannelApiClien
         return productChannelPO;
     }
 
-    @Override
+
     @PutMapping
     @Operation(summary = "更新渠道,本接口只更新渠道基本信息，如需更改渠道和产品关系请使用ProductChannel相关接口（client调用）")
     public AjaxResult updateChannel(@Parameter(description = "渠道信息") @RequestBody ChannelDTO channel) {
@@ -120,7 +118,7 @@ public class ChannelController extends BaseController implements ChannelApiClien
         return toAjax(channelService.updateChannel(po));
     }
 
-    @Override
+
     @DeleteMapping("/{ids}")
     @Operation(summary = "批量删除渠道（client调用）")
     public AjaxResult deleteChannelByIds(@Parameter(description = "渠道ID数组") @PathVariable("ids") String ids) {

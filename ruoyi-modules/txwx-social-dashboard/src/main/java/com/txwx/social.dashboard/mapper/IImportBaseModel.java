@@ -1,4 +1,4 @@
-package com.txwx.social.dashboard.domain.mapper;
+package com.txwx.social.dashboard.mapper;
 
 public interface IImportBaseModel {
     Object[] toObject(Long accountId);

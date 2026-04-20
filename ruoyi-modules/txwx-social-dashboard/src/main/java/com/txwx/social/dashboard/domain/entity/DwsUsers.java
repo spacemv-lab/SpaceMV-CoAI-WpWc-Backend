@@ -5,7 +5,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.core.annotation.Excel;
-import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

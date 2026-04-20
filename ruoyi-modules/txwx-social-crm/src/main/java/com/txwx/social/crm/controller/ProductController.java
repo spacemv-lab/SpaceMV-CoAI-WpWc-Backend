@@ -8,6 +8,7 @@ import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.client.ProductApiClient;
 import com.txwx.social.api.domain.dto.*;
 import com.txwx.social.crm.bizchain.product.service.ProductChainService;
+import com.txwx.social.crm.common.config.QueryConfig;
 import com.txwx.social.crm.domain.ProductAddOrUpdateRequest;
 import com.txwx.social.crm.domain.ProductQueryRequest;
 import com.txwx.social.crm.domain.po.TxwxProductPO;
@@ -157,6 +158,12 @@ public class ProductController extends BaseController implements ProductApiClien
     ) {
         productChainService.deleteProduct(productId);
         return AjaxResult.success("产品删除成功");
+    }
+
+    @PostMapping("/management/{id}")
+    @Operation(summary = "查询产品详情")
+    public AjaxResult getProductById(@Parameter(description = "产品ID") @PathVariable("id") Long id, @RequestBody QueryConfig queryConfig) {
+        return AjaxResult.success(productChainService.queryProductById(id, queryConfig));
     }
 
     @Override

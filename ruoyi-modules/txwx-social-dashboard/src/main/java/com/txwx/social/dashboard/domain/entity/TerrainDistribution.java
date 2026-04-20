@@ -3,9 +3,11 @@ package com.txwx.social.dashboard.domain.entity;
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.Date;
 
 @Data
 @TableName("dim_terrain_distribution")
@@ -20,13 +22,17 @@ public class TerrainDistribution implements IImportBaseModel {
     @ExcelProperty("占比")
     private String proportion;
 
+    @Schema(description = "拉取时间")
+    private Date pullTime;
+
     @Schema(description = "自媒体账号ID")
     @ExcelIgnore
     private Long accountId;
 
     @Override
     public Object[] toObject(Long accountId) {
-        return new Object[]{terrain, userNumber, proportion, accountId};
+        pullTime = new Date();
+        return new Object[]{terrain, userNumber, proportion, pullTime, accountId};
     }
 
     @Override

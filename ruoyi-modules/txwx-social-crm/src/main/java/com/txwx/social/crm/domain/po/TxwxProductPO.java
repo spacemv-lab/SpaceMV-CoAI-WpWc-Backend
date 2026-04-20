@@ -45,6 +45,9 @@ public class TxwxProductPO extends BaseEntity {
     @Schema(description = "删除标志(0代表存在 1代表删除)")
     private int delFlag;
 
+    @Schema(description = "状态)")
+    private String status;
+
     // 扩展查询，不写库
     private List<Long> ids;
 }

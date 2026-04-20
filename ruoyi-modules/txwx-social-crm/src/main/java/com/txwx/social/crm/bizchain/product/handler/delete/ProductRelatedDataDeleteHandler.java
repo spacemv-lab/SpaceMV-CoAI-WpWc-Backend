@@ -22,12 +22,12 @@ public class ProductRelatedDataDeleteHandler extends AbstractChainHandler<Produc
 
     @Override
     protected void doHandle(ProductChainContext context) {
-        if (CollectionUtils.isEmpty(context.getProductIds())) {
+        if (context.getProductId() == null) {
             context.skipCurrentHandler("产品id为空");
             return;
         }
         //TODO 目前只支持单产品
-        Long productId = context.getProductIds().get(0);
+        Long productId = context.getProductId();
 
         userPermissionService.deleteUserPermissionByProductId(productId);
 

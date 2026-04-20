@@ -6,13 +6,14 @@ import com.ruoyi.common.clickhouse.service.ClickhouseService;
 import com.txwx.social.dashboard.domain.entity.DwsContentData;
 import com.txwx.social.dashboard.domain.entity.DwsUsers;
 import com.txwx.social.dashboard.domain.enums.FilterDimension;
-import com.txwx.social.dashboard.domain.mapper.DwsBizsummaryChannelDailyMapper;
-import com.txwx.social.dashboard.domain.mapper.DwsContentDataMapper;
+import com.txwx.social.dashboard.mapper.DwsBizsummaryChannelDailyMapper;
+import com.txwx.social.dashboard.mapper.DwsContentDataMapper;
 import com.txwx.social.dashboard.domain.vo.UserTotalVo;
 import com.txwx.social.dashboard.service.IDataBoardService;
 import com.txwx.social.dashboard.service.IDwsUsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 
 import java.time.LocalDate;
@@ -46,7 +47,10 @@ public class DataBoardServiceImpl implements IDataBoardService {
         List<DwsUsers> list = dwsUsersService.list(queryWrapper);
         UserTotalVo userTotalVo = new UserTotalVo();
         userTotalVo.setDesc("总用户数");
-        userTotalVo.setValue(list.get(0).getAccumulatedUser());
+        userTotalVo.setValue(0L);
+        if (!CollectionUtils.isEmpty(list)) {
+            userTotalVo.setValue(list.get(0).getAccumulatedUser());
+        }
         res.add(userTotalVo);
         Map<String, Long> map = dwsBizsummaryChannelDailyMapper.selectTotalReadShare(accountId);
         if (map != null && !map.isEmpty()) {
@@ -141,7 +145,7 @@ public class DataBoardServiceImpl implements IDataBoardService {
 
         String querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM dws_users "
                 + "WHERE ref_date >= ?"
-                + "' AND ref_date < ?"
+                + " AND ref_date < ?"
                 + " AND account_id = ?"
                 + " ORDER BY ref_date ASC";
 
@@ -154,7 +158,7 @@ public class DataBoardServiceImpl implements IDataBoardService {
         String endTimeStr = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE);
         String querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM dws_users "
                 + "WHERE ref_date >= ?"
-                + "' AND ref_date < ?"
+                + " AND ref_date < ?"
                 + " AND account_id = ?"
                 + " ORDER BY ref_date ASC";
         String startTimeStr = FilterDimension.calculateStartTimeEnhanced(filterDimension)

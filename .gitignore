@@ -27,3 +27,9 @@
 /ruoyi-modules/txwx-social-crm/${project.build.directory}/
 /ruoyi-modules/txwx-social-crm/txwx-social-crm.iml
 /ruoyi-modules/txwx-social-crm/target/
+/doc/
+/.vscode/
+/.idea/
+/.vscode/
+/.claude/
+/ruoyi-modules/txwx-website/target/

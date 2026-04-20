@@ -4,12 +4,14 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
+import com.ruoyi.common.core.utils.sql.SqlUtil;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.social.dashboard.domain.entity.AgeDistribution;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.service.IAgeDistributionService;
 import com.txwx.social.dashboard.util.ImportUtil;
+import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,10 @@ public class AgeController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "年龄分布列表")
-    public AjaxResult select(@NotEmpty(message = "账号信息不能为空") @RequestBody List<Long> accountIds) {
+    public AjaxResult select(@NotEmpty(message = "账号信息不能为空") @RequestParam("accountId") Long accountId) {
         //TODO 目前仅支持单账号
         LambdaQueryWrapper<AgeDistribution> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AgeDistribution::getAccountId, accountIds.get(0));
+        queryWrapper.eq(AgeDistribution::getAccountId, accountId);
 
         queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
         return success(iAgeDistributionService.list(queryWrapper));
@@ -75,9 +77,9 @@ public class AgeController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入年龄分布数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-        String truncateSql = "truncate table dim_age_distribution";
+        String truncateSql = SqlUtils.deleteSql("dim_age_distribution");
         try {
-            clickhouseService.singleInsert(truncateSql);
+            clickhouseService.singleInsert(truncateSql, accountId);
             logger.info("清空age_distribution表成功");
         }catch (Exception e) {
             logger.warn("清空age_distribution表失败（可能是第一次运行）: " + e.getMessage());
@@ -92,7 +94,7 @@ public class AgeController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出年龄分布")
-    public void exportExcel(HttpServletResponse response, @RequestBody List<Long> accountIds) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestParam("accountId") Long accountId) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出年龄分布", "UTF-8").replaceAll("\\+", "%20");
@@ -100,7 +102,7 @@ public class AgeController extends BaseController {
         try {
             LambdaQueryWrapper<AgeDistribution> queryWrapper = new LambdaQueryWrapper<>();
             //TODO 仅支持单账号
-            queryWrapper.eq(AgeDistribution::getAccountId, accountIds.get(0));
+            queryWrapper.eq(AgeDistribution::getAccountId, accountId);
             queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
             List<AgeDistribution> list = iAgeDistributionService.list(queryWrapper);
 
