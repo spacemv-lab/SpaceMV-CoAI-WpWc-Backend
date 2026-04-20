@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.txwx.social.crm.util.EntityConvertor.fillBaseInfo;
+
 /**
  * 账号服务实现类
  *
@@ -110,6 +112,9 @@ public class AccountServiceImpl implements IAccountService {
     public int deleteByProductIds(List<Long> productIds) {
         List<TxwxAccountPO> accountPOList = accountMapper.selectAccountByProductIds(productIds);
         List<Long> ids = accountPOList.stream().map(TxwxAccountPO::getId).toList();
+        if (CollectionUtils.isEmpty(ids)) {
+            return 0;
+        }
         return accountMapper.deleteAccountByIds(ids);
     }
 
@@ -118,15 +123,4 @@ public class AccountServiceImpl implements IAccountService {
         return accountMapper.selectAccountList(query);
     }
 
-    private void fillBaseInfo(BaseEntity po) {
-        //TODO 测试用
-        String operator = SecurityUtils.getUsername();
-        if (StringUtils.isEmpty(operator)) {
-            operator = "管理员";
-        }
-        po.setCreateBy(operator);
-        po.setUpdateBy(operator);
-        po.setCreateTime(new Date());
-        po.setUpdateTime(new Date());
-    }
 }

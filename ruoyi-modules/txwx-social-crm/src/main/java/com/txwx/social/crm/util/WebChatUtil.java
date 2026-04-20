@@ -35,16 +35,10 @@ public class WebChatUtil {
         queryParams.put("appid", appId);
         queryParams.put("secret", secret);
 
-        String token = null;
-        try {
-            String paramResponse = HttpUtil.getWithParams("https://api.weixin.qq.com/cgi-bin/token", queryParams);
-            ChannelAccessToken channelAccessToken = JSONObject.parseObject(paramResponse, ChannelAccessToken.class);
-            token = channelAccessToken.getAccess_token();
-        } catch (Exception e) {
-            throw e;
-        }
+        String paramResponse = HttpUtil.getWithParams("https://api.weixin.qq.com/cgi-bin/token", queryParams);
+        ChannelAccessToken channelAccessToken = JSONObject.parseObject(paramResponse, ChannelAccessToken.class);
 
-        return token;
+        return channelAccessToken.getAccess_token();
     }
 
     /**

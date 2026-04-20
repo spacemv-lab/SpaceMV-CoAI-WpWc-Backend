@@ -6,7 +6,7 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelDataConvertException;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
-import com.txwx.social.dashboard.domain.mapper.IImportBaseModel;
+import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.domain.vo.RowErrorVo;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,6 +10,7 @@ import com.txwx.social.dashboard.domain.entity.ChannelComposition;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.service.IChannelCompositionService;
 import com.txwx.social.dashboard.util.ImportUtil;
+import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class ChannelCompositionController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "渠道构成列表")
-    public AjaxResult select(@RequestBody List<Long> accountIds) {
+    public AjaxResult select(@RequestParam("accountId") List<Long> accountIds) {
         LambdaQueryWrapper<ChannelComposition> queryWrapper = new LambdaQueryWrapper<>();
         //TODO 仅支持单账号
         queryWrapper.eq(ChannelComposition::getAccountId, accountIds.get(0));
@@ -73,9 +74,9 @@ public class ChannelCompositionController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入渠道构成数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-        String truncateSql = "truncate table dim_channel_composition";
+        String truncateSql = SqlUtils.deleteSql("dim_channel_composition");
         try {
-            clickhouseService.singleInsert(truncateSql);
+            clickhouseService.singleInsert(truncateSql, accountId);
             logger.info("清空channel_composition表成功");
         }catch (Exception e) {
             logger.warn("清空channel_composition表失败（可能是第一次运行）: " + e.getMessage());
@@ -90,7 +91,7 @@ public class ChannelCompositionController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出渠道构成")
-    public void exportExcel(HttpServletResponse response, @RequestBody List<Long> accountIds) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestParam("accountId") Long accountId) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出渠道构成", "UTF-8").replaceAll("\\+", "%20");
@@ -98,7 +99,7 @@ public class ChannelCompositionController extends BaseController {
         try {
             LambdaQueryWrapper<ChannelComposition> queryWrapper = new LambdaQueryWrapper<>();
             //TODO 仅支持单账号
-            queryWrapper.eq(ChannelComposition::getAccountId, accountIds.get(0));
+            queryWrapper.eq(ChannelComposition::getAccountId, accountId);
             queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
             List<ChannelComposition> list = iChannelCompositionService.list(queryWrapper);
 

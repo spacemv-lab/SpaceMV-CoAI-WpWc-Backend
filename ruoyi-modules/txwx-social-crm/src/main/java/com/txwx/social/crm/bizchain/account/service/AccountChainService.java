@@ -18,8 +18,8 @@ public class AccountChainService {
         return accountChainManager.queryAccountList(query, pageDomain);
     }
 
-    public Long insertAccount(AccountDTO account) {
-        return accountChainManager.insertAccount(account);
+    public void insertAccount(AccountDTO account) {
+        accountChainManager.insertAccount(account);
     }
 
     public List<Long> batchInsertAccounts(List<AccountDTO> accounts) {

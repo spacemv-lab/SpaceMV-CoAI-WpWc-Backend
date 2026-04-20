@@ -47,7 +47,11 @@ public class ChannelAccountQueryHandler extends AbstractChainHandler<ProductChai
 
         List<Long> channelIds = productChannelMap.getOrDefault(productId, Lists.newArrayList());
 
-        List<TxwxAccountPO> accounts = accountMapper.selectAccountByChannelIds(channelIds);
+        if (CollectionUtils.isEmpty(channelIds) || productId == null) {
+            return;
+        }
+
+        List<TxwxAccountPO> accounts = accountMapper.selectAccountByChannelIdsAndProductIds(channelIds, productIds);
         List<AccountDTO> accountDTOList = EntityConvertor.convertPO2DTO(accounts);
         Map<Long, List<AccountDTO>> accountMap = accountDTOList.stream()
                 .collect(Collectors.groupingBy(AccountDTO::getChannelId));

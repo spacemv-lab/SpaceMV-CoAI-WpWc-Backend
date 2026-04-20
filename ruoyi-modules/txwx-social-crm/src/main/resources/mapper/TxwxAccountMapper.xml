@@ -19,10 +19,11 @@
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
+        <result property="userId" column="user_id"/>
     </resultMap>
 
     <sql id="selectAccountVo">
-        select id, channel_id, product_id, account_name, account_no, appid, secret, token, encoding_aes_key, status, last_sync_time, del_flag, create_by, create_time, update_by, update_time from txwx_account
+        select id, channel_id, product_id, account_name, account_no, appid, secret, token, encoding_aes_key, status, last_sync_time, del_flag, create_by, create_time, update_by, update_time, user_id from txwx_account
     </sql>
 
     <select id="selectAccountList" parameterType="com.txwx.social.crm.domain.po.TxwxAccountPO" resultMap="TxwxAccountResult">
@@ -39,6 +40,12 @@
             </if>
             <if test="status != null and status != ''">
                 and status = #{status}
+            </if>
+            <if test="appId != null and appId != ''">
+                and appid = #{appId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
             </if>
             and del_flag = '0'
         </where>
@@ -68,6 +75,7 @@
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
@@ -86,6 +94,7 @@
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
         </trim>
     </insert>
 
@@ -110,7 +119,7 @@
     </update>
 
     <delete id="deleteAccountByIds" parameterType="Long">
-        update txwx_account set del_flag = '1' where id in
+        update txwx_account set del_flag = NULL where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -134,6 +143,27 @@
             and 1=0
         </if>
     </select>
+
+
+    <select id="selectAccountByChannelIdsAndProductIds" resultMap="TxwxAccountResult">
+        <include refid="selectAccountVo"/>
+        where del_flag = '0'
+        <if test="productIds != null and productIds.size() > 0">
+            and product_id in
+            <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                #{productId}
+            </foreach>
+        </if>
+        <if test="channelIds != null and channelIds.size() > 0">
+            and channel_id in
+            <foreach collection="channelIds" item="channelId" open="(" separator="," close=")">
+                #{channelId}
+            </foreach>
+        </if>
+    </select>
+
+
+
 
 
     <select id="selectAccountByChannelIds" resultMap="TxwxAccountResult">

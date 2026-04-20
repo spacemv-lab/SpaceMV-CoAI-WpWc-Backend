@@ -77,4 +77,6 @@ public interface TxwxAccountMapper {
     List<TxwxAccountPO> selectAccountByProductIds(@Param("productIds") List<Long> productIds);
 
     List<TxwxAccountPO> selectAccountByChannelIds(@Param("channelIds") List<Long> cids);
+
+    List<TxwxAccountPO> selectAccountByChannelIdsAndProductIds(@Param("channelIds") List<Long> cids, @Param("productIds") List<Long> productIds);
 }

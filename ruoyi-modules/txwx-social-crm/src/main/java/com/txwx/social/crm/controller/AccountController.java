@@ -1,5 +1,6 @@
 package com.txwx.social.crm.controller;
 
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
@@ -113,7 +114,7 @@ public class AccountController extends BaseController implements AccountApiClien
     @Override
     @PostMapping("/list")
     @Operation(summary = "获取账号列表")
-    public AjaxResult getAccountList(@Parameter(description = "查询条件") @RequestBody(required = false) AccountDTO query) {
+    public R<List<AccountDTO>> getAccountList(@Parameter(description = "查询条件") @RequestBody(required = false) AccountDTO query) {
         TxwxAccountPO queryPO = new TxwxAccountPO();
         if (query != null) {
             BeanUtils.copyProperties(query, queryPO);
@@ -122,25 +123,25 @@ public class AccountController extends BaseController implements AccountApiClien
         List<AccountDTO> dtoList = list.stream()
                 .map(this::convertPoToDto)
                 .collect(Collectors.toList());
-        return AjaxResult.success(dtoList);
+        return R.ok(dtoList);
     }
 
     @Override
     @GetMapping("/{id}")
     @Operation(summary = "按id获取账号")
-    public AjaxResult getAccountById(@Parameter(description = "账号ID") @PathVariable("id") Long id) {
+    public R<AccountDTO> getAccountById(@Parameter(description = "账号ID") @PathVariable("id") Long id) {
         TxwxAccountPO po = accountService.selectAccountById(id);
         if (po == null) {
-            return AjaxResult.error("账号不存在");
+            return R.fail("数据不存在");
         }
-        return AjaxResult.success(convertPoToDto(po));
+        return R.ok(convertPoToDto(po));
     }
 
     @Override
     @PostMapping
     @Operation(summary = "添加账号")
-    public AjaxResult addAccount(@Parameter(description = "账号信息") @RequestBody AccountDTO account) {
-        return toAjax(accountService.insertAccount(account));
+    public R<Boolean> addAccount(@Parameter(description = "账号信息") @RequestBody AccountDTO account) {
+        return R.ok(accountService.insertAccount(account) > 0);
     }
 
     private void fillBaseInfo(TxwxAccountPO po) {
@@ -158,17 +159,17 @@ public class AccountController extends BaseController implements AccountApiClien
     @Override
     @PutMapping
     @Operation(summary = "更新账号")
-    public AjaxResult updateAccount(@Parameter(description = "账号信息") @RequestBody AccountDTO account) {
+    public R<Boolean> updateAccount(@Parameter(description = "账号信息") @RequestBody AccountDTO account) {
         TxwxAccountPO po = new TxwxAccountPO();
         BeanUtils.copyProperties(account, po);
         fillBaseInfo(po);
-        return toAjax(accountService.updateAccount(po));
+        return R.ok(accountService.updateAccount(po) > 0);
     }
 
     @Override
     @DeleteMapping("/{ids}")
     @Operation(summary = "批量删除账号")
-    public AjaxResult deleteAccountByIds(@Parameter(description = "账号ID数组") @PathVariable("ids") String ids) {
+    public R<Boolean> deleteAccountByIds(@Parameter(description = "账号ID数组") @PathVariable("ids") String ids) {
         List<Long> idList = Arrays.stream(ids.split(","))
                 .map(String::trim)
                 .filter(StringUtils::isNotBlank)
@@ -176,31 +177,31 @@ public class AccountController extends BaseController implements AccountApiClien
                 .toList();
 
         if (idList.isEmpty()) {
-            return AjaxResult.error("请提供要删除的ID列表");
+            return R.fail("请提供要删除的ID列表");
         }
-        return toAjax(accountService.deleteAccountByIds(idList));
+        return R.ok(accountService.deleteAccountByIds(idList) > 0);
     }
 
     @Override
     @GetMapping("/byProduct/{productId}")
     @Operation(summary = "通过产品id批量查询账号列表")
-    public AjaxResult getAccountByProductId(@Parameter(description = "产品ID") @PathVariable("productId") Long productId) {
+    public R<List<AccountDTO>> getAccountByProductId(@Parameter(description = "产品ID") @PathVariable("productId") Long productId) {
         List<TxwxAccountPO> list = accountService.selectAccountByProductId(productId);
         List<AccountDTO> dtoList = list.stream()
                 .map(this::convertPoToDto)
                 .collect(Collectors.toList());
-        return AjaxResult.success(dtoList);
+        return R.ok(dtoList);
     }
 
     @Override
     @GetMapping("/byChannel/{channelId}")
     @Operation(summary = "通过渠道id批量查询账号列表")
-    public AjaxResult getAccountByChannelId(@Parameter(description = "渠道ID") @PathVariable("channelId") Long channelId) {
+    public R<List<AccountDTO>> getAccountByChannelId(@Parameter(description = "渠道ID") @PathVariable("channelId") Long channelId) {
         List<TxwxAccountPO> list = accountService.selectAccountByChannelId(channelId);
         List<AccountDTO> dtoList = list.stream()
                 .map(this::convertPoToDto)
                 .collect(Collectors.toList());
-        return AjaxResult.success(dtoList);
+        return R.ok(dtoList);
     }
 
     /* ========== 内部转换方法 ========== */

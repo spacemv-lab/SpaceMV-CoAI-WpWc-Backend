@@ -14,6 +14,7 @@ import com.txwx.social.dashboard.domain.entity.DwsUsers;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.service.IDwsUsersService;
 import com.txwx.social.dashboard.util.ImportUtil;
+import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,9 @@ public class UserDataController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入用户数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-        Map<String, Object> extInfo = new HashMap<>();
+        return AjaxResult.success("暂不支持该接口");
+
+        /*Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
         ImportResultVo res = importUtil.importExcel(file,
                 DwsUsers.class,
@@ -86,7 +89,7 @@ public class UserDataController extends BaseController {
                 null,
                 extInfo);
         if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");
+        else return success("导入成功!");*/
     }
 
     @PostMapping("/exportExcel")

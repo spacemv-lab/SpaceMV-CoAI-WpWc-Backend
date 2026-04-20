@@ -122,18 +122,16 @@ public class AccountChainManager {
         return context.getPageResult();
     }
 
-    public Long insertAccount(AccountDTO account) {
+    public void insertAccount(AccountDTO account) {
         validateObject(account, ValidationGroups.Add.class);
 
         AccountChainContext context = new AccountChainContext();
-        context.setAccountList(List.of(account));
+        context.setAccounts(List.of(account));
         context.setPermissionCode("system:account:add");
         context.setSentinelResourceName("account:insert");
 
         executeInsertChain(context);
         checkResult(context);
-        //TODO 仅支持单账号
-        return context.getAccountIds().get(0);
     }
 
     public List<Long> batchInsertAccounts(List<AccountDTO> accounts) {

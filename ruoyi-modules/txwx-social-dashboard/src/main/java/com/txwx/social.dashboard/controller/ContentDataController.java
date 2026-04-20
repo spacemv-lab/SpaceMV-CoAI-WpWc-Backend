@@ -81,14 +81,16 @@ public class ContentDataController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入内容数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-
-        Map<String, Object> extInfo = new HashMap<>();
+        return AjaxResult.success("接口暂不支持");
+        /*Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
+        // TODO qyl 这块的逻辑有很大的bug，千万别用
+        String sql = "INSERT INTO ods_article_detail_daily (stat_date, ref_date, title, read_user, share_user, read_subscribe_user, url, account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         ImportResultVo res = importUtil.importExcel(file, OdsArticleDetailDailyDTO.class,
-                webChatConfig.getInsertarticlereaddailysql(),
+                sql,
                 response, null, extInfo);
         if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");
+        else return success("导入成功!");*/
     }
 
     @PostMapping("/exportExcel")

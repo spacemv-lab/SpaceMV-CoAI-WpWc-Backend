@@ -1,5 +1,6 @@
 package com.txwx.social.api.client;
 
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.txwx.social.api.domain.dto.AccountDTO;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,49 +17,49 @@ import java.util.List;
  */
 @FeignClient(
     name = "txwx-social-crm",
-    path = "/account"
+    contextId = "accountApiClient"
 )
 public interface AccountApiClient {
 
     /**
      * 查询账号列表
      */
-    @PostMapping("/list")
-    AjaxResult getAccountList(@Parameter(description = "账号信息", required = false) @RequestBody AccountDTO query);
+    @PostMapping("/account/list")
+    R<List<AccountDTO>> getAccountList(@Parameter(description = "账号信息", required = false) @RequestBody AccountDTO query);
 
     /**
      * 获取账号详细信息
      */
-    @GetMapping("/{id}")
-    AjaxResult getAccountById(@PathVariable("id") Long id);
+    @GetMapping("/account/{id}")
+    R<AccountDTO> getAccountById(@PathVariable("id") Long id);
 
     /**
      * 新增账号
      */
     @PostMapping
-    AjaxResult addAccount(@RequestBody AccountDTO account);
+    R<Boolean> addAccount(@RequestBody AccountDTO account);
 
     /**
      * 修改账号
      */
     @PutMapping
-    AjaxResult updateAccount(@RequestBody AccountDTO account);
+    R<Boolean> updateAccount(@RequestBody AccountDTO account);
 
     /**
      * 删除账号
      */
     @DeleteMapping("/{ids}")
-    AjaxResult deleteAccountByIds(@PathVariable("ids") String ids);
+    R<Boolean> deleteAccountByIds(@PathVariable("ids") String ids);
 
     /**
      * 根据产品ID查询账号列表
      */
-    @GetMapping("/byProduct/{productId}")
-    AjaxResult getAccountByProductId(@PathVariable("productId") Long productId);
+    @GetMapping("/account/byProduct/{productId}")
+    R<List<AccountDTO>> getAccountByProductId(@PathVariable("productId") Long productId);
 
     /**
      * 根据渠道ID查询账号列表
      */
-    @GetMapping("/byChannel/{channelId}")
-    AjaxResult getAccountByChannelId(@PathVariable("channelId") Long channelId);
+    @GetMapping("/account/byChannel/{channelId}")
+    R<List<AccountDTO>> getAccountByChannelId(@PathVariable("channelId") Long channelId);
 }

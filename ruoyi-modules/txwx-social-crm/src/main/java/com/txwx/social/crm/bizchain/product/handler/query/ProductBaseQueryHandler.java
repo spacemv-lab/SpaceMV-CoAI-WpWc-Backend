@@ -30,6 +30,7 @@ public class ProductBaseQueryHandler extends AbstractChainHandler<ProductChainCo
     protected void doHandle(ProductChainContext context) {
         if (!context.getQueryConfig().isQueryProduct()) {
             context.skipCurrentHandler("请求跳过查询产品基本信息");
+            return;
         }
 
         List<Long> productIds = context.getProductIds();

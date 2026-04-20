@@ -17,7 +17,7 @@ import java.util.List;
  */
 @FeignClient(
     name = "txwx-social-crm",
-    path = "/product"
+    contextId = "productApiClient"
 )
 public interface ProductApiClient {
 

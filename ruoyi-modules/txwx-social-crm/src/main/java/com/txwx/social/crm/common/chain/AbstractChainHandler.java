@@ -1,5 +1,8 @@
 package com.txwx.social.crm.common.chain;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public abstract class AbstractChainHandler<T extends BaseChainContext> implements IChainHandler<T> {
     /**
      * 下一个处理器：固定泛型T，和ChainBuilder完全匹配
@@ -40,6 +43,7 @@ public abstract class AbstractChainHandler<T extends BaseChainContext> implement
 
         } catch (Exception e) {
             context.interruptWithError("处理器执行异常: " + handlerName, e);
+            log.error("处理器执行异常: {}", handlerName, e);
         } finally {
             afterCompletion(context);
         }

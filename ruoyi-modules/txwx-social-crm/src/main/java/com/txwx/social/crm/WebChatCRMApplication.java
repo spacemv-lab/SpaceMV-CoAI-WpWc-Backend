@@ -5,15 +5,21 @@ import com.ruoyi.common.security.annotation.EnableRyFeignClients;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableCustomConfig
-@EnableRyFeignClients
 @EnableScheduling
-@SpringBootApplication
 @MapperScan("com.txwx.social.crm.mapper")
-@ComponentScan(basePackages = "com.txwx.social.crm")
+@EnableDiscoveryClient
+@SpringBootApplication
+@EnableFeignClients(basePackages = { "com.txwx.social.api.client", "com.ruoyi"})
+@ComponentScan(basePackages = {
+        "com.txwx.social.crm",
+        "com.ruoyi"
+})
 public class WebChatCRMApplication {
 
     public static void main(String[] args){

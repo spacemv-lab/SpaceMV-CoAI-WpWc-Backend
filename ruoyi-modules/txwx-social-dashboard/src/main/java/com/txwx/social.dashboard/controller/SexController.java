@@ -10,6 +10,7 @@ import com.txwx.social.dashboard.domain.entity.SexDistribution;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.service.ISexDistributionService;
 import com.txwx.social.dashboard.util.ImportUtil;
+import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,9 @@ public class SexController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "性别分布列表")
-    public AjaxResult select(@RequestBody List<Long> accountIds) {
+    public AjaxResult select(@RequestParam("accountId") Long accountId) {
         LambdaQueryWrapper<SexDistribution> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SexDistribution::getAccountId, accountIds);
+        queryWrapper.eq(SexDistribution::getAccountId, accountId);
         queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
         return success(iSexDistributionService.list(queryWrapper));
     }
@@ -71,17 +72,18 @@ public class SexController extends BaseController {
 
     @PostMapping("/importExcel")
     @Operation(summary = "导入性别分布数据")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response) throws Exception {
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
         // 需要先清空表
-        String truncateSql = "TRUNCATE TABLE dim_sex_distribution";
+        String truncateSql = SqlUtils.deleteSql("dim_sex_distribution");
         try {
-            clickhouseService.singleInsert(truncateSql);
+            clickhouseService.singleInsert(truncateSql, accountId);
             logger.info("清空sex_distribution表成功");
         } catch (Exception e) {
             logger.warn("清空sex_distribution表失败（可能是第一次运行）: " + e.getMessage());
         }
         String sql = "INSERT INTO dim_sex_distribution (sex, user_number, proportion, account_id) VALUES (?, ?, ?, ?)";
         Map<String, Object> extInfo = new HashMap<>();
+        extInfo.put("accountId", accountId);
         ImportResultVo res = importUtil.importExcel(file, SexDistribution.class,
                 sql,
                 response,
@@ -93,14 +95,14 @@ public class SexController extends BaseController {
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出性别分布")
-    public void exportExcel(HttpServletResponse response, @RequestBody List<Long> accountIds) throws IOException {
+    public void exportExcel(HttpServletResponse response,@RequestParam("accountId") Long accountId) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("导出性别分布", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         try {
             LambdaQueryWrapper<SexDistribution> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SexDistribution::getAccountId, accountIds.get(0));
+            queryWrapper.eq(SexDistribution::getAccountId, accountId);
             queryWrapper.last("ORDER BY toFloat32(replace(proportion, '%', '')) DESC");
             List<SexDistribution> list = iSexDistributionService.list(queryWrapper);
 

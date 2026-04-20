@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.txwx.social.dashboard.domain.condition.FlowSearchCondition;
 import com.txwx.social.dashboard.domain.entity.DwsBizsummaryChannelDaily;
-import com.txwx.social.dashboard.domain.mapper.DwsBizsummaryChannelDailyMapper;
+import com.txwx.social.dashboard.mapper.DwsBizsummaryChannelDailyMapper;
 import com.txwx.social.dashboard.domain.entity.FlowSource;
 import com.txwx.social.dashboard.service.IDwsBizsummaryChannelDailyService;
 import org.springframework.beans.factory.annotation.Autowired;

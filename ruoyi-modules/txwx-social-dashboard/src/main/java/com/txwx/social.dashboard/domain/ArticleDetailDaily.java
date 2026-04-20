@@ -114,7 +114,7 @@ public class ArticleDetailDaily {
         }
 
         for (DetailList detail : detail_list) {
-            rows.add(detail.toClickHouseRow(this.ref_date, this.msgid, this.publish_type, this.title, this.content_url, this.accountId));
+            rows.add(detail.toClickHouseRow(this.ref_date, this.msgid, this.publish_type, this.title, this.content_url, accountId));
         }
         return rows;
     }

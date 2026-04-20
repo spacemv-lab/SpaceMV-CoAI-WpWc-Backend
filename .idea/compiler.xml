@@ -21,7 +21,6 @@
         <module name="ruoyi-common-sensitive" />
         <module name="txwx-social-dashboard" />
         <module name="ruoyi-common-datasource" />
-        <module name="txwx-sync-center" />
         <module name="txwx-social-crm" />
         <module name="ruoyi-gateway" />
         <module name="ruoyi-modules-gen" />
@@ -33,6 +32,9 @@
         <module name="ruoyi-modules-file" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="txwx-sync-center" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

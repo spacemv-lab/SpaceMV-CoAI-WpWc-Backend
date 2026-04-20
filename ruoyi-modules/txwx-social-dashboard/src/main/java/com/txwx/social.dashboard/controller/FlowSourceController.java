@@ -8,10 +8,7 @@ import com.txwx.social.dashboard.service.IDwsBizsummaryChannelDailyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,20 +25,20 @@ public class FlowSourceController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "流量来源分析列表")
-    public AjaxResult select(@RequestBody List<Long> accountIds) {
-        List<FlowSource> res = iDwsBizsummaryChannelDailyService.selectSource(accountIds.get(0));
+    public AjaxResult select(@RequestParam("accountId") Long accountId) {
+        List<FlowSource> res = iDwsBizsummaryChannelDailyService.selectSource(accountId);
         return success(res);
     }
 
     @PostMapping("/exportExcel")
     @Operation(summary = "导出流量来源分析")
-    public void exportExcel(HttpServletResponse response, @RequestBody List<Long> accountIds) throws IOException {
+    public void exportExcel(HttpServletResponse response, @RequestParam("accountId") Long accountId) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("流量来源分析导出", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         try {
-            List<FlowSource> res = iDwsBizsummaryChannelDailyService.selectSource(accountIds.get(0));
+            List<FlowSource> res = iDwsBizsummaryChannelDailyService.selectSource(accountId);
             EasyExcel.write(response.getOutputStream(), FlowSource.class)
                     .sheet("流量来源分析")
                     .doWrite(res);
