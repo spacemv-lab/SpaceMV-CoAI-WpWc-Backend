@@ -411,6 +411,8 @@ public class SyncDataService {
 
     public void syncArticleSummaryDailyOneDay(String accessToken, Long accountId, LocalDate refDate) {
         String refDateStr = refDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate mounthBefore = refDate.minusDays(30);
+        String startDateStr = mounthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         log.info("<##############################发表内容概况总数据抓取开始，日期：{} ##############################>", refDateStr);
         log.info("传入的凭证->{}", accessToken);
@@ -423,7 +425,8 @@ public class SyncDataService {
         // 1. 抓取指定日期数据
         List<ArticleSummaryDaily> articleSummaryDailyList = null;
         try {
-            articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, refDateStr, refDateStr);
+            // 这是一个统计接口，统计时间最大跨度为30天
+            articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, startDateStr, refDateStr);
         } catch (Exception ex) {
             log.error("抓取发表内容概况总数据失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
         }
@@ -490,16 +493,19 @@ public class SyncDataService {
         List<Object[]> allBatchArgs = new ArrayList<>();
 
         String refDateStr = baseDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate amounth = baseDate.minusDays(30);
+        String startDateStr = amounth.format(DateTimeFormatter.ISO_LOCAL_DATE);
         // 1. 首先查询当前数据在库里有没有，如果有了就跳过不同步
         if (exist("ods_article_detail_daily", accountId, refDateStr, refDateStr)) {
-            log.info("ods_article_detail_daily表抓取日期已存在数据，执行跳过。日期，{}，账号id{}", refDateStr, accountId);
+            log.info("ods_article_detail_daily表抓取日期已存在数据，执行跳过。日期，{}，账号id{}", startDateStr, accountId);
             return;
         }
         log.info("正在抓取发布日期为 [{}] 的文章数据", refDateStr);
 
         List<ArticleDetailDaily> articleDetailDailyList = null;
         try {
-            articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, refDateStr, refDateStr);
+            // 这是一个统计接口，最大统计周期为30天
+            articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, startDateStr, refDateStr);
         } catch (Exception ex) {
             log.error("抓取发表内容发表详细数据失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
         }
