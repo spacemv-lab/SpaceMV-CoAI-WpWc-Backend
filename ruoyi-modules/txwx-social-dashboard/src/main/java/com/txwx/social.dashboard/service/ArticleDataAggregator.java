@@ -1,6 +1,7 @@
 package com.txwx.social.dashboard.service;
 
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
+import com.txwx.social.dashboard.config.WebChatConfig;
 import com.txwx.social.dashboard.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -23,6 +25,9 @@ public class ArticleDataAggregator {
 
     @Autowired
     private ClickhouseService clickhouseService;
+
+    @Autowired
+    private WebChatConfig webChatConfig;
 
     /**
      * @description: 聚合所有数据到DWS层（按msgid维度全量累加）
@@ -540,6 +545,268 @@ public class ArticleDataAggregator {
         } catch (Exception e) {
             return new Date();
         }
+    }
+
+    public void processDwsUsers(Long accountId) {
+        // 获取指定账户的ods_users表中ref_date的最早和最晚日期
+        String startdate = getMinRefDateByAccount("ods_users", accountId);
+        String enddate = getMaxRefDateByAccount("ods_users", accountId);
+
+        // 如果获取到日期，则处理数据
+        if (startdate != null && enddate != null) {
+            processDwsUsers(accountId, startdate, enddate);
+        } else {
+            log.warn("未找到账户 {} 的ods_users数据", accountId);
+        }
+    }
+
+    /**
+     * 获取指定账户在ods_users表中ref_date的最早日期
+     * @param accountId 账户ID
+     * @return 最早的ref_date，格式为yyyy-MM-dd，如果没有数据则返回null
+     */
+    private String getMinRefDateByAccount(String table, Long accountId) {
+        String sql = "SELECT MIN(ref_date) as min_date FROM "+table+" WHERE account_id = ?";
+
+        try {
+            return clickhouseService.queryForObj(sql, String.class, accountId);
+        } catch (Exception e) {
+            log.error("获取账户{}的最早ref_date失败", accountId, e);
+            return null;
+        }
+    }
+
+    /**
+     * 获取指定账户在ods_users表中ref_date的最晚日期
+     * @param accountId 账户ID
+     * @return 最晚的ref_date，格式为yyyy-MM-dd，如果没有数据则返回null
+     */
+    private String getMaxRefDateByAccount(String table, Long accountId) {
+        String sql = "SELECT MAX(ref_date) as max_date FROM "+ table+" WHERE account_id = ?";
+
+        try {
+            return clickhouseService.queryForObj(sql, String.class, accountId);
+        } catch (Exception e) {
+            log.error("获取账户{}的最晚ref_date失败", accountId, e);
+            return null;
+        }
+    }
+
+    public void processDwsUsers(Long accountId, String startdate, String enddate) {
+        try {
+            // 先清理数据，重新计算
+            String deleteSql = SqlUtils.deleteSql("dws_users");
+            clickhouseService.singleInsert(deleteSql, accountId);
+            // 将字符串日期转换为LocalDate
+            LocalDate start = LocalDate.parse(startdate);
+            LocalDate end = LocalDate.parse(enddate);
+
+            if (start.isAfter(end)) {
+                log.error("开始日期不能晚于结束日期: startdate={}, enddate={}", startdate, enddate);
+                return;
+            }
+
+            log.info("开始处理dws_users汇总, account_id={}, 日期范围: {} 到 {}", accountId, startdate, enddate);
+
+            // 1. 获取基准累计用户数
+            long baseAccumulatedUser = getBaseAccumulatedUser(accountId, start);
+            log.info("获取基准累计用户数: account_id={}, 基准累计用户={}", accountId, baseAccumulatedUser);
+
+            // 2. 删除指定日期范围和account_id的数据
+            deleteDwsUsersInRange(accountId, startdate, enddate);
+
+            // 3. 按天计算并准备批量数据
+            List<Object[]> dwsBatchArgs = calculateDailySummary(accountId, start, end, baseAccumulatedUser);
+
+            // 4. 批量插入数据
+            batchInsertDwsUsers(dwsBatchArgs, accountId, startdate, enddate);
+
+            log.info("dws_users汇总处理完成, account_id={}, 日期范围: {} 到 {}, 处理记录数: {}",
+                    accountId, startdate, enddate, dwsBatchArgs.size());
+        } catch (Exception ex) {
+            log.error("处理dws_users数据汇总失败, account_id={}, startdate={}, enddate={}, msg={}",
+                    accountId, startdate, enddate, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 获取基准累计用户数
+     * 1. 先查询startdate前一天的数据
+     * 2. 如果没有，则聚合查询ref_date小于startdate的所有历史数据
+     */
+    private long getBaseAccumulatedUser(Long accountId, LocalDate startDate) {
+        LocalDate previousDate = startDate.minusDays(1);
+        String lastRefDateStr = previousDate.toString();
+
+        // 1. 尝试查询startdate前一天的累计用户
+        try {
+            String querySql = "SELECT accumulated_user FROM dws_users WHERE account_id = ? AND ref_date = ?";
+            List<Map<String, Object>> result = clickhouseService.readData(querySql, accountId, lastRefDateStr);
+            if (result != null && !result.isEmpty()) {
+                Map<String, Object> row = result.get(0);
+                Number accumulatedUser = (Number) row.get("accumulated_user");
+                if (accumulatedUser != null) {
+                    log.debug("找到前一天的累计用户数据, refDate={}, accumulated_user={}",
+                            lastRefDateStr, accumulatedUser.longValue());
+                    return accumulatedUser.longValue();
+                }
+            }
+        } catch (Exception ex) {
+            log.warn("查询dws_users前一天数据失败, 将尝试聚合历史数据, refDate={}, msg={}",
+                    lastRefDateStr, ex.getMessage());
+        }
+
+        // 2. 前一天没有数据，聚合查询所有历史数据
+        try {
+            String aggregateSql = "SELECT " +
+                    "SUM(new_user) as sum_new_user, " +
+                    "SUM(cancel_user) as sum_cancel_user " +
+                    "FROM ods_users " +
+                    "WHERE account_id = ? AND ref_date <= ?";
+
+            List<Map<String, Object>> result = clickhouseService.readData(
+                    aggregateSql, accountId, startDate.toString());
+
+            if (result != null && !result.isEmpty()) {
+                Map<String, Object> row = result.get(0);
+                long sumNewUser = row.get("sum_new_user") != null ?
+                        ((Number) row.get("sum_new_user")).longValue() : 0;
+                long sumCancelUser = row.get("sum_cancel_user") != null ?
+                        ((Number) row.get("sum_cancel_user")).longValue() : 0;
+
+                long baseAccumulatedUser = sumNewUser - sumCancelUser;
+                log.info("从ods_users聚合计算历史累计用户: startDate={}, 累计新增={}, 累计取消={}, 基准累计={}",
+                        startDate, sumNewUser, sumCancelUser, baseAccumulatedUser);
+
+                return baseAccumulatedUser;
+            }
+        } catch (Exception ex) {
+            log.error("聚合查询ods_users历史数据失败, startDate={}, msg={}",
+                    startDate, ex.getMessage(), ex);
+        }
+
+        // 3. 都没有数据，基准设为0
+        log.info("未找到历史累计用户数据，基准累计用户设为0");
+        return 0;
+    }
+
+    /**
+     * 删除指定日期范围和account_id的数据
+     */
+    private void deleteDwsUsersInRange(Long accountId, String startdate, String enddate) {
+        String deleteSql = "DELETE FROM dws_users WHERE account_id = ? AND ref_date BETWEEN ? AND ?";
+        try {
+            clickhouseService.singleInsert(deleteSql, accountId, startdate, enddate);
+            log.info("已删除dws_users表中account_id={}从{}到{}的数据", accountId, startdate, enddate);
+        } catch (Exception ex) {
+            log.error("删除dws_users表数据失败, account_id={}, startdate={}, enddate={}, msg={}",
+                    accountId, startdate, enddate, ex.getMessage(), ex);
+            throw new RuntimeException("删除dws_users数据失败", ex);
+        }
+    }
+
+    /**
+     * 按天计算汇总数据
+     */
+    private List<Object[]> calculateDailySummary(Long accountId, LocalDate start, LocalDate end, long baseAccumulatedUser) {
+        List<Object[]> dwsBatchArgs = new ArrayList<>();
+        LocalDate current = start;
+        long accumulatedUser = baseAccumulatedUser;
+
+        while (!current.isAfter(end)) {
+            String refDateStr = current.toString();
+
+            // 查询当天的ods_users数据
+            DailySummary dailySummary = getDailyOdsSummary(accountId, refDateStr);
+
+            // 计算净增用户
+            int netNewUser = dailySummary.totalNewUser - dailySummary.totalCancelUser;
+
+            // 更新累计用户
+            accumulatedUser += netNewUser;
+
+            log.debug("refDate={}, 新增={}, 取消={}, 净增={}, 累计={}",
+                    refDateStr, dailySummary.totalNewUser, dailySummary.totalCancelUser,
+                    netNewUser, accumulatedUser);
+
+            // 准备批量插入参数
+            dwsBatchArgs.add(new Object[]{
+                    refDateStr,
+                    dailySummary.totalNewUser,
+                    dailySummary.totalCancelUser,
+                    netNewUser,
+                    accumulatedUser,
+                    accountId
+            });
+
+            current = current.plusDays(1);
+        }
+
+        return dwsBatchArgs;
+    }
+
+    /**
+     * 查询指定日期的ods_users汇总数据
+     */
+    private DailySummary getDailyOdsSummary(Long accountId, String refDate) {
+        DailySummary summary = new DailySummary();
+
+        try {
+            String queryOdsSql = "SELECT " +
+                    "COALESCE(SUM(new_user), 0) as sum_new, " +
+                    "COALESCE(SUM(cancel_user), 0) as sum_cancel " +
+                    "FROM ods_users " +
+                    "WHERE account_id = ? AND ref_date = ?";
+
+            List<Map<String, Object>> odsResult = clickhouseService.readData(queryOdsSql, accountId, refDate);
+
+            if (odsResult != null && !odsResult.isEmpty()) {
+                Map<String, Object> row = odsResult.get(0);
+                summary.totalNewUser = ((Number) row.get("sum_new")).intValue();
+                summary.totalCancelUser = ((Number) row.get("sum_cancel")).intValue();
+            }
+        } catch (Exception ex) {
+            log.warn("查询ods_users数据失败, refDate={}, msg={}", refDate, ex.getMessage());
+            // 查询失败时，使用0值继续处理
+        }
+
+        return summary;
+    }
+
+    /**
+     * 批量插入dws_users数据
+     */
+    private void batchInsertDwsUsers(List<Object[]> dwsBatchArgs, Long accountId,
+                                     String startdate, String enddate) {
+        if (dwsBatchArgs.isEmpty()) {
+            log.warn("没有需要插入的数据, account_id={}, startdate={}, enddate={}",
+                    accountId, startdate, enddate);
+            return;
+        }
+
+        String insertDwsSql = webChatConfig.getInsertdwsuserssql();
+        if (insertDwsSql == null || insertDwsSql.trim().isEmpty()) {
+            log.error("未配置insertdwsuserssql，无法插入数据到dws_users表, account_id={}", accountId);
+            return;
+        }
+
+        try {
+            clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
+            log.info("成功插入dws_users表数据, account_id={}, 从{}到{}, 共{}条记录",
+                    accountId, startdate, enddate, dwsBatchArgs.size());
+        } catch (Exception ex) {
+            log.error("插入dws_users表失败, account_id={}, startdate={}, enddate={}, msg={}",
+                    accountId, startdate, enddate, ex.getMessage(), ex);
+            throw new RuntimeException("插入dws_users数据失败", ex);
+        }
+    }
+
+    /**
+     * 日汇总数据对象
+     */
+    private static class DailySummary {
+        int totalNewUser = 0;
+        int totalCancelUser = 0;
     }
 }
 

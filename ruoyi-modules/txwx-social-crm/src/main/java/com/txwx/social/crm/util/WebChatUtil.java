@@ -2,7 +2,7 @@ package com.txwx.social.crm.util;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.ruoyi.common.http.service.HttpUtil;
-import com.txwx.social.crm.domain.ChannelAccessToken;
+import com.txwx.social.crm.domain.query.ChannelAccessToken;
 import com.txwx.social.crm.domain.vo.WebChatMaterialPermanentVO;
 import com.txwx.social.crm.dto.*;
 import org.apache.hc.client5.http.classic.methods.HttpPost;

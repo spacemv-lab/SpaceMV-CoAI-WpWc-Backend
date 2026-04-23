@@ -8,28 +8,20 @@ import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.client.AccountApiClient;
 import com.txwx.social.api.domain.dto.AccountDTO;
-import com.txwx.social.api.domain.dto.ProductChannelDTO;
-import com.txwx.social.api.domain.dto.UserPermissionDTO;
 import com.txwx.social.crm.bizchain.account.service.AccountChainService;
-import com.txwx.social.crm.bizchain.product.service.ProductChainService;
-import com.txwx.social.crm.domain.AccountAddOrUpdateRequest;
-import com.txwx.social.crm.domain.AccountQueryRequest;
-import com.txwx.social.crm.domain.ProductAddOrUpdateRequest;
-import com.txwx.social.crm.domain.ProductQueryRequest;
+import com.txwx.social.crm.domain.query.AccountAddOrUpdateRequest;
+import com.txwx.social.crm.domain.query.AccountQueryRequest;
 import com.txwx.social.crm.domain.po.TxwxAccountPO;
-import com.txwx.social.crm.enums.PermissionTypeEnum;
 import com.txwx.social.crm.service.IAccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Date;
@@ -141,7 +133,7 @@ public class AccountController extends BaseController implements AccountApiClien
     @PostMapping
     @Operation(summary = "添加账号")
     public R<Boolean> addAccount(@Parameter(description = "账号信息") @RequestBody AccountDTO account) {
-        return R.ok(accountService.insertAccount(account) > 0);
+        return R.ok(accountService.insertAccountDTO(account) > 0);
     }
 
     private void fillBaseInfo(TxwxAccountPO po) {

@@ -44,13 +44,14 @@ public enum FilterDimension {
             case 0 -> endTime.minusWeeks(1);           // 周// 两周
             case 1 -> endTime.minusMonths(1);          // 月// 季度
             case 2 -> endTime.minusMonths(6);          // 半年
-            case 3 -> endTime.minusYears(1);           // 年// 30天
+            case 3 -> endTime.minusYears(1);   // 年// 30天
+            case 4 -> null;
             default -> endTime.minusWeeks(1);
         };
     }
 
-    public static int calcMinusDays(Integer filterDimension) {
-        int days = 7;
+    public static Integer calcMinusDays(Integer filterDimension) {
+        Integer days = 7;
         switch (filterDimension) {
             case 1: // 30 天
                 days = 30;
@@ -61,6 +62,9 @@ public enum FilterDimension {
             case 3:
                 // 1年
                 days = 365;
+                break;
+            case 4:
+                days = null;
                 break;
             default:
                 days = 7;

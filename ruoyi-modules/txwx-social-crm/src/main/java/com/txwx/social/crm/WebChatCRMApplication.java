@@ -15,7 +15,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan("com.txwx.social.crm.mapper")
 @EnableDiscoveryClient
 @SpringBootApplication
-@EnableFeignClients(basePackages = { "com.txwx.social.api.client", "com.ruoyi"})
+@EnableFeignClients(basePackages = {
+        "com.txwx.social.api.client",
+        "com.ruoyi.system.api" })
 @ComponentScan(basePackages = {
         "com.txwx.social.crm",
         "com.ruoyi"

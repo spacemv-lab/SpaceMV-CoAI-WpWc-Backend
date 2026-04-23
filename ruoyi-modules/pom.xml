@@ -16,7 +16,6 @@
         <module>txwx-website</module>
         <module>txwx-social-dashboard</module>
         <module>txwx-social-crm</module>
-        <module>txwx-sync-center</module>
         <module>txwx-social-api</module>
     </modules>
 

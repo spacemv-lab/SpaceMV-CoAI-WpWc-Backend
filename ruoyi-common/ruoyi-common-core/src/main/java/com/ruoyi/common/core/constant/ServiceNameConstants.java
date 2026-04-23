@@ -21,4 +21,9 @@ public class ServiceNameConstants
      * 文件服务的serviceid
      */
     public static final String FILE_SERVICE = "ruoyi-file";
+
+    /**
+     * 天巡自媒体管理的serviceid
+     */
+    public static final String TX_SOCIAL_CRM_SERVICE = "txwx-social-crm";
 }

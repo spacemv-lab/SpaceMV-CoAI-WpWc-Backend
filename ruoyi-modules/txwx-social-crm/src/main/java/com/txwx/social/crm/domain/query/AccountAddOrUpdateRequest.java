@@ -1,10 +1,8 @@
-package com.txwx.social.crm.domain;
+package com.txwx.social.crm.domain.query;
 
 
 import com.txwx.social.api.domain.dto.AccountDTO;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class AccountAddOrUpdateRequest {

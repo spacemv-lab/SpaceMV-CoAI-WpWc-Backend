@@ -1,4 +1,4 @@
-package com.txwx.social.crm.domain;
+package com.txwx.social.crm.domain.query;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
