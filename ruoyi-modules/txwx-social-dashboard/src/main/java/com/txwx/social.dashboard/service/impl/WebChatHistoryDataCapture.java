@@ -115,7 +115,7 @@ public class WebChatHistoryDataCapture {
             }
 
             // 将获取的数据插入数据库
-            if (articleSummaryDailyList != null && articleSummaryDailyList.size() > 0) {
+            if (articleSummaryDailyList != null && !articleSummaryDailyList.isEmpty()) {
                 logger.info("<------获取的发表内容概况总数据条数------> " + articleSummaryDailyList.size());
                 List<Object[]> batchArgs = new ArrayList<>();
                 for (ArticleSummaryDaily article : articleSummaryDailyList) {

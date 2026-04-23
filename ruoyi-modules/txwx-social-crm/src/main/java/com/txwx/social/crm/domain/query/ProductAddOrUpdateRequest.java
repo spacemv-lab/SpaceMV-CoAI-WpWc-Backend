@@ -1,4 +1,4 @@
-package com.txwx.social.crm.domain;
+package com.txwx.social.crm.domain.query;
 
 import com.txwx.social.api.domain.dto.ProductChannelDTO;
 import com.txwx.social.api.domain.dto.SimpleProductDTO;

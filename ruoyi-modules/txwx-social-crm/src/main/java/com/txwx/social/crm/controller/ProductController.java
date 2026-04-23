@@ -9,8 +9,8 @@ import com.txwx.social.api.client.ProductApiClient;
 import com.txwx.social.api.domain.dto.*;
 import com.txwx.social.crm.bizchain.product.service.ProductChainService;
 import com.txwx.social.crm.common.config.QueryConfig;
-import com.txwx.social.crm.domain.ProductAddOrUpdateRequest;
-import com.txwx.social.crm.domain.ProductQueryRequest;
+import com.txwx.social.crm.domain.query.ProductAddOrUpdateRequest;
+import com.txwx.social.crm.domain.query.ProductQueryRequest;
 import com.txwx.social.crm.domain.po.TxwxProductPO;
 import com.txwx.social.crm.enums.PermissionTypeEnum;
 import com.txwx.social.crm.service.IProductService;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

@@ -81,13 +81,14 @@ public class FlowDataController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入流量汇总数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-        Map<String, Object> extInfo = new HashMap<>();
+        return AjaxResult.success("已支持自动抓取导入，历史导入正在开发中");
+        /*Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
         ImportResultVo res = importUtil.importExcel(file, DwsBizsummaryChannelDaily.class,
                 webChatConfig.getInsertdwsbizsummarychanneldailysql(), response, null,
                 extInfo);
         if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");
+        else return success("导入成功!");*/
     }
 
     @PostMapping("/exportExcel")

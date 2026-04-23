@@ -1,6 +1,7 @@
 package com.ruoyi.common.clickhouse.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -32,5 +33,15 @@ public class ClickhouseService {
 
     public List<Map<String, Object>> readData(String sql, Object... params) {
         return  jdbcTemplate.queryForList(sql, params);
+    }
+
+    public <T> T queryForObj(String sql, Class<T> clazz, Object... params) {
+        try {
+            return jdbcTemplate.queryForObject(sql, clazz, params);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("数据库查询失败", e);
+        }
     }
 }

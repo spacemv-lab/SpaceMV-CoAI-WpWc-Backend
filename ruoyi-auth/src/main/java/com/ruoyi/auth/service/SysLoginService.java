@@ -1,5 +1,8 @@
 package com.ruoyi.auth.service;
 
+import com.ruoyi.auth.form.RegisterBody;
+import com.ruoyi.system.api.RemoteTxwxUserService;
+import com.ruoyi.system.api.domain.TxUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.ruoyi.common.core.constant.CacheConstants;
@@ -29,6 +32,9 @@ public class SysLoginService
 {
     @Autowired
     private RemoteUserService remoteUserService;
+
+    @Autowired
+    private RemoteTxwxUserService remoteTxwxUserService;
 
     @Autowired
     private SysPasswordService passwordService;
@@ -72,7 +78,7 @@ public class SysLoginService
             throw new ServiceException("很遗憾，访问IP已被列入系统黑名单");
         }
         // 查询用户信息
-        R<LoginUser> userResult = remoteUserService.getUserInfo(username, SecurityConstants.INNER);
+        R<LoginUser> userResult = remoteTxwxUserService.getUserInfo(username);
 
         if (R.FAIL == userResult.getCode())
         {
@@ -123,6 +129,29 @@ public class SysLoginService
      */
     public void register(String username, String password)
     {
+        // 注册用户信息
+        SysUser sysUser = new SysUser();
+        sysUser.setUserName(username);
+        sysUser.setNickName(username);
+        sysUser.setPwdUpdateDate(DateUtils.getNowDate());
+        sysUser.setPassword(SecurityUtils.encryptPassword(password));
+        R<?> registerResult = remoteUserService.registerUserInfo(sysUser, SecurityConstants.INNER);
+
+        if (R.FAIL == registerResult.getCode())
+        {
+            throw new ServiceException(registerResult.getMsg());
+        }
+        recordLogService.recordLogininfor(username, Constants.REGISTER, "注册成功");
+    }
+
+    public void register(RegisterBody registerBody)
+    {
+        if (registerBody == null) {
+            throw new ServiceException("注册输入参数为空，请检查");
+        }
+        String username = registerBody.getUsername();
+        String password = registerBody.getPassword();
+        String source = registerBody.getSource();
         // 用户名或密码为空 错误
         if (StringUtils.isAnyBlank(username, password))
         {
@@ -139,13 +168,29 @@ public class SysLoginService
             throw new ServiceException("密码长度必须在5到20个字符之间");
         }
 
-        // 注册用户信息
-        SysUser sysUser = new SysUser();
-        sysUser.setUserName(username);
-        sysUser.setNickName(username);
-        sysUser.setPwdUpdateDate(DateUtils.getNowDate());
-        sysUser.setPassword(SecurityUtils.encryptPassword(password));
-        R<?> registerResult = remoteUserService.registerUserInfo(sysUser, SecurityConstants.INNER);
+        if (!StringUtils.hasText(source) || SecurityConstants.INNER.equals(source)) {
+            register(username, password);
+            return;
+        }
+
+        if (SecurityConstants.FROM_SOURCE.equals(source)) {
+            registerTxUser(registerBody);
+        }
+    }
+
+    private void registerTxUser(RegisterBody registerBody) {
+        String username = registerBody.getUsername();
+        String password = registerBody.getPassword();
+        TxUser txUser = new TxUser();
+        txUser.setUserName(username);
+        txUser.setNickName(username);
+        txUser.setPwdUpdateDate(DateUtils.getNowDate());
+        txUser.setPassword(SecurityUtils.encryptPassword(password));
+        txUser.setTxPhonenumber(registerBody.getPhonenumber());
+        txUser.setTxEmail(registerBody.getEmail());
+        txUser.setPhoneVerifyCode(registerBody.getPhoneVerifyCode());
+        txUser.setEmailVerifyCode(registerBody.getEmailVerifyCode());
+        R<?> registerResult = remoteTxwxUserService.registerUserInfo(txUser);
 
         if (R.FAIL == registerResult.getCode())
         {

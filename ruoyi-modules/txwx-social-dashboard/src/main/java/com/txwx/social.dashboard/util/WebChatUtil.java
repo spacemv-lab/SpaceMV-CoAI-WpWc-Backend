@@ -5,6 +5,10 @@ import com.ruoyi.common.http.service.HttpUtil;
 import com.txwx.social.dashboard.domain.*;
 import com.txwx.social.dashboard.domain.dto.GetPublishedListRequest;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,26 +55,70 @@ public class WebChatUtil {
     /**
      * @description: 获取前一天的关注/取消关注用户数
      */
-    public static List<WebChatUser> getUserWithDate(String token, String beginDate, String endDate) throws Exception{
+    public static List<WebChatUser> getUserWithDate(String token, String beginDate, String endDate) throws Exception {
+        Map<String, String> specialParams = new HashMap<>();
+        specialParams.put("access_token", token);
+
+        // 将字符串日期转换为LocalDate
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        LocalDate start = LocalDate.parse(beginDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
+
+        // 计算总天数
+        long totalDays = ChronoUnit.DAYS.between(start, end) + 1;
+
+        List<WebChatUser> allUsers = new ArrayList<>();
+
+        // 如果时间跨度小于等于7天，直接调用
+        if (totalDays <= 7) {
+            return getUserWithDateRange(token, start, end);
+        }
+
+        // 分片处理
+        LocalDate currentStart = start;
+
+        while (!currentStart.isAfter(end)) {
+            // 计算当前分片的结束日期（不超过7天）
+            LocalDate currentEnd = currentStart.plusDays(6);
+            if (currentEnd.isAfter(end)) {
+                currentEnd = end;
+            }
+
+            // 调用接口获取当前时间段的数据
+            List<WebChatUser> segmentResult = getUserWithDateRange(token, currentStart, currentEnd);
+            if (segmentResult != null) {
+                allUsers.addAll(segmentResult);
+            }
+
+            // 设置下一个分片的开始日期
+            currentStart = currentEnd.plusDays(1);
+        }
+
+        return allUsers;
+    }
+
+    /**
+     * 获取指定时间范围内的用户数据（时间跨度不超过7天）
+     */
+    private static List<WebChatUser> getUserWithDateRange(String token, LocalDate beginDate, LocalDate endDate) throws Exception {
         Map<String, String> specialParams = new HashMap<>();
         specialParams.put("access_token", token);
         String url = HttpUtil.buildUrlWithParams("https://api.weixin.qq.com/datacube/getusersummary", specialParams);
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         WebChatDate date = new WebChatDate();
-        date.setBegin_date(beginDate);
-        date.setEnd_date(endDate);
+        date.setBegin_date(beginDate.format(formatter));
+        date.setEnd_date(endDate.format(formatter));
 
-        List<WebChatUser> result = null;
         try {
             String postResponse = HttpUtil.postJson(url, null, date);
             JSONObject jsonObject = JSONObject.parseObject(postResponse);
-            result = jsonObject.getList("list", WebChatUser.class);
+            return jsonObject.getList("list", WebChatUser.class);
         } catch (Exception e) {
-            throw e;
+            throw new Exception("获取" + beginDate + "到" + endDate + "的用户数据失败: " + e.getMessage(), e);
         }
-
-        return result;
     }
+
 
     /**
      * @description: 获取每天的文章阅读情况

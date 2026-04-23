@@ -9,16 +9,21 @@ import com.txwx.social.dashboard.domain.*;
 import com.txwx.social.dashboard.domain.entity.DwsBizsummaryChannelDaily;
 import com.txwx.social.dashboard.mapper.DwsBizsummaryChannelDailyMapper;
 import com.txwx.social.dashboard.mapper.DwsContentDataMapper;
+import com.txwx.social.dashboard.util.DateValidator;
 import com.txwx.social.dashboard.util.SqlUtils;
 import com.txwx.social.dashboard.util.WebChatUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -46,12 +51,16 @@ public class SyncDataService {
             // 同步逻辑
             log.info("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             System.out.println("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            syncUserHistoryRange(accessToken, accountId, startdate, enddate);
+            syncUserWithDate(accessToken, accountId, startdate, enddate);
+            // TODO 2026.04.20 qyl这个接口和表有重大问题，不应该调用三方的统计接口
             syncArticleSummaryHistoryRange(accessToken, accountId, startdate, enddate);
+            // TODO 2026.04.20 qyl这个接口和表有重大问题，，不应该调用三方的统计接口，这个接口限制很大
             syncArticleTotalDetailHistoryRange(accessToken, accountId, startdate, enddate);
-            //TODO 下面两个函数还没改造支持时间区间
-            // 20260417 把py老师的同步表补回来
+            // TODO 2026.04.20 qyl这个接口和表有重大问题，，不应该调用三方的统计接口，这个接口ods和dws混着用的
+            captureArticleSummaryDaily(accessToken, accountId, startdate, enddate);
+            // TODO 20260417 把py老师的同步表补回来
             //articleDataAggregator.aggregateDataToDws(accountId);
+            articleDataAggregator.processDwsUsers(accountId);
 
             log.info("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             System.out.println("停止同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -183,6 +192,7 @@ public class SyncDataService {
         log.info("<##############################微信公众号已发布消息列表抓取结束##############################>");
     }
 
+    @Deprecated
     public void syncUserHistoryRange(String accessToken, Long accountId, String startDate, String endDate) {
         if (StringUtils.isBlank(startDate) || StringUtils.isBlank(endDate)) {
             throw new ServiceException("开始日期和结束日期不能为空");
@@ -211,7 +221,7 @@ public class SyncDataService {
         LocalDate current = start;
         while (!current.isAfter(end)) {
             try {
-                syncUserOneDay(accessToken, accountId, current);
+                //syncUserWithDate(accessToken, accountId, current);
             } catch (Exception e) {
                 log.error("历史区间同步失败, refDate={}, msg={}", current, e.getMessage(), e);
             }
@@ -221,53 +231,137 @@ public class SyncDataService {
         log.info("微信公众号历史区间同步完成, startDate={}, endDate={}", start, end);
     }
 
+    /**
+     * 按30天分片查询，三方接口不支持30天以上的跨度查询
+     * @param accessToken
+     * @param accountId
+     * @param startDate
+     * @param endDate
+     */
     public void syncArticleSummaryHistoryRange(String accessToken, Long accountId, String startDate, String endDate) {
         if (StringUtils.isBlank(startDate) || StringUtils.isBlank(endDate)) {
             throw new ServiceException("开始日期和结束日期不能为空");
         }
 
-        LocalDate start;
-        LocalDate end;
-        try {
-            start = LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE);
-            end = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
-        } catch (Exception e) {
-            throw new ServiceException("日期格式错误，请使用 yyyy-MM-dd");
+        LocalDate start = parseAndValidateDate(startDate, "开始日期");
+        LocalDate end = parseAndValidateDate(endDate, "结束日期");
+
+        validateDateRange(start, end);
+        end = adjustEndDateIfAfterToday(end);
+
+        log.info("开始执行发表内容概况总数据历史区间同步, startDate={}, endDate={}, accountId={}",
+                startDate, endDate, accountId);
+
+        // 使用切片处理逻辑
+        processDateRangeInSlices(accessToken, accountId, start, end);
+    }
+
+    /**
+     * 解析并验证日期字符串
+     */
+    private LocalDate parseAndValidateDate(String dateStr, String fieldName) {
+        if (StringUtils.isBlank(dateStr)) {
+            throw new ServiceException(fieldName + "不能为空");
         }
 
+        try {
+            return LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (Exception e) {
+            throw new ServiceException(fieldName + "格式错误，请使用 yyyy-MM-dd 格式");
+        }
+    }
+
+    /**
+     * 验证日期范围
+     */
+    private void validateDateRange(LocalDate start, LocalDate end) {
         if (start.isAfter(end)) {
             throw new ServiceException("开始日期不能大于结束日期");
         }
-
-        LocalDate today = LocalDate.now();
-        if (end.isAfter(today)) {
-            end = today;
-        }
-
-        log.info("开始执行发表内容概况总数据历史区间同步, startDate={}, endDate={}", start, end);
-
-        LocalDate current = start;
-        while (!current.isAfter(end)) {
-            try {
-                syncArticleSummaryDailyOneDay(accessToken, accountId, current);
-            } catch (Exception e) {
-                log.error("历史区间同步失败, refDate={}, msg={}", current, e.getMessage(), e);
-            }
-            current = current.plusDays(1);
-        }
-
-        log.info("发表内容概况总数据历史区间同步完成, startDate={}, endDate={}", start, end);
     }
 
+    /**
+     * 如果结束日期晚于今天，则调整为今天
+     */
+    private LocalDate adjustEndDateIfAfterToday(LocalDate end) {
+        LocalDate today = LocalDate.now();
+        return end.isAfter(today) ? today : end;
+    }
+
+    /**
+     * 按30天跨度切片处理日期范围
+     */
+    private void processDateRangeInSlices(String accessToken, Long accountId, LocalDate start, LocalDate end) {
+        long totalDays = ChronoUnit.DAYS.between(start, end) + 1;
+
+        if (totalDays <= 30) {
+            // 日期跨度在30天以内，直接处理
+            processDateSlice(accessToken, accountId, start, end, 1, 1);
+            return;
+        }
+
+        // 超过30天，进行切片处理
+        LocalDate sliceStart = start;
+        int sliceCount = 0;
+        int totalSlices = (int) Math.ceil(totalDays / 30.0);
+
+        while (sliceStart.isBefore(end) || sliceStart.isEqual(end)) {
+            sliceCount++;
+
+            // 计算当前切片的结束日期
+            LocalDate sliceEnd = sliceStart.plusDays(29);
+            if (sliceEnd.isAfter(end)) {
+                sliceEnd = end;
+            }
+
+            processDateSlice(accessToken, accountId, sliceStart, sliceEnd, sliceCount, totalSlices);
+
+            // 下一个切片开始日期
+            sliceStart = sliceEnd.plusDays(1);
+        }
+
+        log.info("发表内容概况总数据历史区间同步完成, 共处理 {} 个切片, 总日期范围: {} 到 {}",
+                sliceCount, start, end);
+    }
+
+    /**
+     * 处理单个日期切片
+     */
+    private void processDateSlice(String accessToken, Long accountId,
+                                  LocalDate sliceStart, LocalDate sliceEnd,
+                                  int currentSlice, int totalSlices) {
+        String sliceStartStr = sliceStart.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String sliceEndStr = sliceEnd.format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        String progressInfo = totalSlices > 1 ?
+                String.format("(%d/%d)", currentSlice, totalSlices) : "";
+
+        log.info("执行切片同步{}: {} 到 {}", progressInfo, sliceStartStr, sliceEndStr);
+
+        try {
+            syncArticleSummaryDailyOneMonth(accessToken, accountId, sliceStartStr, sliceEndStr);
+            log.info("切片同步{}完成: {} 到 {}", progressInfo, sliceStartStr, sliceEndStr);
+        } catch (Exception e) {
+            log.error("切片同步{}失败: {} 到 {}, 错误信息={}",
+                    progressInfo, sliceStartStr, sliceEndStr, e.getMessage(), e);
+            throw new ServiceException(String.format(
+                    "切片同步失败(%d/%d): %s 到 %s",
+                    currentSlice, totalSlices, sliceStartStr, sliceEndStr), 501);
+        }
+    }
+
+    /**
+     * 按天分片，三方接口只支持单天查询
+     * @param accessToken
+     * @param accountId
+     * @param startDate
+     * @param endDate
+     */
     public void syncArticleTotalDetailHistoryRange(String accessToken, Long accountId, String startDate, String endDate) {
         log.info("<##############################发表内容发表详细数据历史区间同步开始##############################>");
         log.info("传入的凭证->{}", accessToken);
         log.info("开始日期={}, 结束日期={}", startDate, endDate);
 
-        if (StringUtils.isBlank(startDate) || StringUtils.isBlank(endDate)) {
-            throw new ServiceException("开始日期和结束日期不能为空");
-        }
-
         LocalDate start;
         LocalDate end;
         try {
@@ -289,7 +383,8 @@ public class SyncDataService {
         LocalDate current = start;
         while (!current.isAfter(end)) {
             try {
-                syncArticleDetailOneDay(accessToken, accountId, current);
+                String curStr = current.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                syncArticleDetailWithdate(accessToken, accountId, curStr);
             } catch (Exception e) {
                 log.error("历史区间同步失败, baseDate={}, msg={}", current, e.getMessage(), e);
             }
@@ -300,7 +395,6 @@ public class SyncDataService {
         try {
             String delSql = SqlUtils.deleteSql("dws_content_data");
             clickhouseService.singleInsert(delSql, accountId);
-            //dwsContentDataMapper.aggregateArticleDetailsDataToDws();
             articleDataAggregator.aggregateContentDataToDws(accountId);
             log.info("成功聚合文章详细数据到 dws_content_data");
         } catch (Exception ex) {
@@ -310,115 +404,65 @@ public class SyncDataService {
         log.info("<##############################发表内容发表详细数据历史区间同步结束##############################>");
     }
 
-    public void syncUserOneDay(String accessToken, Long accountId, LocalDate refDate) {
-        String refDateStr = refDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String lasetRefDateStr = refDate.minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+    public void syncUserWithDate(String accessToken, Long accountId, String startdate, String enddate) {
 
-        log.info("<##############################微信公众号用户抓取开始，日期：{} ##############################>", refDateStr);
+        log.info("<##############################微信公众号用户抓取开始，开始日期：{}, 结束日期:{} ##############################>", startdate, enddate);
         log.info("传入的凭证->{}", accessToken);
 
-        if (exist("ods_users", accountId, refDateStr, refDateStr)) {
-            log.info("ods_users表抓取日期已存在数据，执行跳过。日期，{}，账号id{}", refDateStr, accountId);
+        List<String> missingDates = getMissingDates("ods_users", accountId, startdate, enddate);
+        if (CollectionUtils.isEmpty(missingDates)) {
+            log.info("ods_users表抓取日期已存在数据，执行跳过。开始日期，{}，结束日期{}, 账号id{}", startdate, enddate, accountId);
             return;
         }
-
         // 1. 抓取指定日期数据
         List<WebChatUser> userDayTemp = null;
         try {
-            userDayTemp = WebChatUtil.getUserWithDate(accessToken, refDateStr, refDateStr);
+            userDayTemp = WebChatUtil.getUserWithDate(accessToken, startdate, enddate);
         } catch (Exception ex) {
-            log.error("抓取微信公众号关注或取消用户失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
+            log.error("抓取微信公众号关注或取消用户失败, startdate={}, enddate={}, msg={}", startdate, enddate, ex.getMessage(), ex);
         }
-        final List<WebChatUser> userDay = userDayTemp;
+
+        if (CollectionUtils.isEmpty(userDayTemp)) {
+            return;
+        }
+
+        Map<String, List<WebChatUser>> date2UserMap = userDayTemp.stream()
+                .filter(article -> article.getRef_date() != null)  // 过滤掉refDate为null的数据
+                .collect(Collectors.groupingBy(
+                        WebChatUser::getRef_date,  // 按refDate分组
+                        Collectors.toList()                // 收集为List
+                ));
+
+        log.info("<------获取的用户数据条数------> {}", userDayTemp.size());
+
+        List<Object[]> batchArgs = new ArrayList<>();
 
         // 2. 写入 ods_users
-        if (userDay != null && !userDay.isEmpty()) {
-            log.info("<------获取的用户数据条数------> {}", userDay.size());
-            log.info("<------获取的用户数据------> {}", userDay);
-
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (WebChatUser user : userDay) {
+        date2UserMap.forEach((refDate, userDays) -> {
+            if (!missingDates.contains(refDate)) {
+                return;
+            }
+            // 只插入没有的数据
+            userDays.forEach(user -> {
                 batchArgs.add(user.toObject(accountId));
-            }
-
-            clickhouseService.batchInsert(webChatConfig.getInsertusersql(), batchArgs);
-        } else {
-            log.warn("refDate={} 未获取到公众号用户数据", refDateStr);
-        }
-
-        // 3. 汇总写入 dws_users
-        try {
-            int totalNewUser = 0;
-            int totalCancelUser = 0;
-
-            if (userDay != null && !userDay.isEmpty()) {
-                totalNewUser = userDay.stream().mapToInt(WebChatUser::getNew_user).sum();
-                totalCancelUser = userDay.stream().mapToInt(WebChatUser::getCancel_user).sum();
-            }
-
-            log.info("refDate={}, 累加new_user={}, 累加cancel_user={}", refDateStr, totalNewUser, totalCancelUser);
-
-            int netNewUser = totalNewUser - totalCancelUser;
-            log.info("refDate={}, 净增新用户数net_new_user={}", refDateStr, netNewUser);
-
-            Number lastAccumulateUser = 0;
-
-            try {
-                String querySql = "SELECT accumulated_user " +
-                        "FROM dws_users WHERE account_id = ? and ref_date = ?";
-                List<Map<String, Object>> result = clickhouseService.readData(querySql, accountId, lasetRefDateStr);
-
-                if (result != null && !result.isEmpty()) {
-                    Map<String, Object> row = result.get(0);
-                    lastAccumulateUser = (Number) row.get("accumulated_user");
-                }
-            } catch (Exception ex) {
-                log.error("查询ods_users历史累计数据失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
-            }
-
-            Long accumulatedUser = lastAccumulateUser.longValue() + (long) netNewUser;
-            log.info("refDate={}, 历史累计净增用户accumulated_user={}", refDateStr, accumulatedUser);
-
-            List<Object[]> dwsBatchArgs = new ArrayList<>();
-            dwsBatchArgs.add(new Object[]{
-                    refDateStr,
-                    totalNewUser,
-                    totalCancelUser,
-                    netNewUser,
-                    accumulatedUser,
-                    accountId
             });
+        });
 
-            String insertDwsSql = webChatConfig.getInsertdwsuserssql();
-            if (insertDwsSql != null && !insertDwsSql.isEmpty()) {
-                try {
-                    String deleteDwsSql = SqlUtils.deleteSqlWithDate("dws_users");
-                    clickhouseService.singleInsert(deleteDwsSql, accountId, refDate, refDateStr);
-                    clickhouseService.batchInsert(insertDwsSql, dwsBatchArgs);
-                    log.info("成功插入dws_users表数据, refDate={}", refDateStr);
-                } catch (Exception ex) {
-                    log.error("插入dws_users表失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
-                }
-            } else {
-                log.warn("未配置insertdwsuserssql，无法插入数据到dws_users表, refDate={}", refDateStr);
-            }
-        } catch (Exception ex) {
-            log.error("处理dws_users数据汇总失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
-        }
 
-        log.info("<##############################微信公众号用户抓取结束，日期：{} ##############################>", refDateStr);
+        clickhouseService.batchInsert(webChatConfig.getInsertusersql(), batchArgs);
+
+        log.info("<##############################微信公众号用户抓取结束，开始日期：{}，结束关系：{} ##############################>", startdate, enddate);
     }
 
-    public void syncArticleSummaryDailyOneDay(String accessToken, Long accountId, LocalDate refDate) {
-        String refDateStr = refDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalDate mounthBefore = refDate.minusDays(30);
-        String startDateStr = mounthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+    public void syncArticleSummaryDailyOneMonth(String accessToken, Long accountId, String startdate, String refDateStr) {
 
         log.info("<##############################发表内容概况总数据抓取开始，日期：{} ##############################>", refDateStr);
         log.info("传入的凭证->{}", accessToken);
 
-        if (exist("ods_article_summary_daily", accountId, refDateStr, refDateStr)) {
-            log.info("ods_article_summary_daily表抓取日期已存在数据，执行跳过。日期，{}，账号id{}", refDateStr, accountId);
+        List<String> missingDates = getMissingDates("ods_article_summary_daily", accountId, startdate, refDateStr);
+        if (CollectionUtils.isEmpty(missingDates)) {
+            log.info("ods_article_summary_daily表抓取日期已存在数据，执行跳过。开始日期，{}，结束日期{}, 账号id{}", startdate, refDateStr, accountId);
             return;
         }
 
@@ -426,34 +470,47 @@ public class SyncDataService {
         List<ArticleSummaryDaily> articleSummaryDailyList = null;
         try {
             // 这是一个统计接口，统计时间最大跨度为30天
-            articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, startDateStr, refDateStr);
+            articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, startdate, refDateStr);
         } catch (Exception ex) {
             log.error("抓取发表内容概况总数据失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
         }
 
-        // 2. 写入 ClickHouse 明细表
-        if (articleSummaryDailyList != null && !articleSummaryDailyList.isEmpty()) {
-            log.info("<------获取的发表内容概况总数据条数------> {}", articleSummaryDailyList.size());
-            log.info("<------获取的发表内容概况总数据------> {}", articleSummaryDailyList);
+        if (CollectionUtils.isEmpty(articleSummaryDailyList)) {
+            return;
+        }
 
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                batchArgs.add(article.toObject(accountId));
+        Map<String, List<ArticleSummaryDaily>> date2ArticleMap = articleSummaryDailyList.stream()
+                .filter(article -> article.getRef_date() != null)  // 过滤掉refDate为null的数据
+                .collect(Collectors.groupingBy(
+                        ArticleSummaryDaily::getRef_date,  // 按refDate分组
+                        Collectors.toList()                // 收集为List
+                ));
+
+        log.info("<------获取的发表内容概况总数据条数------> {}", articleSummaryDailyList.size());
+        log.info("<------获取的发表内容概况总数据------> {}", articleSummaryDailyList);
+
+        List<Object[]> batchArgs = new ArrayList<>();
+
+        date2ArticleMap.forEach((refDate, articles) -> {
+            if (!missingDates.contains(refDate)) {
+                return;
             }
 
-            String insertSql = webChatConfig.getInsertarticlesummarydailysql();
-            if (insertSql != null && !insertSql.isEmpty()) {
-                try {
-                    clickhouseService.batchInsert(insertSql, batchArgs);
-                    log.info("成功插入发表内容概况总数据到ClickHouse，refDate={}, 数量={}", refDateStr, batchArgs.size());
-                } catch (Exception ex) {
-                    log.error("插入发表内容概况总数据到ClickHouse失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
-                }
-            } else {
-                log.warn("未配置insertarticlesummarydailysql，无法插入数据到ClickHouse, refDate={}", refDateStr);
+            articles.forEach(article -> {
+                batchArgs.add(article.toObject(accountId));
+            });
+        });
+
+        String insertSql = webChatConfig.getInsertarticlesummarydailysql();
+        if (insertSql != null && !insertSql.isEmpty()) {
+            try {
+                clickhouseService.batchInsert(insertSql, batchArgs);
+                log.info("成功插入发表内容概况总数据到ClickHouse，refDate={}, 数量={}", refDateStr, batchArgs.size());
+            } catch (Exception ex) {
+                log.error("插入发表内容概况总数据到ClickHouse失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
             }
         } else {
-            log.warn("refDate={} 未获取到发表内容概况总数据", refDateStr);
+            log.warn("未配置insertarticlesummarydailysql，无法插入数据到ClickHouse, refDate={}", refDateStr);
         }
 
         // 3. 汇聚到 dws_bizsummary_channel_daily
@@ -479,10 +536,10 @@ public class SyncDataService {
         log.info("<##############################发表内容概况总数据抓取结束，日期：{} ##############################>", refDateStr);
     }
 
-    public void syncArticleDetailOneDay(String accessToken, Long accountId, LocalDate baseDate) {
+    public void syncArticleDetailWithdate(String accessToken, Long accountId, String curdate) {
         log.info("<##############################发表内容发表详细数据单天同步开始##############################>");
         log.info("传入的凭证->{}", accessToken);
-        log.info("基准日期->{}", baseDate);
+        log.info("开始日期->{}， 结束日期->{}", curdate, curdate);
 
         String insertSql = webChatConfig.getInsertarticledetaildailysql();
         if (insertSql == null || insertSql.isEmpty()) {
@@ -491,29 +548,30 @@ public class SyncDataService {
         }
 
         List<Object[]> allBatchArgs = new ArrayList<>();
-
-        String refDateStr = baseDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalDate amounth = baseDate.minusDays(30);
-        String startDateStr = amounth.format(DateTimeFormatter.ISO_LOCAL_DATE);
         // 1. 首先查询当前数据在库里有没有，如果有了就跳过不同步
-        if (exist("ods_article_detail_daily", accountId, refDateStr, refDateStr)) {
-            log.info("ods_article_detail_daily表抓取日期已存在数据，执行跳过。日期，{}，账号id{}", startDateStr, accountId);
+        List<String> missingDates = getMissingDates("ods_article_detail_daily", accountId, curdate, curdate);
+        if (CollectionUtils.isEmpty(missingDates)) {
+            log.info("ods_article_detail_daily表抓取日期均已存在数据，执行跳过。开始日期，{} 结束日期，{}，账号id{}", curdate, curdate, accountId);
             return;
         }
-        log.info("正在抓取发布日期为 [{}] 的文章数据", refDateStr);
+        log.info("正在抓取发布日期范围为 [{}-{}] 的文章数据", curdate, curdate);
 
         List<ArticleDetailDaily> articleDetailDailyList = null;
         try {
-            // 这是一个统计接口，最大统计周期为30天
-            articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, startDateStr, refDateStr);
+            // 这是一个统计接口，最大统计周期为30天，但是只能传时间跨度为1的入参
+            articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, curdate, curdate);
         } catch (Exception ex) {
-            log.error("抓取发表内容发表详细数据失败, refDate={}, msg={}", refDateStr, ex.getMessage(), ex);
+            log.error("抓取发表内容发表详细数据失败, startdate={}, enddate={}, msg={}", curdate, curdate, ex.getMessage(), ex);
+            return;
         }
 
-        if (articleDetailDailyList != null && !articleDetailDailyList.isEmpty()) {
-            for (ArticleDetailDaily articleDetailDaily : articleDetailDailyList) {
-                allBatchArgs.addAll(articleDetailDaily.toFlattenObjectList(accountId));
-            }
+        if (CollectionUtils.isEmpty(articleDetailDailyList)) {
+            log.warn("抓取发表内容发表详细数据为空, startdate={}, enddate={}", curdate, curdate);
+            return;
+        }
+
+        for (ArticleDetailDaily articleDetailDaily : articleDetailDailyList) {
+            allBatchArgs.addAll(articleDetailDaily.toFlattenObjectList(accountId));
         }
 
         try {
@@ -531,19 +589,198 @@ public class SyncDataService {
     }
 
 
-    // Java示例：先查询后插入
-    public boolean exist(String tableName, Long accountId, String startdate, String enddate) {
-        String checkSql = "SELECT 1 FROM " + tableName +
-                " WHERE account_id = ? AND ref_date BETWEEN ? AND ? LIMIT 1";
+    /**
+     * 检查指定时间范围内每一天是否有数据
+     * 返回缺失的日期列表，如果列表为空表示所有日期都有数据
+     */
+    public List<String> getMissingDates(String tableName, Long accountId, String startdate, String enddate) {
+        List<String> missingDates = new ArrayList<>();
+
         try {
-            List<Map<String, Object>> result = clickhouseService.readData(checkSql, accountId, startdate, enddate);
-            if (result != null && !result.isEmpty()) {
-                return true;
+            // 1. 生成日期范围内的所有日期
+            List<String> allDates = generateDateRange(startdate, enddate);
+
+            if (allDates.isEmpty()) {
+                return missingDates;
+            }
+
+            // 2. 查询数据库中存在的日期
+            String sql = "SELECT DISTINCT ref_date FROM " + tableName +
+                    " WHERE account_id = ? AND ref_date BETWEEN ? AND ?";
+
+            List<Map<String, Object>> result = clickhouseService.readData(sql, accountId, startdate, enddate);
+
+            // 3. 提取数据库中已存在的日期
+            Set<String> existingDates = new HashSet<>();
+            for (Map<String, Object> row : result) {
+                Object dateObj = row.get("ref_date");
+                if (dateObj != null) {
+                    existingDates.add(dateObj.toString());
+                }
+            }
+
+            // 4. 找出缺失的日期
+            for (String date : allDates) {
+                if (!existingDates.contains(date)) {
+                    missingDates.add(date);
+                }
+            }
+
+            if (!missingDates.isEmpty()) {
+                log.info("表{}中accountId={}在{}到{}范围内缺失{}天的数据: {}",
+                        tableName, accountId, startdate, enddate, missingDates.size(), missingDates);
+            }
+
+        } catch (Exception e) {
+            log.error("检查缺失日期失败, tableName={}, accountId={}, startdate={}, enddate={}, msg={}",
+                    tableName, accountId, startdate, enddate, e.getMessage(), e);
+        }
+
+        return missingDates;
+    }
+
+    /**
+     * 生成日期范围内的所有日期
+     */
+    private List<String> generateDateRange(String startdate, String enddate) {
+        List<String> dateList = new ArrayList<>();
+
+        try {
+            LocalDate start = LocalDate.parse(startdate);
+            LocalDate end = LocalDate.parse(enddate);
+
+            LocalDate current = start;
+            while (!current.isAfter(end)) {
+                dateList.add(current.toString());
+                current = current.plusDays(1);
             }
         } catch (Exception e) {
-            log.error("insertIfNotExists error", e);
+            log.error("生成日期范围失败, startdate={}, enddate={}, msg={}",
+                    startdate, enddate, e.getMessage(), e);
         }
-        return false;
+
+        return dateList;
+    }
+
+    public void captureArticleSummaryDaily(String accessToken, Long accountId, String startdate, String enddate) {
+        log.info("<##############################发表内容概况总数据抓取开始##############################>");
+        log.info("传入的凭证->" + accessToken);
+
+        LocalDate start;
+        LocalDate end;
+        try {
+            start = LocalDate.parse(startdate, DateTimeFormatter.ISO_LOCAL_DATE);
+            end = LocalDate.parse(enddate, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (Exception e) {
+            throw new ServiceException("日期格式错误，请使用 yyyy-MM-dd");
+        }
+
+        if (start.isAfter(end)) {
+            throw new ServiceException("开始日期不能大于结束日期");
+        }
+
+        LocalDate today = LocalDate.now();
+        if (end.isAfter(today)) {
+            end = today;
+        }
+
+        LocalDate current = start;
+        while (!current.isAfter(end)) {
+            try {
+                LocalDate monthBefore = current.minusDays(30);
+                String monthBeforeStr = monthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                String currentStr = current.format(DateTimeFormatter.ISO_LOCAL_DATE);  // 每次循环重新生成
+                processArticleSummaryDailyData(accessToken, accountId, monthBeforeStr, currentStr);
+            } catch (Exception e) {
+                log.error("历史区间同步失败, currentDate={}, msg={}", current, e.getMessage(), e);
+            }
+            current = current.plusDays(1);
+        }
+
+        log.info("<##############################发表内容概况总数据抓取结束##############################>");
+    }
+
+    public void processArticleSummaryDailyData(String accessToken, Long accountId, String startdate, String enddate) {
+        DateValidator.validate(startdate, enddate);
+
+        //TODO qyl这个表有非常大的问题
+        List<String> missingDate = getMissingDates("ods_article_summary_daily", accountId, startdate, enddate);
+        if (CollectionUtils.isEmpty(missingDate)) {
+            return;
+        }
+        // (1)抓取发表内容概况总数据
+        List<ArticleSummaryDaily> articleSummaryDailyList = null;
+        try {
+            // 这是一个统计接口，统计最大周期维度为30天
+            articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, startdate, enddate);
+        } catch (Exception ex) {
+            log.error("抓取发表内容概况总数据失败:" + ex.getMessage());
+        }
+
+        if (CollectionUtils.isEmpty(articleSummaryDailyList)) {
+            return;
+        }
+        Map<String, List<ArticleSummaryDaily>> date2UserMap = articleSummaryDailyList.stream()
+                .filter(article -> article.getRef_date() != null)  // 过滤掉refDate为null的数据
+                .collect(Collectors.groupingBy(
+                        ArticleSummaryDaily::getRef_date,  // 按refDate分组
+                        Collectors.toList()                // 收集为List
+                ));
+
+        log.info("<------获取的发表内容概况总数据条数------> " + articleSummaryDailyList.size());
+
+        List<Object[]> batchArgs = new ArrayList<>();
+        List<Object[]> batchArgs_cur = new ArrayList<>();
+
+        // 2. 组装 ods_article_summary_daily数据
+        date2UserMap.forEach((refDate, summaryDailies) -> {
+            if (!missingDate.contains(refDate)) {
+                return;
+            }
+            // 只插入没有的数据
+            summaryDailies.forEach(articleSummaryDaily -> {
+                batchArgs.add(articleSummaryDaily.toObject(accountId));
+            });
+        });
+
+        // (3)将获取的数据插入数据库
+        List<String> dwsMissingDate = getMissingDates("dws_bizsummary_channel_daily", accountId, startdate, enddate);
+        if (CollectionUtils.isEmpty(missingDate)) {
+            return;
+        }
+        String insertSql = webChatConfig.getInsertarticlesummarydailysql();
+        if (insertSql == null || insertSql.isEmpty()) {
+            return;
+        }
+        try {
+            clickhouseService.batchInsert(insertSql, batchArgs);
+            log.info("成功插入发表内容概况总数据到ClickHouse，数量: " + batchArgs.size());
+        } catch (Exception ex) {
+            log.error("插入发表内容概况总数据到ClickHouse失败: " + ex.getMessage());
+        }
+
+        date2UserMap.forEach((refDate, summaryDailies) -> {
+            if (!dwsMissingDate.contains(refDate)) {
+                return;
+            }
+            // 只插入没有的数据
+            summaryDailies.forEach(articleSummaryDaily -> {
+                batchArgs_cur.add(articleSummaryDaily.toObject(accountId));
+            });
+        });
+
+        // 将数据按渠道汇聚到 dws_bizsummary_channel_daily 表
+        String curSql = webChatConfig.getInsertdwsbizsummarychanneldailysql();
+        if (curSql == null || curSql.isEmpty()) {
+            return;
+        }
+        try {
+            clickhouseService.batchInsert(curSql, batchArgs_cur);
+            log.info("成功插入发表内容概况总数据到ClickHouse:dws_bizsummary_channel_daily，数量: " + batchArgs.size());
+        } catch (Exception ex) {
+            log.error("插入发表内容概况总数据到ClickHouse失败:dws_bizsummary_channel_daily " + ex.getMessage());
+        }
+
     }
 }
 

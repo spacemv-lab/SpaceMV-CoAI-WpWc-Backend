@@ -38,7 +38,7 @@ public interface IAccountService {
      */
     int insertAccount(TxwxAccountPO account);
 
-    int insertAccount(AccountDTO accountDTO);
+    int insertAccountDTO(AccountDTO accountDTO);
     /**
      * 修改账号
      *

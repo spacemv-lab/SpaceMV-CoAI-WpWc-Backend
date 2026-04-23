@@ -38,6 +38,17 @@ public class TokenController
         return R.ok(tokenService.createToken(userInfo));
     }
 
+
+    /**
+     * 用作gateway拦截验证码使用，目前没有业务场景在里面
+     * @return
+     */
+    @PostMapping("checkHuman")
+    public R<?> checkHuman()
+    {
+        return R.ok("校验码检测通过");
+    }
+
     @GetMapping("token")
     public R<?> token()
     {
@@ -80,7 +91,7 @@ public class TokenController
     public R<?> register(@RequestBody RegisterBody registerBody)
     {
         // 用户注册
-        sysLoginService.register(registerBody.getUsername(), registerBody.getPassword());
+        sysLoginService.register(registerBody);
         return R.ok();
     }
 }

@@ -14,6 +14,7 @@ import com.txwx.social.dashboard.service.IDwsUsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 
 import java.time.LocalDate;
@@ -70,17 +71,28 @@ public class DataBoardServiceImpl implements IDataBoardService {
 
     @Override
     public List<List<Map<String, Object>>> readFlowTrend(Integer filterDimension, Long accountId) {
-        String readSql = "SELECT ref_date, read_user_cnt, share_user " +
-                "FROM dws_bizsummary_channel_daily " +
-                "WHERE channel = '全部'" +
-                " and account_id = ?" +
-                " and ref_date >= " +
-                "subtractDays(today(), ?) " +
-                " ORDER BY ref_date ASC";
-
+        String readSql;
         Integer minussDays = FilterDimension.calcMinusDays(filterDimension);
+        List<Map<String, Object>> list;
+        if (minussDays != null) {
+            readSql = "SELECT ref_date, read_user_cnt, share_user " +
+                    "FROM dws_bizsummary_channel_daily " +
+                    "WHERE channel = '全部'" +
+                    " and account_id = ?" +
+                    " and ref_date >= " +
+                    "subtractDays(today(), ?) " +
+                    " ORDER BY ref_date ASC";
+            list = clickhouseService.readData(readSql, accountId, minussDays);
+        } else {
+            readSql = "SELECT ref_date, read_user_cnt, share_user " +
+                    "FROM dws_bizsummary_channel_daily " +
+                    "WHERE channel = '全部'" +
+                    " and account_id = ?" +
+                    " ORDER BY ref_date ASC";
+            list = clickhouseService.readData(readSql, accountId);
+        }
 
-        List<Map<String, Object>> list = clickhouseService.readData(readSql, accountId, minussDays);
+
         List<Map<String, Object>> readTrend = new ArrayList<>();
         List<Map<String, Object>> shareTrend = new ArrayList<>();
         List<Map<String, Object>> sourceSumList = new ArrayList<>();
@@ -140,31 +152,46 @@ public class DataBoardServiceImpl implements IDataBoardService {
     public List<Map<String, Object>> netUserTrend(Integer filterDimension, Long accountId) {
         LocalDate endTime = LocalDate.now();
         String endTimeStr = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String startTimeStr = FilterDimension.calculateStartTimeEnhanced(filterDimension)
+        LocalDate startTime = FilterDimension.calculateStartTimeEnhanced(filterDimension);
+        String querySql = null;
+        if (startTime != null) {
+            String startTimeStr = startTime
                 .format(DateTimeFormatter.ISO_LOCAL_DATE);
+            querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM dws_users "
+                    + "WHERE ref_date >= ?"
+                    + " AND ref_date < ?"
+                    + " AND account_id = ?"
+                    + " ORDER BY ref_date ASC";
+            return clickhouseService.readData(querySql, startTimeStr, endTimeStr, accountId);
+        }
 
-        String querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM dws_users "
-                + "WHERE ref_date >= ?"
-                + " AND ref_date < ?"
-                + " AND account_id = ?"
+        querySql = "SELECT new_user as netNewUser, ref_date as refDate FROM dws_users "
+                + "WHERE account_id = ?"
                 + " ORDER BY ref_date ASC";
+        return clickhouseService.readData(querySql, accountId);
 
-        return clickhouseService.readData(querySql, startTimeStr, endTimeStr, accountId);
     }
 
     @Override
     public List<Map<String, Object>> accumulatedUserTrend(Integer filterDimension, Long accountId) {
         LocalDate endTime = LocalDate.now();
         String endTimeStr = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM dws_users "
-                + "WHERE ref_date >= ?"
-                + " AND ref_date < ?"
-                + " AND account_id = ?"
+        String querySql;
+        LocalDate startdate =  FilterDimension.calculateStartTimeEnhanced(filterDimension);
+        if (startdate != null) {
+            String startTimeStr =startdate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM dws_users "
+                    + "WHERE ref_date >= ?"
+                    + " AND ref_date < ?"
+                    + " AND account_id = ?"
+                    + " ORDER BY ref_date ASC";
+            return clickhouseService.readData(querySql, startTimeStr, endTimeStr, accountId);
+        }
+
+        querySql = "SELECT accumulated_user as accumulatedUser, ref_date as refDate FROM dws_users "
+                + "WHERE account_id = ?"
                 + " ORDER BY ref_date ASC";
-        String startTimeStr = FilterDimension.calculateStartTimeEnhanced(filterDimension)
-                .format(DateTimeFormatter.ISO_LOCAL_DATE);
-        List<Map<String, Object>> list = clickhouseService.readData(querySql, startTimeStr, endTimeStr, accountId);
-        return list;
+        return clickhouseService.readData(querySql, accountId);
     }
 
     public List<Map<String, Object>> subscribeUserAfterRead(Long accountId) {

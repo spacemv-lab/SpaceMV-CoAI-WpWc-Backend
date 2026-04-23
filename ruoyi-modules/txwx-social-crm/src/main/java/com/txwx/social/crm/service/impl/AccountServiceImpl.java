@@ -55,7 +55,7 @@ public class AccountServiceImpl implements IAccountService {
 
     @Transactional
     @Override
-    public int insertAccount(AccountDTO accountDTO) {
+    public int insertAccountDTO(AccountDTO accountDTO) {
         TxwxAccountPO accountPO = new TxwxAccountPO();
         BeanUtils.copyProperties(accountDTO, accountPO);
         fillBaseInfo(accountPO);

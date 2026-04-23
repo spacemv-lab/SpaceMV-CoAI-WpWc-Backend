@@ -14,6 +14,7 @@ import com.txwx.social.dashboard.domain.*;
 import com.txwx.social.dashboard.mapper.DwsBizsummaryChannelDailyMapper;
 import com.txwx.social.dashboard.mapper.DwsContentDataMapper;
 import com.txwx.social.dashboard.service.*;
+import com.txwx.social.dashboard.util.DateValidator;
 import com.txwx.social.dashboard.util.SqlUtils;
 import com.txwx.social.dashboard.util.WebChatUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -86,6 +87,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
 
     @Override
     public Boolean dataSync(Long accountId, String startdate, String enddate) {
+        DateValidator.validate(startdate, enddate);
         if (accountId == null) {
             throw new CheckedException("平台不存在!");
         }
@@ -258,12 +260,10 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
 
         List<Object[]> allBatchArgs = new ArrayList<>();
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        LocalDate mounthBefore = LocalDate.now().minusDays(30);
         String yesterdayFormat = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String mounthBeforeFormat = mounthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
         List<ArticleDetailDaily> articleDetailDailyList = null;
         try {
-            articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, mounthBeforeFormat, yesterdayFormat);
+            articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, yesterdayFormat, yesterdayFormat);
             System.out.println("########看看原始数据##########" + new Gson().toJson(articleDetailDailyList));
         } catch (Exception ex) {
             logger.error("抓取发表内容发表详细数据失败:" + ex.getMessage());
@@ -475,56 +475,14 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
 
         // (1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
-
-        processArticleSummaryDailyData(accessToken, accountId, yesterday);
+        LocalDate mounthBefore = yesterday.minusDays(30);
+        String mounthBeforeStr = mounthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String yesterdayStr = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        syncDataService.processArticleSummaryDailyData(accessToken, accountId, mounthBeforeStr, yesterdayStr);
 
         logger.info("<##############################发表内容概况总数据抓取结束##############################>");
     }
 
-    private void processArticleSummaryDailyData(String accessToken, Long accountId, LocalDate yesterday) {
-        String yesterdayISO = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalDate mounthBefore = yesterday.minusDays(30);
-        String mounthBeforeStr = mounthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        // (2)抓取发表内容概况总数据
-        List<ArticleSummaryDaily> articleSummaryDailyList = null;
-        try {
-            // 这是一个统计接口，统计最大周期维度为30天
-            articleSummaryDailyList = WebChatUtil.getArticleSummaryDaily(accessToken, mounthBeforeStr, yesterdayISO);
-        } catch (Exception ex) {
-            logger.error("抓取发表内容概况总数据失败:" + ex.getMessage());
-        }
-
-        // (3)将获取的数据插入数据库
-        if (articleSummaryDailyList != null && !articleSummaryDailyList.isEmpty()) {
-            logger.info("<------获取的发表内容概况总数据条数------> " + articleSummaryDailyList.size());
-            logger.info("<------获取的发表内容概况总数据------> " + articleSummaryDailyList.toString());
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                batchArgs.add(article.toObject(accountId));
-            }
-
-            String insertSql = webChatConfig.getInsertarticlesummarydailysql();
-            if (insertSql != null && !insertSql.isEmpty()) {
-                try {
-                    clickhouseService.batchInsert(insertSql, batchArgs);
-                    logger.info("成功插入发表内容概况总数据到ClickHouse，数量: " + batchArgs.size());
-                } catch (Exception ex) {
-                    logger.error("插入发表内容概况总数据到ClickHouse失败: " + ex.getMessage());
-                }
-            } else {
-                logger.warn("未配置insertarticlesummarydailysql，无法插入数据到ClickHouse");
-            }
-        }
-        // 将数据按渠道汇聚到 dws_bizsummary_channel_daily 表
-        if (articleSummaryDailyList != null && articleSummaryDailyList.size() > 0) {
-            List<Object[]> batchArgs_cur = new ArrayList<>();
-            for (ArticleSummaryDaily article : articleSummaryDailyList) {
-                batchArgs_cur.add(article.toObject(accountId));
-            }
-            String curSql = webChatConfig.getInsertdwsbizsummarychanneldailysql();
-            clickhouseService.batchInsert(curSql, batchArgs_cur);
-        }
-    }
 
     @Override
     public void captureArticleShareDaily(String accessToken, Long accountId) {

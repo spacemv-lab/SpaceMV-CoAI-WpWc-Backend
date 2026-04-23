@@ -118,12 +118,19 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
 
+        <!-- Alibaba Cloud SMS SDK -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+
+
         <!-- txwx-social-api 契约模块 -->
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>txwx-social-api</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -138,6 +145,21 @@
             <artifactId>mybatis-plus-annotation</artifactId>
             <scope>compile</scope>
         </dependency>
+         <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-core</artifactId>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
+                <scope>compile</scope>
+            </dependency>
 
 
     </dependencies>
