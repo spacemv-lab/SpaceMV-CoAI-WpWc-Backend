@@ -37,3 +37,5 @@
 *.DS_Store
 *.env
 **/target/
+/ruoyi-visual/ruoyi-monitor/target/
+/ruoyi-modules/txwx-website/target/
