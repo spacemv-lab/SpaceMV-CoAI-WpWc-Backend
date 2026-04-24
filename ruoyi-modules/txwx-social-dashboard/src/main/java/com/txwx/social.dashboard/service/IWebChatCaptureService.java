@@ -57,11 +57,6 @@ public interface IWebChatCaptureService {
     void captureArticleReadDaily(Long accountId);
 
     /**
-     * @description: 获取并保存发表内容概况总数据（定时任务）
-     */
-    void captureArticleSummaryDaily(Long accountId);
-
-    /**
      * @description: 获取并保存发表内容每日分享数据（定时任务）
      */
     void captureArticleShareDaily(Long accountId);
@@ -85,8 +80,10 @@ public interface IWebChatCaptureService {
      * @description: 聚合ODS层数据到DWS层（文章维度统计）
      */
 
+    @Deprecated
     void captureArticleTotalDetailDaily(Long accountId);
 
+    @Deprecated
     void captureArticleTotalDetailDaily(String accessToken, Long accountId);
 
     void webChatArticleUptackCapture(String accessToken, Long accountId);
@@ -110,11 +107,6 @@ public interface IWebChatCaptureService {
      * @description: 获取并保存发表内容每日阅读数据（定时任务）
      */
     void captureArticleReadDaily(String accessToken, Long accountId);
-
-    /**
-     * @description: 获取并保存发表内容概况总数据（定时任务）
-     */
-    void captureArticleSummaryDaily(String accessToken, Long accountId);
 
     /**
      * @description: 获取并保存发表内容每日分享数据（定时任务）

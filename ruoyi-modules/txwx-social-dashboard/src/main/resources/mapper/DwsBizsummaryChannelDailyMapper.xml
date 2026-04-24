@@ -56,14 +56,6 @@
              )
         ORDER BY read_users DESC
     </select>
-    <select id="selectTotalReadShare" resultType="java.util.Map">
-        SELECT
-        sum(read_user_cnt) as readTotal,
-        sum(share_user) as shareTotal
-        FROM dws_bizsummary_channel_daily
-        WHERE channel = '全部'
-        and account_id = #{accountId}
-    </select>
 
 
     <select id="selectDataBoardReadSource" resultType="java.util.Map">

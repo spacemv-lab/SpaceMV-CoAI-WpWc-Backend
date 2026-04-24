@@ -16,8 +16,6 @@ public interface DwsBizsummaryChannelDailyMapper extends BaseMapper<DwsBizsummar
 
     List<FlowSource> selectSource(@Param("accountId") Long accountId);
 
-    Map<String, Long> selectTotalReadShare(@Param("accountId") Long accountId);
-
     List<Map<String, Object>> selectDataBoardReadSource(@Param("accountId") Long accountId);
 
 }

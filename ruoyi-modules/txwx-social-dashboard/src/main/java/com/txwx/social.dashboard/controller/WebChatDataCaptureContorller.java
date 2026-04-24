@@ -89,6 +89,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @Deprecated
     @PostMapping("/userreadPerday")
     public AjaxResult userreadPerday(@RequestBody List<Long> accountIds){
         // 查询每日文图文阅读概括数据
@@ -114,13 +115,6 @@ public class WebChatDataCaptureContorller extends BaseController {
     @PostMapping("/captureArticleReadDaily")
     public AjaxResult captureArticleReadDaily(@RequestBody List<Long> accountIds){
         webChatCaptureService.captureArticleReadDaily(accountIds.get(0));
-        return success();
-    }
-
-    @PostMapping("/captureArticleSummaryDaily")
-    public AjaxResult captureArticleSummaryDaily(@RequestBody List<Long> accountIds){
-
-        webChatCaptureService.captureArticleSummaryDaily(accountIds.get(0));
         return success();
     }
 

@@ -93,7 +93,7 @@ public class WebChatDataCaptureTasks {
         // 获取 每日阅读数据 【ods_article_read_daily】
         webChatCaptureService.captureArticleReadDaily(accessToken, accountId);
 
-        webChatCaptureService.captureArticleSummaryDaily(accessToken, accountId);
+        //webChatCaptureService.captureArticleSummaryDaily(accessToken, accountId);
 
         logger.info("\n");
         webChatCaptureService.captureArticleShareDaily(accessToken, accountId);
@@ -107,6 +107,7 @@ public class WebChatDataCaptureTasks {
 
         logger.info("\n");
         // 获取 详细文章数据 【ods_article_detail_daily】
+        // TODO 接口即将停止维护
         webChatCaptureService.captureArticleTotalDetailDaily(accountId);
         String formatted = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
         //syncDataServiceImpl.syncArticleTotalDetailHistoryRange(accessToken, productId, platformId, formatted, formatted);

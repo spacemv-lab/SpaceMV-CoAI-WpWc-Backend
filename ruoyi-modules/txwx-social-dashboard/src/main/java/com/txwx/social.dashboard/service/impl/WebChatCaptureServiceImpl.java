@@ -236,17 +236,12 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     }
 
     @Override
-    public void captureArticleSummaryDaily(Long accountId) {
-        String accessToken = getAccessToken(accountId);
-        captureArticleSummaryDaily(accessToken, accountId);
-    }
-
-    @Override
     public void captureArticleTotalDetailDaily(Long accountId) {
         String accessToken = getAccessToken(accountId);
         captureArticleTotalDetailDaily(accessToken, accountId);
     }
 
+    @Deprecated
     @Override
     public void captureArticleTotalDetailDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容发表详细数据抓取开始##############################>");
@@ -399,6 +394,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
 
     }
 
+    @Deprecated
     private void processUserReadPerdayData(String accessToken, Long accountId, String date) {
         //(2)抓取关注或取消关注人数
         List<WebChatUserRead> userReadPerday = null;
@@ -432,56 +428,12 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         logger.info("定义抓取日期:" + yesterdayISO);
 
         // (2)抓取发表内容每日阅读数据
-        processArticleReadDaily(accessToken, accountId, yesterdayISO);
+        syncDataService.syncArticleReadDaily(accessToken, accountId, yesterdayISO, yesterdayISO);
 
         logger.info("<##############################发表内容每日阅读数据抓取结束##############################>");
     }
 
-    private void processArticleReadDaily(String accessToken, Long accountId, String yesterdayISO) {
-        List<ArticleReadDaily> articleReadDailyList = null;
-        try {
-            articleReadDailyList = WebChatUtil.getArticleReadDaily(accessToken, yesterdayISO, yesterdayISO);
-        } catch (Exception ex) {
-            logger.error("抓取发表内容每日阅读数据失败:" + ex.getMessage());
-        }
 
-        // (3)将获取的数据插入数据库
-        if (articleReadDailyList != null && !articleReadDailyList.isEmpty()) {
-            logger.info("<------获取的发表内容每日阅读数据条数------> " + articleReadDailyList.size());
-            logger.info("<------获取的发表内容每日阅读数据------> " + articleReadDailyList.toString());
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (ArticleReadDaily article : articleReadDailyList) {
-                batchArgs.add(article.toObject(accountId));
-            }
-
-            String insertSql = webChatConfig.getInsertarticlereaddailysql();
-            if (insertSql != null && !insertSql.isEmpty()) {
-                try {
-                    clickhouseService.batchInsert(insertSql, batchArgs);
-                    logger.info("成功插入发表内容每日阅读数据到ClickHouse，数量: " + batchArgs.size());
-                } catch (Exception ex) {
-                    logger.error("插入发表内容每日阅读数据到ClickHouse失败: " + ex.getMessage());
-                }
-            } else {
-                logger.warn("未配置insertarticlereaddailysql，无法插入数据到ClickHouse");
-            }
-        }
-    }
-
-    @Override
-    public void captureArticleSummaryDaily(String accessToken, Long accountId) {
-        logger.info("<##############################发表内容概况总数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
-
-        // (1)定义抓取日期
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        LocalDate mounthBefore = yesterday.minusDays(30);
-        String mounthBeforeStr = mounthBefore.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String yesterdayStr = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        syncDataService.processArticleSummaryDailyData(accessToken, accountId, mounthBeforeStr, yesterdayStr);
-
-        logger.info("<##############################发表内容概况总数据抓取结束##############################>");
-    }
 
 
     @Override
@@ -495,42 +447,12 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         logger.info("定义抓取日期:" + yesterdayISO);
 
         // (2)抓取发表内容每日分享数据
-        processArticleShareDailyData(accessToken, accountId, yesterdayISO);
+        syncDataService.processArticleShareDailyData(accessToken, accountId, yesterdayISO, yesterdayISO);
 
         logger.info("<##############################发表内容每日分享数据抓取结束##############################>");
     }
 
-    private void processArticleShareDailyData(String accessToken, Long accountId, String yesterdayISO) {
-        List<ArticleShareDaily> articleShareDailyList = null;
-        try {
-            articleShareDailyList = WebChatUtil.getArticleShareDaily(accessToken, yesterdayISO, yesterdayISO);
-        } catch (Exception ex) {
-            logger.error("抓取发表内容每日分享数据失败:" + ex.getMessage());
-        }
 
-        // (3)将获取的数据插入数据库
-        if (articleShareDailyList != null && !articleShareDailyList.isEmpty()) {
-            logger.info("<------获取的发表内容每日分享数据条数------> " + articleShareDailyList.size());
-            logger.info("<------获取的发表内容每日分享数据------> " + articleShareDailyList.toString());
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (ArticleShareDaily article : articleShareDailyList) {
-                batchArgs.add(article.toObject(accountId));
-            }
-
-            String insertSql = webChatConfig.getInsertarticlesharedailysql();
-            if (insertSql != null && !insertSql.isEmpty()) {
-                try {
-                    clickhouseService.batchInsert(insertSql, batchArgs);
-                    logger.info("成功插入发表内容每日分享数据到ClickHouse，数量: " + batchArgs.size());
-                } catch (Exception ex) {
-                    logger.error("插入发表内容每日分享数据到ClickHouse失败: " + ex.getMessage());
-                    throw ex;
-                }
-            } else {
-                logger.warn("未配置insertarticlesharedailysql，无法插入数据到ClickHouse");
-            }
-        }
-    }
 
     @Override
     public void captureArticleReadDailyHistory(String startdate, String enddate, String accessToken, Long accountId) {
@@ -553,7 +475,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         while (!currentDate.isAfter(end)) {
             String formattedDate = currentDate.format(formatter);
             // (2)抓取发表内容每日阅读数据
-            processArticleReadDaily(accessToken, accountId, formattedDate);
+            syncDataService.syncArticleReadDaily(accessToken, accountId, formattedDate, formattedDate);
             currentDate = currentDate.plusDays(1);
         }
 
@@ -635,7 +557,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         // 从起始日期循环到结束日期，逐天输出格式化字符串
         LocalDate currentDate = start;
         while (!currentDate.isAfter(end)) {
-            processArticleShareDailyData(accessToken, accountId, currentDate.format(formatter));
+            syncDataService.processArticleShareDailyData(accessToken, accountId, currentDate.format(formatter), currentDate.format(formatter));
             currentDate = currentDate.plusDays(1);
         }
     }
