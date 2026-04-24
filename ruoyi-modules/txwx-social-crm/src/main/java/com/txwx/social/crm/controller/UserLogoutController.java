@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,8 +81,8 @@ public class UserLogoutController extends BaseController {
         // 4. 创建注销申请（7天冷却期）
         TxwxUserLogoutPO logout = new TxwxUserLogoutPO();
         logout.setUserId(userId);
-        logout.setApplyTime(System.currentTimeMillis());
-        logout.setCoolEndTime(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000); // 7天后
+        logout.setApplyTime(new Date());
+        logout.setCoolEndTime(new Date()); // 7天后
         logout.setStatus("0"); // 冷却中
         logout.setCreateBy(username);
         logout.setUpdateBy(username);

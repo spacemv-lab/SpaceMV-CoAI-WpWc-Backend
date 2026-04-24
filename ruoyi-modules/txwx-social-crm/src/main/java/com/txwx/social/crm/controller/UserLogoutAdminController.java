@@ -54,8 +54,8 @@ public class UserLogoutAdminController extends BaseController {
      * @param query 查询参数
      * @return 结果
      */
-    @GetMapping("/list")
-    @PreAuthorize("@ss.hasPermi('txwx:user:logout:list')")
+    @PostMapping("/list")
+    @PreAuthorize("@ss.hasPermi('system:registerUser:list')")
     @Operation(summary = "查询注销申请列表")
     public TableDataInfo list(@Valid @RequestBody LogoutQuery query) {
         LambdaQueryWrapper<TxwxUserLogoutPO> wrapper = new LambdaQueryWrapper<>();
@@ -68,6 +68,7 @@ public class UserLogoutAdminController extends BaseController {
         }
 
         wrapper.orderByDesc(TxwxUserLogoutPO::getApplyTime);
+        startPage();
         List<TxwxUserLogoutPO> userLogoutPOList = userLogoutService.list(wrapper);
 
         return getDataTable(userLogoutPOList);
@@ -80,7 +81,7 @@ public class UserLogoutAdminController extends BaseController {
      * @return 结果
      */
     @GetMapping("/detail/{logoutId}")
-    @PreAuthorize("@ss.hasPermi('txwx:user:logout:query')")
+    @PreAuthorize("@ss.hasPermi('system:registerUser:list')")
     @Operation(summary = "查询注销申请详情")
     public R<Map<String, Object>> detail(@NotNull(message = "注销ID不能为空") @PathVariable Long logoutId) {
         TxwxUserLogoutPO logout = userLogoutService.getById(logoutId);
