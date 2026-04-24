@@ -42,6 +42,12 @@ public class RemoteUserFallbackFactory implements FallbackFactory<RemoteUserServ
             {
                 return R.fail("记录用户登录信息失败:" + throwable.getMessage());
             }
+
+            @Override
+            public R<Boolean> checkUnique(String accountName, String source)
+            {
+                return R.fail("校验登录账号唯一性失败：" + throwable.getMessage());
+            }
         };
     }
 }
