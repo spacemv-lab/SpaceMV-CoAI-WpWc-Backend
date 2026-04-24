@@ -276,9 +276,26 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 结果
      */
     @Override
+    @Transactional
     public boolean registerUser(SysUser user)
     {
-        return userMapper.insertUser(user) > 0;
+        int rows = userMapper.insertUser(user);
+
+        if (rows > 0) {
+            // 获取系统配置的默认角色ID
+            String defaultRoleIdStr = configService.selectConfigByKey("sys.user.register.defaultRole");
+            long defaultRoleId = Long.parseLong(defaultRoleIdStr);
+
+            // 获取用户ID
+            SysUser newUser = userMapper.selectUserByUserName(user.getUserName());
+            Long userId = newUser.getUserId();
+
+            // 绑定默认角色
+            Long[] roleIds = {defaultRoleId};
+            insertUserRole(userId, roleIds);
+        }
+
+        return rows > 0;
     }
 
     /**
