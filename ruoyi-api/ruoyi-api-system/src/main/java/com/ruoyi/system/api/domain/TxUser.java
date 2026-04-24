@@ -1,6 +1,9 @@
 package com.ruoyi.system.api.domain;
 
+
 public class TxUser extends SysUser {
+
+    private static final long serialVersionUID = 1L;
 
     private String txPhonenumber;
 
@@ -9,6 +12,12 @@ public class TxUser extends SysUser {
     private String phoneVerifyCode;
 
     private String emailVerifyCode;
+
+    // 添加无参构造器
+    public TxUser() {
+        super();
+    }
+
 
     public String getTxPhonenumber() {
         return txPhonenumber;

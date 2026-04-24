@@ -1,6 +1,5 @@
 package com.ruoyi.system.api;
 
-import com.ruoyi.common.core.constant.SecurityConstants;
 import com.ruoyi.common.core.constant.ServiceNameConstants;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.system.api.domain.TxUser;
@@ -13,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
  * 
  * @author ruoyi
  */
-@FeignClient(contextId = "remoteTxwxUserService", value = ServiceNameConstants.TX_SOCIAL_CRM_SERVICE)
+@FeignClient(name = ServiceNameConstants.TX_SOCIAL_CRM_SERVICE,
+        contextId = "remoteTxwxUserService",
+        value = ServiceNameConstants.TX_SOCIAL_CRM_SERVICE)
 public interface RemoteTxwxUserService
 {
 
@@ -23,8 +24,8 @@ public interface RemoteTxwxUserService
      * @param accountName 用户名/手机号/邮箱
      * @return 结果
      */
-    @GetMapping("/user/info/{accountName}")
-    public R<LoginUser> getUserInfo(@PathVariable("accountName") String accountName);
+    @GetMapping("/user/info")
+    public R<LoginUser> getUserInfo(@RequestParam("accountName") String accountName);
 
     /**
      * 注册用户信息
