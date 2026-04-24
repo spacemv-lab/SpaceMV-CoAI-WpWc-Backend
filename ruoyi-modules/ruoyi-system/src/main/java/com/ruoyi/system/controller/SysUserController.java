@@ -6,17 +6,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.system.utils.AccountUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.text.Convert;
@@ -154,6 +149,34 @@ public class SysUserController extends BaseController
             return R.fail("保存用户'" + username + "'失败，注册账号已存在");
         }
         return R.ok(userService.registerUser(sysUser));
+    }
+
+    /**
+     * 检查用户名称是否唯一
+     */
+    @InnerAuth
+    @GetMapping("/checkUnique")
+    public R<Boolean> checkUnique(@RequestParam("accountName") String accountName)
+    {
+        SysUser sysUser = new SysUser();
+        sysUser.setUserName(accountName);
+        sysUser.setPhonenumber(accountName);
+        sysUser.setEmail(accountName);
+        int type = AccountUtil.getAccountType(accountName);
+        boolean exist = false;
+        switch (type) {
+            case 1:
+                exist = !userService.checkEmailUnique(sysUser);
+                break;
+            case 2:
+                exist = !userService.checkPhoneUnique(sysUser);
+                break;
+            default:
+                exist = !userService.checkUserNameUnique(sysUser);
+                break;
+        }
+
+        return R.ok(!exist);
     }
 
     /**
