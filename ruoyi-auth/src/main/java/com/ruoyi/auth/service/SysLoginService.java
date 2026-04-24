@@ -1,6 +1,7 @@
 package com.ruoyi.auth.service;
 
 import com.ruoyi.auth.form.RegisterBody;
+import com.ruoyi.auth.utils.AccountUtil;
 import com.ruoyi.system.api.RemoteTxwxUserService;
 import com.ruoyi.system.api.domain.TxUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ public class SysLoginService
      */
     public LoginUser login(String username, String password)
     {
+        int type = AccountUtil.getAccountType(username);
         // 用户名或密码为空 错误
         if (StringUtils.isAnyBlank(username, password))
         {
@@ -64,11 +66,13 @@ public class SysLoginService
             throw new ServiceException("用户密码不在指定范围");
         }
         // 用户名不在指定范围内 错误
-        if (username.length() < UserConstants.USERNAME_MIN_LENGTH
-                || username.length() > UserConstants.USERNAME_MAX_LENGTH)
-        {
-            recordLogService.recordLogininfor(username, Constants.LOGIN_FAIL, "用户名不在指定范围");
-            throw new ServiceException("用户名不在指定范围");
+        if (type == 0) {
+            if (username.length() < UserConstants.USERNAME_MIN_LENGTH
+                    || username.length() > UserConstants.USERNAME_MAX_LENGTH)
+            {
+                recordLogService.recordLogininfor(username, Constants.LOGIN_FAIL, "用户名不在指定范围");
+                throw new ServiceException("用户名不在指定范围");
+            }
         }
         // IP黑名单校验
         String blackStr = Convert.toStr(redisService.getCacheObject(CacheConstants.SYS_LOGIN_BLACKIPLIST));
