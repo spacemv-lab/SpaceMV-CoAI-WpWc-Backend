@@ -34,6 +34,8 @@ public class ArticleDataAggregator {
      */
     public void aggregateDataToDws(Long accountId) {
         logger.info("<##############################聚合文章数据到DWS层开始##############################>");
+        String delSql = SqlUtils.deleteSql("dws_article_read");
+        clickhouseService.singleInsert(delSql, accountId);
         try {
             // 1. 查询所有需要聚合的阅读数据（使用带index的msgid，按msgid累加）
             String readQuerySql = "SELECT " +
@@ -48,7 +50,7 @@ public class ArticleDataAggregator {
                     "sum(read_user_source_recommend) as read_user_source_recommend, " +
                     "sum(read_user_source_search) as read_user_source_search " +
                     "FROM ods_article_read_daily " +
-                    "WHERE account_id = ?" +
+                    "WHERE account_id = ? " +
                     "GROUP BY msgid";
 
             List<Map<String, Object>> readDataList = clickhouseService.readData(readQuerySql, accountId);
@@ -59,7 +61,7 @@ public class ArticleDataAggregator {
                     "msgid, " +
                     "sum(share_user) as share_user " +
                     "FROM ods_article_share_daily " +
-                    "WHERE account_id = ?" +
+                    "WHERE account_id = ? " +
                     "GROUP BY msgid";
 
             List<Map<String, Object>> shareDataList = clickhouseService.readData(shareQuerySql, accountId);
@@ -111,8 +113,7 @@ public class ArticleDataAggregator {
                 List<String> baseMsgids = new ArrayList<>(aggregatedData.keySet());
                 String msgidsStr = "'" + String.join("','", baseMsgids) + "'";
 
-                String articleQuerySql = "SELECT msgid, title, create_time FROM ods_article WHERE msgid IN ('" + msgidsStr + "') and account_id = ?";
-                //String articleQuerySql = "SELECT msgid, title, create_time FROM ods_article WHERE account_id = ?";
+                String articleQuerySql = "SELECT msgid, title, create_time FROM ods_article WHERE msgid IN (" + msgidsStr + ") and account_id = ?";
                 List<Map<String, Object>> articleList = clickhouseService.readData(articleQuerySql, accountId);
                 logger.info("查询到文章基本信息条数: " + (articleList != null ? articleList.size() : 0));
 
@@ -210,12 +211,28 @@ public class ArticleDataAggregator {
         return msgidWithIndex;
     }
 
+
+    public void aggregateArticleContentDataToDws(Long accountId) {
+        // 区间全部同步完成后，统一聚合一次
+        try {
+            String delSql = SqlUtils.deleteSql("dws_content_data");
+            clickhouseService.singleInsert(delSql, accountId);
+            processArticleContentDataToDws(accountId);
+            log.info("成功聚合文章详细数据到 dws_content_data");
+        } catch (Exception ex) {
+            log.error("聚合 dws_content_data 失败: {}", ex.getMessage(), ex);
+        }
+
+        log.info("<##############################文章内容统计完成##############################>");
+    }
+
+
     /**
      * 分步聚合内容数据到DWS层
      * 策略：分表查询、内存合并、批量插入
      */
-    public void aggregateContentDataToDws(Long accountId) {
-        log.info("<================= 开始聚合内容数据到DWS层，accountId: {} =================>", accountId);
+    private void processArticleContentDataToDws(Long accountId) {
+        log.info("<================= 开始聚合文章阅读/分析/收藏等数据到DWS层，accountId: {} =================>", accountId);
 
         try {
             // 1. 查询文章详情日粒度聚合数据
@@ -295,13 +312,8 @@ public class ArticleDataAggregator {
      * 替代原SQL中的子查询a
      */
     private List<Map<String, Object>> aggregateArticleData(Long accountId) {
-        String sql = "SELECT " +
-                "msgid, " +
-                "account_id, " +
-                "argMax(title, tuple(update_time, create_time)) AS article_title, " +
-                "argMax(create_time, tuple(update_time, create_time)) AS article_create_time, " +
-                "argMax(author, tuple(update_time, create_time)) AS article_author, " +
-                "argMax(url, tuple(update_time, create_time)) AS article_url " +
+        String sql = "SELECT account_id, msgid, argMax(title, create_time) AS article_title, " +
+                "argMax(create_time, create_time) AS article_create_time " +
                 "FROM ods_article " +
                 "WHERE account_id = ? " +
                 "GROUP BY msgid, account_id";
@@ -547,7 +559,7 @@ public class ArticleDataAggregator {
         }
     }
 
-    public void processDwsUsers(Long accountId) {
+    public void aggregateDwsUsers(Long accountId) {
         // 获取指定账户的ods_users表中ref_date的最早和最晚日期
         String startdate = getMinRefDateByAccount("ods_users", accountId);
         String enddate = getMaxRefDateByAccount("ods_users", accountId);
@@ -658,27 +670,32 @@ public class ArticleDataAggregator {
 
         // 2. 前一天没有数据，聚合查询所有历史数据
         try {
-            String aggregateSql = "SELECT " +
-                    "SUM(new_user) as sum_new_user, " +
-                    "SUM(cancel_user) as sum_cancel_user " +
-                    "FROM ods_users " +
-                    "WHERE account_id = ? AND ref_date <= ?";
+            String aggregateSql = "SELECT account_id,ref_date,SUM(new_user) as new_user,SUM(cancel_user) as cancel_user " +
+                    " FROM (" +
+                    "    SELECT" +
+                    "        *," +
+                    "        MIN(ref_date) OVER (PARTITION BY account_id) as min_date " +
+                    "    FROM wcai.ods_users" +
+                    "    WHERE account_id = ?" +
+                    ") t " +
+                    "WHERE ref_date = min_date " +
+                    "GROUP BY account_id, ref_date";
 
             List<Map<String, Object>> result = clickhouseService.readData(
-                    aggregateSql, accountId, startDate.toString());
+                    aggregateSql, accountId);
 
+            long sumNewUser = 0l;
             if (result != null && !result.isEmpty()) {
                 Map<String, Object> row = result.get(0);
-                long sumNewUser = row.get("sum_new_user") != null ?
-                        ((Number) row.get("sum_new_user")).longValue() : 0;
-                long sumCancelUser = row.get("sum_cancel_user") != null ?
-                        ((Number) row.get("sum_cancel_user")).longValue() : 0;
+                long newUser = row.get("new_user") != null ?
+                        ((Number) row.get("new_user")).longValue() : 0;
+                long cancelUser = row.get("cancel_user") != null ?
+                        ((Number) row.get("cancel_user")).longValue() : 0;
+                sumNewUser = newUser - cancelUser;
+                log.info("从ods_users聚合计算历史累计用户: startDate={}, 累计新增={}, 基准累计={}",
+                        startDate, sumNewUser, sumNewUser);
 
-                long baseAccumulatedUser = sumNewUser - sumCancelUser;
-                log.info("从ods_users聚合计算历史累计用户: startDate={}, 累计新增={}, 累计取消={}, 基准累计={}",
-                        startDate, sumNewUser, sumCancelUser, baseAccumulatedUser);
-
-                return baseAccumulatedUser;
+                return sumNewUser;
             }
         } catch (Exception ex) {
             log.error("聚合查询ods_users历史数据失败, startDate={}, msg={}",
@@ -715,6 +732,20 @@ public class ArticleDataAggregator {
 
         while (!current.isAfter(end)) {
             String refDateStr = current.toString();
+            if (current.isEqual(start)) {
+                // 准备批量插入参数
+                dwsBatchArgs.add(new Object[]{
+                        refDateStr,
+                        baseAccumulatedUser,
+                        0,
+                        baseAccumulatedUser,
+                        accumulatedUser,
+                        accountId
+                });
+                current = current.plusDays(1);
+                continue;
+            }
+
 
             // 查询当天的ods_users数据
             DailySummary dailySummary = getDailyOdsSummary(accountId, refDateStr);

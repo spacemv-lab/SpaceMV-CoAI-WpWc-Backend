@@ -129,7 +129,6 @@ public class WebChatUtil {
         String url = HttpUtil.buildUrlWithParams("https://api.weixin.qq.com/datacube/getarticlesummary", specialParams);
 
         WebChatDate date = new WebChatDate();
-        //TODO 按每天分批读取
         date.setBegin_date(beginDate);
         date.setEnd_date(endDate);
 
@@ -148,6 +147,7 @@ public class WebChatUtil {
     /**
      * @description: 获取每天的用户阅读数据
      */
+    @Deprecated
     public static List<WebChatUserRead> getUserReadPerday(String token, String beginDate, String endDate) throws Exception{
         Map<String, String> specialParams = new HashMap<>();
         specialParams.put("access_token", token);
@@ -192,6 +192,8 @@ public class WebChatUtil {
 
     /**
      * @description: 获取发表内容每日阅读数据
+     * 用于替换 getArticleDetailDaily
+     * 需要按每天切片
      */
     public static List<ArticleReadDaily> getArticleReadDaily(String token, String beginDate, String endDate) throws Exception {
         Map<String, String> specialParams = new HashMap<>();
@@ -240,6 +242,8 @@ public class WebChatUtil {
 
     /**
      * @description: 获取发表内容每日分享数据
+     * 用于替换 getArticleDetailDaily
+     * 但其实也没必要，就拿getbizsummary就都包括了
      */
     public static List<ArticleShareDaily> getArticleShareDaily(String token, String beginDate, String endDate) throws Exception {
         Map<String, String> specialParams = new HashMap<>();
@@ -262,6 +266,7 @@ public class WebChatUtil {
         return result;
     }
 
+    @Deprecated
     public static List<ArticleDetailDaily> getArticleDetailDaily(String token, String beginDate, String endDate) throws Exception{
         Map<String, String> specialParams = new HashMap<>();
         specialParams.put("access_token", token);

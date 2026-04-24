@@ -53,19 +53,31 @@ public class DataBoardServiceImpl implements IDataBoardService {
             userTotalVo.setValue(list.get(0).getAccumulatedUser());
         }
         res.add(userTotalVo);
-        Map<String, Long> map = dwsBizsummaryChannelDailyMapper.selectTotalReadShare(accountId);
-        if (map != null && !map.isEmpty()) {
-            Object readTotal = map.get("readTotal");
-            Object shareTotal = map.get("shareTotal");
-            userTotalVo = new UserTotalVo();
-            userTotalVo.setDesc("总阅读人数");
-            userTotalVo.setValue(readTotal != null ? ((Number) readTotal).longValue() : 0);
-            res.add(userTotalVo);
-            userTotalVo = new UserTotalVo();
-            userTotalVo.setDesc("总分享人数");
-            userTotalVo.setValue(shareTotal != null ? ((Number) shareTotal).longValue() : 0);
-            res.add(userTotalVo);
+        String totalQuery = "SELECT sum(read_user_total) as total FROM ods_article_read_daily where account_id = ?";
+        List<Map<String, Object>> totalData = clickhouseService.readData(totalQuery, accountId);
+        if (CollectionUtils.isEmpty(totalData)) {
+            return res;
         }
+        Map<String, Object> row = totalData.get(0);
+        long readTotal = row.get("total") != null ?
+                ((Number) row.get("total")).longValue() : 0;
+
+        String shareQuery = "SELECT sum(share_user) as total FROM ods_article_share_daily where account_id = ?";
+        List<Map<String, Object>> shareData = clickhouseService.readData(shareQuery, accountId);
+        if (CollectionUtils.isEmpty(shareData)) {
+            return res;
+        }
+        Map<String, Object> shareEow = shareData.get(0);
+        long shareTotal = shareEow.get("total") != null ?
+                ((Number) shareEow.get("total")).longValue() : 0;
+        UserTotalVo readTotalVo = new UserTotalVo();
+        readTotalVo.setDesc("总阅读人数");
+        readTotalVo.setValue(readTotal);
+        UserTotalVo shareTotalVo = new UserTotalVo();
+        shareTotalVo.setDesc("总分享人数");
+        shareTotalVo.setValue(shareTotal);
+        res.add(readTotalVo);
+        res.add(shareTotalVo);
         return res;
     }
 

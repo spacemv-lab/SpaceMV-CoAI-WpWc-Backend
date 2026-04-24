@@ -1,5 +1,8 @@
 package com.txwx.social.dashboard.util;
 
+import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.utils.StringUtils;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -11,6 +14,23 @@ public class DateValidator {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
+
+
+    /**
+     * 解析并验证日期字符串
+     */
+    public static LocalDate parseAndValidateDate(String dateStr, String fieldName) {
+        if (StringUtils.isBlank(dateStr)) {
+            throw new ServiceException(fieldName + "不能为空");
+        }
+
+        try {
+            return LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (Exception e) {
+            throw new ServiceException(fieldName + "格式错误，请使用 yyyy-MM-dd 格式");
+        }
+    }
+
 
     /**
      * 校验时间范围
