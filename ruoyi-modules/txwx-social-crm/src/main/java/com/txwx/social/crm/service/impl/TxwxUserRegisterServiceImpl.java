@@ -45,6 +45,11 @@ public class TxwxUserRegisterServiceImpl extends ServiceImpl<TxwxUserRegisterMap
     public TxwxUserRegisterPO selectByRegisterAccount(String registerAccount) {
         int type = AccountUtil.getAccountType(registerAccount);
         LambdaQueryWrapper<TxwxUserRegisterPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(
+                TxwxUserRegisterPO::getUserName,
+                TxwxUserRegisterPO::getBindPhone,
+                TxwxUserRegisterPO::getBindEmail
+        );
         switch (type) {
             case 1 -> wrapper.eq(TxwxUserRegisterPO::getBindPhone, registerAccount);
             case 2-> wrapper.eq(TxwxUserRegisterPO::getBindEmail, registerAccount);
@@ -58,6 +63,9 @@ public class TxwxUserRegisterServiceImpl extends ServiceImpl<TxwxUserRegisterMap
     @Override
     public TxwxUserRegisterPO selectByUserName(String userName) {
         LambdaQueryWrapper<TxwxUserRegisterPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.select(
+                TxwxUserRegisterPO::getUserName
+        );
         wrapper.eq(TxwxUserRegisterPO::getUserName, userName)
                 .eq(TxwxUserRegisterPO::getDelFlag, "0");
         return userRegisterMapper.selectOne(wrapper);

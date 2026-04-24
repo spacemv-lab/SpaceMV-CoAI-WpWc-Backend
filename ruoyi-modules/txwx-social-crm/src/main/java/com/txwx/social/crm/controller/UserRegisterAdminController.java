@@ -47,7 +47,7 @@ public class UserRegisterAdminController extends BaseController {
      * @param query 查询参数
      * @return 结果
      */
-    @GetMapping("/list")
+    @PostMapping("/list")
     @PreAuthorize("@ss.hasPermi('txwx:user:register:list')")
     @Operation(summary = "查询注册用户列表")
     public TableDataInfo list(@Valid @RequestBody RegisterQuery query) {
@@ -83,7 +83,7 @@ public class UserRegisterAdminController extends BaseController {
      * @return 结果
      */
     @GetMapping("/detail/{registerId}")
-    @PreAuthorize("@ss.hasPermi('txwx:user:register:query')")
+    @PreAuthorize("@ss.hasPermi('system:registerUser:list')")
     @Operation(summary = "查询单个注册用户详情")
     public R<TxwxUserRegisterPO> detail(@NotNull(message = "注册ID不能为空") @PathVariable Long registerId) {
         TxwxUserRegisterPO register = userRegisterService.getById(registerId);
@@ -97,7 +97,7 @@ public class UserRegisterAdminController extends BaseController {
      * @return 结果
      */
     @PutMapping("/status")
-    @PreAuthorize("@ss.hasPermi('txwx:user:register:edit')")
+    @PreAuthorize("@ss.hasPermi('system:registerUser:list')")
     @Operation(summary = "修改注册用户状态")
     public AjaxResult updateStatus(@Valid @RequestBody UpdateStatusRequest request) {
         // 1. 查询注册信息

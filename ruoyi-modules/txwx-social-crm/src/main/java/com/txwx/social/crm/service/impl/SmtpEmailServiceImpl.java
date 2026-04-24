@@ -1,6 +1,5 @@
 package com.txwx.social.crm.service.impl;
 
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
 import com.ruoyi.common.core.utils.StringUtils;

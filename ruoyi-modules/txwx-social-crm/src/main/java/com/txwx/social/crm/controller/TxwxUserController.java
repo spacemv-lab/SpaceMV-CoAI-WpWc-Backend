@@ -4,7 +4,6 @@ import com.ruoyi.common.core.constant.Constants;
 import com.ruoyi.common.core.constant.SecurityConstants;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
-import com.ruoyi.common.core.utils.bean.BeanUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.security.utils.SecurityUtils;
@@ -21,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * 用户注册控制器
@@ -55,8 +56,8 @@ public class TxwxUserController extends BaseController {
     /**
      * 获取当前用户信息
      */
-    @GetMapping("/info/{accoutName}")
-    public R<LoginUser> info(@PathVariable("accountName") String accountName)
+    @GetMapping("/info")
+    public R<LoginUser> info(@RequestParam("accountName") String accountName)
     {
         String username = processUserName(accountName);
         if (StringUtils.isNull(username))
@@ -79,22 +80,18 @@ public class TxwxUserController extends BaseController {
     /**
      * 检查用户名是否已存在
      *
-     * @param username 注册用户名
+     * @param accountName 注册用户名
      * @return 结果
      */
     @GetMapping("/checkunique")
     @Operation(summary = "查询单个用户名唯一性")
-    public R<Boolean> checkUserNameUnique(@NotNull(message = "用户名称不能为空") @RequestParam("username") String username) {
-        TxwxUserRegisterPO register = userRegisterService.selectByUserName(username);
+    public R<Boolean> checkUserNameUnique(@NotNull(message = "用户名称不能为空") @RequestParam("accountName") String accountName) {
+        TxwxUserRegisterPO register = userRegisterService.selectByRegisterAccount(accountName);
         if (register != null) {
-            return R.ok(true);
+            return R.ok(false);
         }
-        R<LoginUser> queryUserRes = remoteUserService.getUserInfo(username, SecurityConstants.INNER);
-        if (queryUserRes == null || !Constants.SUCCESS.equals(queryUserRes.getCode())) {
-            return R.fail("用户服务不可用，请稍后再试");
-        }
-        LoginUser loginUser = queryUserRes.getData();
-        return R.ok(loginUser == null);
+
+        return remoteUserService.checkUnique(accountName, SecurityConstants.INNER);
     }
 
     /**
@@ -107,7 +104,7 @@ public class TxwxUserController extends BaseController {
     public R<Long> register(@RequestBody TxUser request) {
         String phoneVerifyCode = request.getPhoneVerifyCode();
         String emailVerifyCode = request.getEmailVerifyCode();
-        Integer registerType = 0;// 0-手机 1-邮箱
+        int registerType = 0;// 0-手机 1-邮箱
         String verifyAccount = request.getTxPhonenumber();
         if (!StringUtils.hasText(phoneVerifyCode) && !StringUtils.hasText(emailVerifyCode)) {
             return R.fail("未正确传入验证码");
@@ -147,21 +144,21 @@ public class TxwxUserController extends BaseController {
         if (userIdResult == null || !R.isSuccess(userIdResult)) {
             return R.fail("查询用户ID失败");
         }
-        Long userId = userIdResult.getData().getUserid();
+        Long userId = userIdResult.getData().getSysUser().getUserId();
 
         // 6. 创建注册记录
         TxwxUserRegisterPO register = new TxwxUserRegisterPO();
         register.setUserId(userId);
         register.setUserName(request.getUserName());
         if (registerType == 0) {
-            register.setBindPhone(request.getPhonenumber());
+            register.setBindPhone(request.getTxPhonenumber());
         }
         if (registerType == 1) {
-            register.setBindEmail(request.getEmail());
+            register.setBindEmail(request.getTxEmail());
         }
         register.setBakPhone(request.getPhonenumber());
         register.setBakEmail(register.getBindEmail());
-        register.setRegisterTime(System.currentTimeMillis());
+        register.setRegisterTime(new Date());
         register.setStatus("0");
         register.setCreateBy(request.getUserName());
         register.setUpdateBy(request.getUserName());
@@ -175,7 +172,7 @@ public class TxwxUserController extends BaseController {
 
     private static SysUser getSysUser(TxUser request, Integer registerType) {
         SysUser sysUser = new SysUser();
-        BeanUtils.copyBeanProp(request, sysUser);
+        BeanUtils.copyProperties(request, sysUser);
         if (registerType == 0) {
             sysUser.setPhonenumber(request.getTxPhonenumber());
         }
