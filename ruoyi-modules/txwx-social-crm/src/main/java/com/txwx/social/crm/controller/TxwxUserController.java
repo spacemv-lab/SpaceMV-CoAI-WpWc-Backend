@@ -78,6 +78,32 @@ public class TxwxUserController extends BaseController {
 
 
     /**
+     * 获取当前用户信息
+     */
+    @PutMapping("/resetPwd")
+    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password)
+    {
+        String username = processUserName(accountName);
+        if (StringUtils.isNull(username))
+        {
+            return R.fail("用户名或密码错误");
+        }
+        R<LoginUser> res = remoteUserService.getUserInfo(username, SecurityConstants.INNER);
+        if (res == null || !Constants.SUCCESS.equals(res.getCode()) || res.getData() == null) {
+            return R.fail("查询用户失败请稍后再试");
+        }
+        SysUser sysUser = new SysUser();
+        sysUser.setUserId(res.getData().getSysUser().getUserId());
+        sysUser.setPassword(password);
+        R<Boolean> changeRes = remoteUserService.remoteResetPwd(sysUser, SecurityConstants.INNER);
+        if (changeRes == null || !Constants.SUCCESS.equals(changeRes.getCode()) || changeRes.getData() == null) {
+            return R.fail("修改密码失败请稍后再试");
+        }
+        return R.ok(changeRes.getData());
+    }
+
+
+    /**
      * 检查用户名是否已存在
      *
      * @param accountName 注册用户名

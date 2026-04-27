@@ -348,6 +348,16 @@ public class SysUserController extends BaseController
         return toAjax(userService.resetPwd(user));
     }
 
+    @InnerAuth
+    @Log(title = "远程修改密码", businessType = BusinessType.UPDATE)
+    @PutMapping("/remote/resetPwd")
+    public R<Boolean> remoteResetPwd(@RequestBody SysUser user)
+    {
+        user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
+        user.setUpdateBy(SecurityUtils.getUsername());
+        return R.ok(userService.resetPwd(user) > 0);
+    }
+
     /**
      * 状态修改
      */
