@@ -1,5 +1,6 @@
 package com.txwx.social.dashboard.schedule;
 
+import com.google.gson.Gson;
 import com.ruoyi.common.core.domain.R;
 import com.txwx.social.api.client.AccountApiClient;
 import com.txwx.social.api.domain.dto.AccountDTO;
@@ -44,7 +45,7 @@ public class WebChatDataCaptureTasks {
     @Scheduled(cron = "0 30 8 * * ?")
     public void getYesterdayDatas() {
 
-        R<List<AccountDTO>> accountListRes = accountApiClient.getAccountList(null);
+        R<List<AccountDTO>> accountListRes = accountApiClient.getAccountList(new AccountDTO());
         try {
             if (accountListRes != null) {
                 List<AccountDTO> accountDTOList = accountListRes.getData();
@@ -52,7 +53,7 @@ public class WebChatDataCaptureTasks {
                     return;
                 }
                 for (AccountDTO accountDTO : accountDTOList) {
-                    if (accountDTO != null) {
+                    if (accountDTO != null && accountDTO.getId() != null) {
                         // py原有的同步逻辑
                         //syncData(accountDTO.getId());
                         // 2026.04.16替换成qyl的同步逻辑，有点复杂暂时难以读懂就用的他的
@@ -60,6 +61,8 @@ public class WebChatDataCaptureTasks {
                         String yesterdayFormatted = yesterday.format(DateTimeFormatter.ISO_LOCAL_DATE);
                         String accessToken = webChatCaptureService.getAccessToken(accountDTO.getId());
                         syncDataService.syncPlatformData(accessToken, accountDTO.getId(), yesterdayFormatted, yesterdayFormatted);
+                    } else {
+                        logger.error("错误的账号信息{}", new Gson().toJson(accountDTO));
                     }
                 }
             }
@@ -122,7 +125,7 @@ public class WebChatDataCaptureTasks {
      */
     @Scheduled(cron = "0 0 3 * * ?")
     public void capturePublishedArticles() {
-        R<List<AccountDTO>> accountListRes = accountApiClient.getAccountList(null);
+        R<List<AccountDTO>> accountListRes = accountApiClient.getAccountList(new AccountDTO());
         try {
             if (accountListRes != null) {
                 List<AccountDTO> accountDTOList = accountListRes.getData();
