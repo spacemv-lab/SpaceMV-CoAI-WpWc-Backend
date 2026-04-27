@@ -1,5 +1,6 @@
 package com.ruoyi.system.api;
 
+import com.ruoyi.common.core.web.domain.AjaxResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.constant.SecurityConstants;
@@ -46,6 +47,9 @@ public interface RemoteUserService
      */
     @PutMapping("/user/recordlogin")
     public R<Boolean> recordUserLogin(@RequestBody SysUser sysUser, @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
+
+    @PutMapping("/user/remote/resetPwd")
+    public R<Boolean> remoteResetPwd(@RequestBody SysUser user, @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
 
     @GetMapping("/user/checkUnique")
     public R<Boolean> checkUnique(@RequestParam("accountName") String accountName, @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
