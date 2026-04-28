@@ -4,7 +4,10 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
+import com.ruoyi.common.core.exception.ServiceException;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.PageDomain;
@@ -14,12 +17,14 @@ import com.txwx.social.dashboard.domain.condition.ContentDataSearchCondition;
 import com.txwx.social.dashboard.domain.dto.OdsArticleDetailDailyDTO;
 import com.txwx.social.dashboard.domain.entity.DwsContentData;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
+import com.txwx.social.dashboard.service.ArticleDataAggregator;
 import com.txwx.social.dashboard.service.IDwsContentDataService;
 import com.txwx.social.dashboard.util.ImportUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +47,8 @@ public class ContentDataController extends BaseController {
     private ImportUtil importUtil;
     @Autowired
     private IDwsContentDataService iDwsContentDataService;
+    @Autowired
+    private ArticleDataAggregator articleDataAggregator;
 
     @PostMapping("/list")
     @Operation(summary = "内容数据列表")
@@ -80,17 +87,20 @@ public class ContentDataController extends BaseController {
 
     @PostMapping("/importExcel")
     @Operation(summary = "导入内容数据")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
+    public Object importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
         return AjaxResult.success("接口暂不支持");
         /*Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
-        // TODO qyl 这块的逻辑有很大的bug，千万别用
         String sql = "INSERT INTO ods_article_detail_daily (stat_date, ref_date, title, read_user, share_user, read_subscribe_user, url, account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         ImportResultVo res = importUtil.importExcel(file, OdsArticleDetailDailyDTO.class,
                 sql,
                 response, null, extInfo);
-        if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");*/
+        if (!res.getErrors().isEmpty()) {
+            return null;
+        }
+        // 导入成功之后自动聚合一次
+        articleDataAggregator.aggregateDataToDws(accountId);
+        return success("导入成功!");*/
     }
 
     @PostMapping("/exportExcel")

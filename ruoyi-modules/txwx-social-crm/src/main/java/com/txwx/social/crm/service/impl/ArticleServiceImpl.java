@@ -228,7 +228,7 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public PublishStatusVO getPublishStatus(Long id, Long accountId) {
+    public PublishStatusVO getPublishStatus(Long id) {
         try {
             // 1. 从数据库查询文章，获取publishId
             TxwxArticlePO article = txwxArticleMapper.selectArticleById(id);
@@ -243,7 +243,7 @@ public class ArticleServiceImpl implements IArticleService {
             // 2. 调用微信API查询发布状态
 //            String accessToken = WebChatUtil.getAccessToken(appId, secret);
             //TODO 当前只支持单账号，以后再扩展
-            String accessToken = buildAccessToken(accountId);
+            String accessToken = buildAccessToken(article.getAccountId());
             GetPublishStatusResponse response = WebChatUtil.getPublishStatus(accessToken, article.getPublishId());
 
             // 3. 转换为VO对象

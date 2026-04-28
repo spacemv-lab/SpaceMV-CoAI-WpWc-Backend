@@ -1,24 +1,24 @@
 package com.txwx.social.dashboard.controller;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
-import com.ruoyi.common.core.web.page.PageDomain;
 import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.txwx.social.dashboard.config.WebChatConfig;
 import com.txwx.social.dashboard.domain.condition.FlowSearchCondition;
-import com.txwx.social.dashboard.domain.entity.DwsBizsummaryChannelDaily;
+import com.txwx.social.dashboard.domain.entity.OdsArticleSummaryDaily;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
 import com.txwx.social.dashboard.service.IDwsBizsummaryChannelDailyService;
 import com.txwx.social.dashboard.util.ImportUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,11 +45,13 @@ public class FlowDataController extends BaseController {
 
     @PostMapping("/list")
     @Operation(summary = "流量汇总数据列表")
-    public TableDataInfo select(@RequestBody(required = false) FlowSearchCondition condition) {
-        startPage();
-        List<DwsBizsummaryChannelDaily> resList = iDwsBizsummaryChannelDailyService.selectByCondition(condition);
-        return getDataTable(resList);
+    public TableDataInfo select(@RequestBody(required = false) FlowSearchCondition condition,
+                                @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+        condition.setPageSize(pageSize);
+        condition.setPageNum(pageNum);
+        return iDwsBizsummaryChannelDailyService.selectByCondition(condition);
     }
+
 
     @GetMapping("/downloadTemplate")
     @Operation(summary = "下载模板")
@@ -64,7 +66,7 @@ public class FlowDataController extends BaseController {
 
             // 2. 核心魔法：传一个空的 List 进去！
             // EasyExcel 会根据 DwsUsers.class 的注解自动画出表头，但因为数据是空的，所以刚好就是个完美的模板
-            EasyExcel.write(response.getOutputStream(), DwsBizsummaryChannelDaily.class)
+            EasyExcel.write(response.getOutputStream(), OdsArticleSummaryDaily.class)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .sheet("导入模板")
                     .doWrite(new ArrayList<>());
@@ -81,14 +83,13 @@ public class FlowDataController extends BaseController {
     @PostMapping("/importExcel")
     @Operation(summary = "导入流量汇总数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
-        return AjaxResult.success("已支持自动抓取导入，历史导入正在开发中");
-        /*Map<String, Object> extInfo = new HashMap<>();
+        Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
-        ImportResultVo res = importUtil.importExcel(file, DwsBizsummaryChannelDaily.class,
-                webChatConfig.getInsertdwsbizsummarychanneldailysql(), response, null,
+        ImportResultVo res = importUtil.importExcel(file, OdsArticleSummaryDaily.class,
+                webChatConfig.getInsertarticlesummarydailysql(), response, null,
                 extInfo);
         if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");*/
+        else return success("导入成功!");
     }
 
     @PostMapping("/exportExcel")
@@ -100,7 +101,7 @@ public class FlowDataController extends BaseController {
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
         ExcelWriter excelWriter = null;
         try {
-            excelWriter = EasyExcel.write(response.getOutputStream(), DwsBizsummaryChannelDaily.class).build();
+            excelWriter = EasyExcel.write(response.getOutputStream(), OdsArticleSummaryDaily.class).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("流量数据").build();
             int pageSize = 1000;
             int maxRows = 5000;
@@ -109,12 +110,20 @@ public class FlowDataController extends BaseController {
 
             while (currentRowCount < maxRows) {
                 // 使用 Service 层分页查询
-                Page<DwsBizsummaryChannelDaily> pageRes = iDwsBizsummaryChannelDailyService.selectByPage(
-                        condition, pageNum, pageSize);
+                condition.setPageNum(pageNum);
+                condition.setPageSize(pageSize);
+                TableDataInfo pageRes =iDwsBizsummaryChannelDailyService.selectByCondition(condition);
 
-                List<DwsBizsummaryChannelDaily> dataList = pageRes.getRecords();
-                if (dataList == null || dataList.isEmpty()) {
+                List<Map<String, Object>> rawdataList = (List<Map<String, Object>>) pageRes.getRows();
+                if (rawdataList == null || rawdataList.isEmpty()) {
                     break;
+                }
+
+                List<OdsArticleSummaryDaily> dataList = Lists.newArrayList();
+                for (Map<String, Object> row : rawdataList) {
+                    OdsArticleSummaryDaily articleSummaryDaily = new OdsArticleSummaryDaily();
+                    BeanUtil.fillBeanWithMap(row, articleSummaryDaily, false, true);
+                    dataList.add(articleSummaryDaily);
                 }
 
                 // 写入 Excel

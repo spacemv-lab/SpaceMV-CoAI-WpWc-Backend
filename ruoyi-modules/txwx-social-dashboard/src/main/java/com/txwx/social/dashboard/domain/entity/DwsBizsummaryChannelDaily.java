@@ -4,11 +4,16 @@ import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.utils.StringUtils;
 import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @AllArgsConstructor
@@ -71,5 +76,26 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
             channel,
             accountId
         };
+    }
+
+    @Override
+    public void validate() {
+        if (refDate == null
+                || readUserCnt == null || shareUser == null
+                || redirectOriPageCount == null
+                || redirectOriPageUser == null
+                || collectionCount == null
+                || collectionUser == null
+                || sendPageCount == null
+                || !StringUtils.hasText(channel)) {
+            throw new ServiceException("存在为空列");
+        }
+        LocalDate targetDate = LocalDate.of(2025, 11, 1);
+        // 将字符串转换为LocalDate
+        LocalDate date = LocalDate.parse(refDate,
+                DateTimeFormatter.ofPattern("yyyyMMdd"));
+        if (!date.isBefore(targetDate)) {
+            throw new ServiceException("传入数据日期需要在2025-11-01之前");
+        }
     }
 }
