@@ -52,11 +52,11 @@ public class DwsBizsummaryChannelDailyServiceImpl extends ServiceImpl<DwsBizsumm
         if (condition != null) {
             if (condition.getStartTime() != null && condition.getEndTime() != null) {
                 stringBuilder.append("AND ref_date BETWEEN ? AND ? ");
-                stringBuilder.append(" GROUP BY ref_date");
+                stringBuilder.append(" GROUP BY ref_date ORDER BY ref_date DESC");
                 resList = clickhousePageHelper.queryForPage(stringBuilder.toString(), condition.getPageNum(), condition.getPageSize(),
                         condition.getAccountId(), condition.getStartTime(), condition.getEndTime());
             } else {
-                stringBuilder.append(" GROUP BY ref_date");
+                stringBuilder.append(" GROUP BY ref_date ORDER BY ref_date DESC");
                 resList = clickhousePageHelper.queryForPage(stringBuilder.toString(), condition.getPageNum(), condition.getPageSize(),
                         condition.getAccountId());
             }
