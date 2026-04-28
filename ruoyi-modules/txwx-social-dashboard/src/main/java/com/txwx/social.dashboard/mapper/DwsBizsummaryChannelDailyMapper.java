@@ -12,10 +12,8 @@ import java.util.Map;
 @Mapper
 public interface DwsBizsummaryChannelDailyMapper extends BaseMapper<DwsBizsummaryChannelDaily> {
 
-    int insertBatch(@Param("list") List<DwsBizsummaryChannelDaily> list);
 
     List<FlowSource> selectSource(@Param("accountId") Long accountId);
 
-    List<Map<String, Object>> selectDataBoardReadSource(@Param("accountId") Long accountId);
 
 }

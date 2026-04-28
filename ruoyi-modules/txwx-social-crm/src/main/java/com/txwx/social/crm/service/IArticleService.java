@@ -41,7 +41,7 @@ public interface IArticleService {
     /**
      * @description: 查询发布状态
      */
-    PublishStatusVO getPublishStatus(Long id, Long accountId);
+    PublishStatusVO getPublishStatus(Long id);
 
     /**
      * @description: 获取已发布的消息列表（从微信官方查询）

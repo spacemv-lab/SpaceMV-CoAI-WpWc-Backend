@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -32,6 +33,7 @@ public class ArticleDataAggregator {
     /**
      * @description: 聚合所有数据到DWS层（按msgid维度全量累加）
      */
+    @Async("dataSyncExecutor")
     public void aggregateDataToDws(Long accountId) {
         logger.info("<##############################聚合文章数据到DWS层开始##############################>");
         String delSql = SqlUtils.deleteSql("dws_article_read");

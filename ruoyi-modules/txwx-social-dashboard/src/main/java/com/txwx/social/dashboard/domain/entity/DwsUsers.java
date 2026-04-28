@@ -5,11 +5,14 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.core.annotation.Excel;
+import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.utils.StringUtils;
 import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @TableName("dws_users")
@@ -43,5 +46,19 @@ public class DwsUsers implements IImportBaseModel {
 
     public Object[] toObject(Long accountId){
         return new Object[]{refDate, newUser, cancelUser, netNewUser, accumulatedUser, accountId};
+    }
+
+    @Override
+    public void validate() {
+        if (refDate == null
+                || newUser == null || cancelUser == null
+                || netNewUser == null
+                || accumulatedUser == null) {
+            throw new ServiceException("存在为空列");
+        }
+        LocalDate targetDate = LocalDate.of(2025, 11, 1);
+        if (!refDate.isBefore(targetDate)) {
+            throw new ServiceException("传入数据日期需要在2025-11-01之前");
+        }
     }
 }

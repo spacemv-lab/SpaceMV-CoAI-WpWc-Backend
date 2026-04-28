@@ -3,6 +3,7 @@ package com.txwx.social.dashboard.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.clickhouse.service.ClickhouseService;
+import com.ruoyi.common.core.utils.StringUtils;
 import com.txwx.social.dashboard.domain.entity.DwsContentData;
 import com.txwx.social.dashboard.domain.entity.DwsUsers;
 import com.txwx.social.dashboard.domain.enums.FilterDimension;
@@ -14,7 +15,6 @@ import com.txwx.social.dashboard.service.IDwsUsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 
 import java.time.LocalDate;
@@ -87,20 +87,24 @@ public class DataBoardServiceImpl implements IDataBoardService {
         Integer minussDays = FilterDimension.calcMinusDays(filterDimension);
         List<Map<String, Object>> list;
         if (minussDays != null) {
-            readSql = "SELECT ref_date, read_user_cnt, share_user " +
-                    "FROM dws_bizsummary_channel_daily " +
-                    "WHERE channel = '全部'" +
-                    " and account_id = ?" +
-                    " and ref_date >= " +
-                    "subtractDays(today(), ?) " +
-                    " ORDER BY ref_date ASC";
+            readSql = "SELECT " +
+                    "    account_id, " +
+                    "    ref_date, " +
+                    "    sum(read_user_total) as read_user_cnt " +
+                    "FROM ods_article_read_daily " +
+                    "WHERE account_id =? and ref_date >= subtractDays(today(), ?) " +
+                    "GROUP BY account_id, ref_date " +
+                    "ORDER BY account_id, ref_date ASC";
             list = clickhouseService.readData(readSql, accountId, minussDays);
         } else {
-            readSql = "SELECT ref_date, read_user_cnt, share_user " +
-                    "FROM dws_bizsummary_channel_daily " +
-                    "WHERE channel = '全部'" +
-                    " and account_id = ?" +
-                    " ORDER BY ref_date ASC";
+            readSql = "SELECT " +
+                    "    account_id," +
+                    "    ref_date, " +
+                    "    sum(read_user_total) as read_user_cnt " +
+                    "FROM ods_article_read_daily " +
+                    "WHERE account_id =? " +
+                    "GROUP BY account_id, ref_date " +
+                    "ORDER BY account_id, ref_date ASC";
             list = clickhouseService.readData(readSql, accountId);
         }
 
@@ -111,32 +115,85 @@ public class DataBoardServiceImpl implements IDataBoardService {
         for (Map<String, Object> row : list) {
             String date = row.get("ref_date").toString();
             Long reads = ((Number) row.getOrDefault("read_user_cnt", 0)).longValue();
-            Long shares = ((Number) row.getOrDefault("share_user", 0)).longValue();
+
             HashMap<String, Object> readNumber = new HashMap<>();
             readNumber.put("refDate", date);
             readNumber.put("readerNumber", reads);
             readTrend.add(readNumber);
 
+        }
+
+        String shareSql;
+        List<Map<String, Object>> sharelist;
+        if (minussDays != null) {
+            shareSql = "SELECT " +
+                    "    account_id," +
+                    "    ref_date, " +
+                    "    sum(share_user) as share_user " +
+                    "FROM ods_article_share_daily " +
+                    "WHERE account_id =? and ref_date >= subtractDays(today(), ?) " +
+                    "GROUP BY account_id, ref_date " +
+                    "ORDER BY account_id, ref_date ASC ";
+            sharelist = clickhouseService.readData(shareSql, accountId, minussDays);
+        } else {
+            shareSql = "SELECT " +
+                    "    account_id," +
+                    "    ref_date, " +
+                    "    sum(share_user) as share_user " +
+                    "FROM ods_article_share_daily " +
+                    "WHERE account_id =? " +
+                    "GROUP BY account_id, ref_date " +
+                    "ORDER BY account_id, ref_date ASC ";
+            sharelist = clickhouseService.readData(shareSql, accountId);
+        }
+
+        for (Map<String, Object> row : sharelist) {
+            String date = row.get("ref_date").toString();
+            Long shares = ((Number) row.getOrDefault("share_user", 0)).longValue();
             HashMap<String, Object> shareNumber = new HashMap<>();
             shareNumber.put("refDate", date);
             shareNumber.put("shareNumber", shares);
             shareTrend.add(shareNumber);
+
         }
 
-        List<Map<String, Object>> temp = dwsBizsummaryChannelDailyMapper.selectDataBoardReadSource(accountId);
-        HashMap<String, Object> userTotalVo = null;
-        for (Map<String, Object> row : temp){
-            userTotalVo = new HashMap<>();
-            String source = row.get("channel_fixed").toString();
-            Object readNum = row.get("read_users");
+        String sourceSql = "SELECT sum(read_user_source_recommend) as recommend, sum(read_user_source_msg) as msg, " +
+                "sum(read_user_source_homepage) as homepage, sum(read_user_source_chat) as chat, " +
+                "sum(read_user_source_moments) as moments, sum(read_user_source_other) as other, " +
+                "sum(read_user_source_search) as search_cnt FROM ods_article_summary_daily where account_id=?";
+
+        List<Map<String, Object>> temp = clickhouseService.readData(sourceSql, accountId);
+        HashMap<String, Object> userTotalVo = new HashMap<>();;
+        Map<String, Object> row = temp.get(0);
+        for (String key : row.keySet()){
+            String source = getSourceName(key);
+            if (StringUtils.isEmpty(source)) {
+                continue;
+            }
+            Object readNum = row.get(key);
             userTotalVo.put(source, readNum != null ? ((Number) readNum).longValue() : 0);
-            sourceSumList.add(userTotalVo);
         }
+        sourceSumList.add(userTotalVo);
         List<List<Map<String, Object>>> res = new ArrayList<>();
         res.add(readTrend);
         res.add(shareTrend);
         res.add(sourceSumList);
         return res;
+    }
+
+    private String getSourceName(String key) {
+        String source;
+        switch (key) {
+            case "recommend" -> source = "推荐";
+            case "msg" -> source = "公众号消息";
+            case "homepage" -> source = "公众号主页";
+            case "chat" -> source = "聊天会话";
+            case "moments" -> source = "朋友圈";
+            case "other" -> source = "其他";
+            case "search_cnt" -> source = "搜一搜";
+            default -> source = StringUtils.EMPTY;
+        }
+        return source;
     }
 
     @Override

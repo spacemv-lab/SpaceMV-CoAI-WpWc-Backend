@@ -89,9 +89,8 @@ public class ArticleController extends BaseController {
      */
     @GetMapping("/publishStatus/{id}")
     @Operation(summary = "查询文章发布状态")
-    public AjaxResult getPublishStatus(@PathVariable Long id,
-                                       @NotBlank(message = "账号不能为空")@RequestParam("accountId") Long accountId) {
-        PublishStatusVO status = articleService.getPublishStatus(id, accountId);
+    public AjaxResult getPublishStatus(@PathVariable Long id) {
+        PublishStatusVO status = articleService.getPublishStatus(id);
         return success(status);
     }
 

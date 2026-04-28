@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -543,6 +544,7 @@ public class SyncDataService {
 
     /**
      * 按天分片，三方接口只支持单天查询
+     * 但是因为要查询30天，所以要往前推30天
      * @param accessToken
      * @param accountId
      * @param startDate
@@ -570,8 +572,13 @@ public class SyncDataService {
         if (end.isAfter(today)) {
             end = today;
         }
-
-        LocalDate current = start;
+        // 按照30天往前推30天看数据，因为这个传入的日期是计算的发表日期
+        LocalDate current = start.minusDays(30);
+        LocalDate before = LocalDate.of(2025,11,1);
+        // 需要处理最早数据为2025-11-01
+        if (current.isBefore(before)) {
+            current = before;
+        }
         while (!current.isAfter(end)) {
             try {
                 String curStr = current.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -707,12 +714,6 @@ public class SyncDataService {
         }
 
         List<Object[]> allBatchArgs = new ArrayList<>();
-        // 1. 首先查询当前数据在库里有没有，如果有了就跳过不同步
-        List<String> missingDates = getMissingDates("ods_article_detail_daily", accountId, curdate, curdate);
-        if (CollectionUtils.isEmpty(missingDates)) {
-            log.info("ods_article_detail_daily表抓取日期均已存在数据，执行跳过。开始日期，{} 结束日期，{}，账号id{}", curdate, curdate, accountId);
-            return;
-        }
         log.info("正在抓取发布日期范围为 [{}-{}] 的文章数据", curdate, curdate);
 
         List<ArticleDetailDaily> articleDetailDailyList = null;

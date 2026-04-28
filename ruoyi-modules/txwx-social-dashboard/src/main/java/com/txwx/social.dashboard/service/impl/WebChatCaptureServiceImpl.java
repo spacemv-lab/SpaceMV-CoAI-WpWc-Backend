@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.exception.CheckedException;
 import com.ruoyi.common.core.utils.DateUtils;
 import com.ruoyi.common.core.utils.StringUtils;
+import com.ruoyi.common.core.utils.sign.RsaUtils;
 import com.ruoyi.common.redis.service.RedisService;
 import com.txwx.social.api.client.AccountApiClient;
 import com.txwx.social.api.domain.dto.AccountDTO;
@@ -76,6 +77,7 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
                 String secret = accountDTO.getSecret();
                 return WebChatUtil.getAccessToken(appId, secret);
             } else {
+                //return WebChatUtil.getAccessToken(webChatConfig.getAppid(), RsaUtils.decryptByPrivateKey(webChatConfig.getSecret()));
                 return WebChatUtil.getAccessToken(webChatConfig.getAppid(), webChatConfig.getSecret());
             }
         }catch(Exception ex){

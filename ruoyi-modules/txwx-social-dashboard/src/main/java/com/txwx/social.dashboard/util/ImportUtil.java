@@ -130,7 +130,7 @@ public class ImportUtil {
         List<List<String>> head = new ArrayList<>();
         List<Field> excelFields = Arrays.stream(clazz.getDeclaredFields())
                 .filter(f -> f.isAnnotationPresent(ExcelProperty.class))
-                .collect(Collectors.toList());
+                .toList();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
