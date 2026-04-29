@@ -15,15 +15,15 @@ spring:
       discovery:
         # 服务注册地址
         server-addr: ***REMOVED***:8848
-#        namespace: ***REMOVED***
         namespace: ***REMOVED***
+        # namespace: ***REMOVED***
       config:
         # 配置中心地址
         server-addr: ***REMOVED***:8848
         # 生产
-#        namespace: ***REMOVED***
-        # 102开发环境
         namespace: ***REMOVED***
+        # 102开发环境
+        # namespace: ***REMOVED***
         # 配置文件格式
         file-extension: yml
         # 共享配置
