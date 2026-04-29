@@ -677,7 +677,7 @@ public class ArticleDataAggregator {
                     "    SELECT" +
                     "        *," +
                     "        MIN(ref_date) OVER (PARTITION BY account_id) as min_date " +
-                    "    FROM wcai.ods_users" +
+                    "    FROM ods_users" +
                     "    WHERE account_id = ?" +
                     ") t " +
                     "WHERE ref_date = min_date " +
