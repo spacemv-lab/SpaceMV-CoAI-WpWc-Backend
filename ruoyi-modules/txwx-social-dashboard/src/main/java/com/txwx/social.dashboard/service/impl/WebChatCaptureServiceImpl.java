@@ -113,7 +113,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserCapture(String accessToken, Long accountId) {
         logger.info("<##############################微信公众号每日文章阅读/分享/收藏抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         //(1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -247,7 +246,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleTotalDetailDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容发表详细数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         String insertSql = webChatConfig.getInsertarticledetaildailysql();
         if (insertSql == null || insertSql.isEmpty()) {
@@ -293,7 +291,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatArticleUptackCapture(String accessToken, Long accountId) {
         logger.info("<##############################微信公众号每日文章阅读/分享/收藏抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         //(1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -357,7 +354,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserReadCapture(String accessToken, Long accountId) {
         logger.info("<##############################微信公众号每日图文阅读概括数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         //(1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -422,7 +418,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleReadDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容每日阅读数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         // (1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -441,7 +436,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleShareDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容每日分享数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         // (1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
