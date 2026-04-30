@@ -53,7 +53,6 @@ public class SyncDataService {
             long startTime = System.currentTimeMillis();
             // 同步逻辑
             log.info("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            System.out.println("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             // 用户趋势统计接口
             syncUserWithDate(accessToken, accountId, startdate, enddate);
             // 文章阅读数据原始抓取

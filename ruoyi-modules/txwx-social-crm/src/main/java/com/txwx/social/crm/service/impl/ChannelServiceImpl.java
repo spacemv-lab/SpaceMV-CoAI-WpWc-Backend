@@ -65,7 +65,6 @@ public class ChannelServiceImpl implements IChannelService {
             return Map.of();
         }
 
-        System.out.println(new Gson().toJson(p2cIdMap));
         Map<Long, List<TxwxChannelPO>> resMap = new HashMap<>();
         p2cIdMap.forEach((pid, relPoList) -> {
             List<Long> cids = relPoList.stream().mapToLong(TxwxProductChannelPO::getChannelId).boxed().toList();
