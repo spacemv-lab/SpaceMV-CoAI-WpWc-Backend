@@ -1,6 +1,4 @@
 -- MySQL dump 10.13  Distrib 9.6.0, for macos14.8 (x86_64)
---
--- Host: ***REMOVED***    Database: wpai-prod
 -- ------------------------------------------------------
 -- Server version	5.7.30-0ubuntu0.18.04.1
 
