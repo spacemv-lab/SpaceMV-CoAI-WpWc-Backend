@@ -14,15 +14,13 @@ spring:
     nacos:
       discovery:
         # 服务注册地址
-        server-addr: ***REMOVED***:8848
-        # namespace: ***REMOVED***
-        namespace: ***REMOVED***
+        server-addr: <nacos-ip>:<nacos-port>
+        namespace: <your-namespace-id>
       config:
         # 配置中心地址
-        server-addr: ***REMOVED***:8848
-        # namespace: ***REMOVED***
-        namespace: ***REMOVED***
-        # 配置文件格式
+        server-addr: <nacos-ip>:<nacos-port>
+        namespace: <your-namespace-id>
+        
         file-extension: yml
         # 共享配置
         shared-configs:
