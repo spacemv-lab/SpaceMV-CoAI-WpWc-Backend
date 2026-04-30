@@ -15,18 +15,11 @@ import java.security.spec.X509EncodedKeySpec;
  **/
 public class RsaUtils
 {
-    // Rsa 私钥
-    public static String privateKey = "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAKH+tcTJJygbQmbXkE5hahX/kndH9" +
-            "q6uvm6SotBUrBb0CUaCYkrUg6m5sMPMrWskbHr2O0HsGYNn7XtmQKleeKyGoiUa/cS/tkKieNsMjZnjIZTq20hKeC/c2cFghXftEUVKdP5" +
-            "wNhL5BTDU7uBVV9U61OIJVcfj/ZXIUFDw8GcTAgMBAAECgYAEGWV8Sa+dpkjSE1ZMoijzsDOZShxlDuoteofoeufLyIsn5WbMGzEaURBkDtU8dt" +
-            "3ulJ8q9SUgfApDw5+pyYTSOy0BsfqBtT9G1qp+vmx3pFjao34Rx61NPbUbQDY/9LRxUQL+1xHEMru+/yU/5gJZmfdxN80sUHUd9dkFR1WK7QJBAP" +
-            "/uVJBRbU44RbTM53ZvtkTX2BynXzZpm3xLme+wRS59QfF/gNLKyLUa7xOJ7Obc1oJAcSPvhM59pJ/tZrCwpHcCQQCiCeTwSdJoWuR8+jrKHEflF+I1cT9gh" +
-            "Qvkcd/+AGil+OXcfsvIaYA1JloZQT+7FLbRlvWmkhR3tMVhxMAzAEVFAkEAyWdO2PubXzDdeji99fBXqbmKcpIsVW+qUphUHdHDv6AG4vuJ71hxtkPp3KBv9AXa" +
-            "MUpxPuxgwPcTNF/orid0ZQJBAJoeixA5RtVWzkhIwK4HpCI0S0XFhyBIq30HCqNOxDpIuGi2eSEPp4/mAIBQ3UsVcqV6zf82ph0NZUeOmbhoo3kCQQC//ZVASAo" +
-            "QYelnZycjguwDUQwkCfTDJiKJ+heGPZ9Bl8UjrfiIIhHRkhUMFPl1rwoYI7wjjEdD5afOK7G7gEny";
-
-    public static String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCh/rXEyScoG0Jm15BOYWoV/5J3R/aurr5ukqLQVKwW9AlGgmJK1IOpubDDzK1rJGx69jtB7BmD" +
-            "Z+17ZkCpXnishqIlGv3Ev7ZConjbDI2Z4yGU6ttISngv3NnBYIV37RFFSnT+cDYS+QUw1O7gVVfVOtTiCVXH4/2VyFBQ8PBnEwIDAQAB";
+    //使用RsaKeyPair生成配对
+    // Rsa 私钥 示例
+    public static String privateKey = "<your-private-key>";
+    // Rsa 公钥 示例
+    public static String publicKey = "<your-public-key>";
 
     /**
      * 私钥解密

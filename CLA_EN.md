@@ -1,12 +1,12 @@
 # Contributor License Agreement (CLA)
 
-Thank you for your interest in contributing to the SpaceMV-CoAI-WpWc-Frontend project! To protect the rights of the project and all contributors, we require all contributors to agree to this agreement.
+Thank you for your interest in contributing to the SpaceMV-CoAI-WpWc-Backend project! To protect the rights of the project and all contributors, we require all contributors to agree to this agreement.
 
 ## 1. Definitions
 
 - **"Contribution"** means any original work of authorship, including any modifications or additions to existing works, and any other work containing the Contribution, submitted in any form to the Project.
 - **"You"** or **"Contributor"** means the individual or legal entity signing this agreement.
-- **"Project"** means the SpaceMV-CoAI-WpWc-Frontend project and all related documentation.
+- **"Project"** means the SpaceMV-CoAI-WpWc-Backend project and all related documentation.
 
 ## 2. Grant of Intellectual Property License
 

@@ -13,8 +13,8 @@ public class TokenConstants
     public static final String PREFIX = "Bearer ";
 
     /**
-     * 令牌秘钥
+     * 令牌秘钥, 需要自己替换
      */
-    public final static String SECRET = "abcdefghijklmnopqrstuvwxyz";
+    public final static String SECRET = "<your-token-secret>";
 
 }
