@@ -14,16 +14,25 @@ public class ClickhousePageHelper {
     @Autowired
     private ClickhouseService clickhouseService;
 
-    /**
-     * 分页查询
-     * @param sql 原始SQL
-     * @param params 参数
-     * @param pageNum 页码
-     * @param pageSize 每页大小
-     * @return PageDomain包含数据和分页信息
-     */
     public TableDataInfo queryForPage(String sql, int pageNum, int pageSize, Object... params) {
-        // 1. 查询总数
+    // 最简单的安全检查：只允许SELECT开头，且不包含危险操作
+    String sqlUpper = sql.trim().toUpperCase();
+    
+    // 1. 必须是SELECT开头
+    if (!sqlUpper.startsWith("SELECT ")) {  // SELECT后面必须有空格
+        throw new SecurityException("只允许SELECT查询");
+    }
+    
+    // 2. 简单黑名单检查
+    if (sqlUpper.contains(";") || 
+        sqlUpper.contains("DELETE ") || 
+        sqlUpper.contains("DROP ") || 
+        sqlUpper.contains("UPDATE ") || 
+        sqlUpper.contains("INSERT ")) {
+        throw new SecurityException("SQL包含危险操作");
+    }
+    
+    // 1. 查询总数
         String countSql = "SELECT COUNT(1) as total FROM (" + sql + ") t";
         List<Map<String, Object>> countResult = clickhouseService.readData(countSql, params);
         long total = 0L;
