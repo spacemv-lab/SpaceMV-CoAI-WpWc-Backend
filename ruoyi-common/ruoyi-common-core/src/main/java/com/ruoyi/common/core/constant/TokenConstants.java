@@ -1,5 +1,7 @@
 package com.ruoyi.common.core.constant;
 
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * Token的Key常量
  * 
@@ -15,6 +17,7 @@ public class TokenConstants
     /**
      * 令牌秘钥, 需要自己替换
      */
-    public final static String SECRET = "<your-token-secret>";
+    @Value("${token.secret:your-token-secret}")
+    public static String SECRET;
 
 }

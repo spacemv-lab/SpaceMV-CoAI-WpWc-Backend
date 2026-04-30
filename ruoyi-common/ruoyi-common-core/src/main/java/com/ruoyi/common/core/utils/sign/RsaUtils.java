@@ -1,6 +1,8 @@
 package com.ruoyi.common.core.utils.sign;
 
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.crypto.Cipher;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -17,9 +19,11 @@ public class RsaUtils
 {
     //使用RsaKeyPair生成配对
     // Rsa 私钥 示例
-    public static String privateKey = "<your-private-key>";
+    @Value("${rsa.private-key:your-private-key}")
+    public static String privateKey;
     // Rsa 公钥 示例
-    public static String publicKey = "<your-public-key>";
+    @Value("${rsa.public-key:your-public-key}")
+    public static String publicKey;
 
     /**
      * 私钥解密
