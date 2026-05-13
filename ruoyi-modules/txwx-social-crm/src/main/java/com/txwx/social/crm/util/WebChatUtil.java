@@ -1,6 +1,7 @@
 package com.txwx.social.crm.util;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.ruoyi.common.core.utils.sign.RsaUtils;
 import com.ruoyi.common.http.service.HttpUtil;
 import com.txwx.social.crm.domain.query.ChannelAccessToken;
 import com.txwx.social.crm.domain.vo.WebChatMaterialPermanentVO;
@@ -33,7 +34,7 @@ public class WebChatUtil {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("grant_type", "client_credential");
         queryParams.put("appid", appId);
-        queryParams.put("secret", secret);
+        queryParams.put("secret", RsaUtils.decryptByPrivateKey(secret));
 
         String paramResponse = HttpUtil.getWithParams("https://api.weixin.qq.com/cgi-bin/token", queryParams);
         ChannelAccessToken channelAccessToken = JSONObject.parseObject(paramResponse, ChannelAccessToken.class);

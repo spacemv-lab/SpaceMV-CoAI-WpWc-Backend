@@ -1,6 +1,12 @@
 package com.ruoyi.common.core.utils.sign;
 
+import com.ruoyi.common.core.config.RsaKeyConfig;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+
 import javax.crypto.Cipher;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -9,24 +15,77 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * RSA加密解密
+ * RSA 加密解密（密钥从 Nacos 配置读取）
  *
  * @author ruoyi
  **/
+@Component
 public class RsaUtils
+        implements ApplicationListener<ContextRefreshedEvent>
 {
-    // Rsa 私钥
-    public static String privateKey = "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAKH+tcTJJygbQmbXkE5hahX/kndH9" +
-            "q6uvm6SotBUrBb0CUaCYkrUg6m5sMPMrWskbHr2O0HsGYNn7XtmQKleeKyGoiUa/cS/tkKieNsMjZnjIZTq20hKeC/c2cFghXftEUVKdP5" +
-            "wNhL5BTDU7uBVV9U61OIJVcfj/ZXIUFDw8GcTAgMBAAECgYAEGWV8Sa+dpkjSE1ZMoijzsDOZShxlDuoteofoeufLyIsn5WbMGzEaURBkDtU8dt" +
-            "3ulJ8q9SUgfApDw5+pyYTSOy0BsfqBtT9G1qp+vmx3pFjao34Rx61NPbUbQDY/9LRxUQL+1xHEMru+/yU/5gJZmfdxN80sUHUd9dkFR1WK7QJBAP" +
-            "/uVJBRbU44RbTM53ZvtkTX2BynXzZpm3xLme+wRS59QfF/gNLKyLUa7xOJ7Obc1oJAcSPvhM59pJ/tZrCwpHcCQQCiCeTwSdJoWuR8+jrKHEflF+I1cT9gh" +
-            "Qvkcd/+AGil+OXcfsvIaYA1JloZQT+7FLbRlvWmkhR3tMVhxMAzAEVFAkEAyWdO2PubXzDdeji99fBXqbmKcpIsVW+qUphUHdHDv6AG4vuJ71hxtkPp3KBv9AXa" +
-            "MUpxPuxgwPcTNF/orid0ZQJBAJoeixA5RtVWzkhIwK4HpCI0S0XFhyBIq30HCqNOxDpIuGi2eSEPp4/mAIBQ3UsVcqV6zf82ph0NZUeOmbhoo3kCQQC//ZVASAo" +
-            "QYelnZycjguwDUQwkCfTDJiKJ+heGPZ9Bl8UjrfiIIhHRkhUMFPl1rwoYI7wjjEdD5afOK7G7gEny";
+    private static ApplicationContext applicationContext;
 
-    public static String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCh/rXEyScoG0Jm15BOYWoV/5J3R/aurr5ukqLQVKwW9AlGgmJK1IOpubDDzK1rJGx69jtB7BmD" +
-            "Z+17ZkCpXnishqIlGv3Ev7ZConjbDI2Z4yGU6ttISngv3NnBYIV37RFFSnT+cDYS+QUw1O7gVVfVOtTiCVXH4/2VyFBQ8PBnEwIDAQAB";
+    /**
+     * 保存 Spring 上下文，用于后续获取 RsaKeyConfig Bean
+     */
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        applicationContext = event.getApplicationContext();
+    }
+
+    /**
+     * 实时从 RsaKeyConfig 获取 私钥（非空兜底）
+     */
+    private static String getPrivateKey() {
+        String key = getPrivateKeyFromConfig();
+        if (key != null && !key.trim().isEmpty()) {
+            return key;
+        }
+        // 兜底：返回内置默认私钥（与 RsaKeyConfig 一致）
+        return "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAI+rBZARCpd8/FrcYVS81H7WuQxeYtKVdmp4ERiteqMLFWn5x0ogM84qOJqlbTpFK4YQFZC4rA3IbUikNEt12J9knRNlAR3cE2Roip9TPhET6qGchvjx1wlDBB2LC9N+uQsKTLrtpzOFG3yTBw68bR0rrxBUjbEqjBPgEwaSjB8DAgMBAAECgYAG5yVuYL5wCe08IzBs0fsQMk2UEELr5SRaUduMb0vTSRIl1Etxi27Byw1XzN2cxtVxBkieLZyPhJMcdU6EvUXqGQjfCCjeZxLD53Q6te3Dj7fiEnvpYB+ISrSwQ5hysbTG5UTKa2KwrFIDbXSC9vZKgjDpYig43OhWddiQ7Y3OPQJBALd7YeYtF4xRbiOnPXy4XJhE0y9VlMcD0VGCwBHcL8mRCTl35IZShQhEAgMhFd31Hyz15CdaBNkVMLtntN5KuscCQQDIc0l2tNukj/1jphP7aMvRKWNogNr/gjxzy6RC1EDDZu6JRhhUjukm0CI1sdu98/lvheIynaj1S+pnjRYioZ3lAkAoljlssjLQTj7/0gHO8fVBlY/lm5fCgjyuPC8ChGNpwhR5SuUZNW3KC0kqqgntREi2KFpkvgvufTp/agxfU8aHAkAEC+fAwLfqY4m++DxRB/WNXGOIWYmSPOPRhpvjSXuhNjO8i7C0DEqCoRL/uH5yIDm52Z8OXIZrpUOvIXb/7flNAkEAmsG8NZxapGPPWuFNgpbgi7b4Vt6pixaAv65HdXHjYLsXSS75EFHrHIU554FBnutSSJvUBUWBCgxUjv77bFalog\\u003d\\u003d";
+    }
+
+    /**
+     * 实时从 RsaKeyConfig 获取 公钥（非空兜底）
+     */
+    private static String getPublicKey() {
+        String key = getPublicKeyFromConfig();
+        if (key != null && !key.trim().isEmpty()) {
+            return key;
+        }
+        // 兜底：返回内置默认公钥（与 RsaKeyConfig 一致）
+        return "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPqwWQEQqXfPxa3GFUvNR+1rkMXmLSlXZqeBEYrXqjCxVp+cdKIDPOKjiapW06RSuGEBWQuKwNyG1IpDRLddifZJ0TZQEd3BNkaIqfUz4RE+qhnIb48dcJQwQdiwvTfrkLCky67aczhRt8kwcOvG0dK68QVI2xKowT4BMGkowfAwIDAQAB";
+    }
+
+    /**
+     * 从 RsaKeyConfig 获取私钥（可能为 null）
+     */
+    private static String getPrivateKeyFromConfig() {
+        if (applicationContext == null) {
+            return null;
+        }
+        try {
+            RsaKeyConfig config = applicationContext.getBean(RsaKeyConfig.class);
+            return config.getPrivateKey();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 从 RsaKeyConfig 获取公钥（可能为 null）
+     */
+    private static String getPublicKeyFromConfig() {
+        if (applicationContext == null) {
+            return null;
+        }
+        try {
+            RsaKeyConfig config = applicationContext.getBean(RsaKeyConfig.class);
+            return config.getPublicKey();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     /**
      * 私钥解密
@@ -36,7 +95,18 @@ public class RsaUtils
      */
     public static String decryptByPrivateKey(String text) throws Exception
     {
-        return decryptByPrivateKey(privateKey, text);
+        return decryptByPrivateKey(getPrivateKey(), text);
+    }
+
+    /**
+     * 公钥解密
+     *
+     * @param text 待解密的信息
+     * @return 解密后的文本
+     */
+    public static String decryptByPublicKey(String text) throws Exception
+    {
+        return decryptByPublicKey(getPublicKey(), text);
     }
 
     /**
@@ -112,7 +182,7 @@ public class RsaUtils
     }
 
     /**
-     * 构建RSA密钥对
+     * 构建RSA密钥对（保留生成能力）
      *
      * @return 生成后的公私钥信息
      */

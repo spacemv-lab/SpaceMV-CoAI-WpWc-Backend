@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.core.utils.sign.RsaUtils;
 import com.ruoyi.system.utils.AccountUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,9 +138,9 @@ public class SysUserController extends BaseController
      */
     @InnerAuth
     @PostMapping("/register")
-    public R<Boolean> register(@RequestBody SysUser sysUser)
-    {
+    public R<Boolean> register(@RequestBody SysUser sysUser) throws Exception {
         String username = sysUser.getUserName();
+        sysUser.setPassword(RsaUtils.decryptByPrivateKey(sysUser.getPassword()));
         if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser"))))
         {
             return R.fail("当前系统没有开启注册功能！");
@@ -339,11 +340,10 @@ public class SysUserController extends BaseController
     @RequiresPermissions("system:user:edit")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @PutMapping("/resetPwd")
-    public AjaxResult resetPwd(@RequestBody SysUser user)
-    {
+    public AjaxResult resetPwd(@RequestBody SysUser user) throws Exception {
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
-        user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
+        user.setPassword(SecurityUtils.encryptPassword(RsaUtils.decryptByPrivateKey(user.getPassword())));
         user.setUpdateBy(SecurityUtils.getUsername());
         return toAjax(userService.resetPwd(user));
     }
@@ -351,9 +351,8 @@ public class SysUserController extends BaseController
     @InnerAuth
     @Log(title = "远程修改密码", businessType = BusinessType.UPDATE)
     @PutMapping("/remote/resetPwd")
-    public R<Boolean> remoteResetPwd(@RequestBody SysUser user)
-    {
-        user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
+    public R<Boolean> remoteResetPwd(@RequestBody SysUser user) throws Exception {
+        user.setPassword(SecurityUtils.encryptPassword(RsaUtils.decryptByPrivateKey(user.getPassword())));
         user.setUpdateBy(SecurityUtils.getUsername());
         return R.ok(userService.resetPwd(user) > 0);
     }

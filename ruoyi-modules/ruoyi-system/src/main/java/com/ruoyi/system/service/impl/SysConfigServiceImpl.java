@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.common.core.constant.CacheConstants;
 import com.ruoyi.common.core.constant.UserConstants;
 import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.service.ConfigService;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.redis.service.RedisService;
@@ -21,7 +22,7 @@ import com.ruoyi.system.service.ISysConfigService;
  * @author ruoyi
  */
 @Service
-public class SysConfigServiceImpl implements ISysConfigService
+public class SysConfigServiceImpl implements ISysConfigService, ConfigService
 {
     @Autowired
     private SysConfigMapper configMapper;
@@ -75,6 +76,21 @@ public class SysConfigServiceImpl implements ISysConfigService
             return retConfig.getConfigValue();
         }
         return StringUtils.EMPTY;
+    }
+
+    /**
+     * 根据键名查询参数配置信息（支持默认值）
+     * 未找到时返回默认值
+     * 
+     * @param configKey 参数key
+     * @param defaultValue 未找到时的默认值
+     * @return 参数键值
+     */
+    @Override
+    public String selectConfigByKey(String configKey, String defaultValue)
+    {
+        String configValue = selectConfigByKey(configKey);
+        return StringUtils.isNotEmpty(configValue) ? configValue : defaultValue;
     }
 
     /**

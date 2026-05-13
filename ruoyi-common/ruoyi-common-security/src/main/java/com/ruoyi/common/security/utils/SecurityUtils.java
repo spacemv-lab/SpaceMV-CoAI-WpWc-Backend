@@ -102,6 +102,10 @@ public class SecurityUtils
         return passwordEncoder.encode(password);
     }
 
+    public static void main(String[] args) {
+        System.out.println(encryptPassword("aaaa1111"));
+    }
+
     /**
      * 判断密码是否相同
      *

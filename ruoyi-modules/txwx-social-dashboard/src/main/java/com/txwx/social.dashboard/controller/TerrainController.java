@@ -11,14 +11,17 @@ import com.ruoyi.common.clickhouse.service.ClickhouseService;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.TableDataInfo;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.dashboard.domain.entity.TerrainDistribution;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
+import com.txwx.social.dashboard.exception.ImportException;
 import com.txwx.social.dashboard.service.ITerrainDistributionService;
 import com.txwx.social.dashboard.util.ImportUtil;
 import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +43,7 @@ public class TerrainController extends BaseController {
     @Autowired
     private ITerrainDistributionService iTerrainDistributionService;
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/list")
     @Operation(summary = "地域分布列表")
     public TableDataInfo select(@RequestParam Long accountId) {
@@ -51,6 +55,7 @@ public class TerrainController extends BaseController {
         return getDataTable(list);
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @GetMapping("/downloadTemplate")
     @Operation(summary = "下载模板")
     public void downloadTemplate(HttpServletResponse response) throws IOException {
@@ -76,6 +81,7 @@ public class TerrainController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/importExcel")
     @Operation(summary = "导入地域分布数据")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
@@ -89,16 +95,33 @@ public class TerrainController extends BaseController {
         String sql = "insert into dim_terrain_distribution (terrain, user_number, proportion, pull_time, account_id) values (?, ?, ?, ?, ?)";
         Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
-        ImportResultVo res = importUtil.importExcel(file,
-                TerrainDistribution.class,
-                sql,
-                response,
-                null,
-                extInfo);
-        if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");
+        try {
+            ImportResultVo res = importUtil.importExcel(file,
+                    TerrainDistribution.class,
+                    sql,
+                    null,
+                    extInfo);
+            if (res.getSkippedCount() != null && res.getSkippedCount() > 0) {
+                return success("导入成功，但跳过了 " + res.getSkippedCount() + " 条重复数据");
+            }
+            return success("导入成功!");
+        } catch (ImportException e) {
+            // 下载错误文件
+            byte[] errorData = importUtil.exportErrorList(TerrainDistribution.class, e.getErrors(), extInfo);
+            response.reset();
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("utf-8");
+            String rawFileName = "导入失败记录_" + System.currentTimeMillis();
+            String encodedFileName = URLEncoder.encode(rawFileName, "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition", "attachment; filename=" + encodedFileName + ".xlsx");
+            response.getOutputStream().write(errorData);
+            response.getOutputStream().flush();
+            // 返回错误统计
+            return error("导入存在 " + e.getErrors().size() + " 条错误数据，请下载错误文件查看");
+        }
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/exportExcel")
     @Operation(summary = "导出地域分布")
     public void exportExcel(HttpServletResponse response, @RequestParam("accountId") Long accountId) throws IOException {

@@ -4,6 +4,7 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.crm.domain.po.TxwxUserLogoutPO;
 import com.txwx.social.crm.domain.po.TxwxUserRegisterPO;
@@ -16,6 +17,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,11 +52,17 @@ public class UserLogoutController extends BaseController {
     private ITxwxUserRegisterService userRegisterService;
 
     /**
+     * 冷却期天数（可通过配置项扣减）
+     */
+    public static final long COOLING_DAYS = 7;
+
+    /**
      * 提交注销申请
      *
      * @param request 注销请求
      * @return 结果
      */
+    @PreAuthorize("@ss.hasPermi('system:userInfoModify:api')")
     @PostMapping("/apply")
     @Operation(summary = "提交注销申请")
     public R<Map<String, Object>> applyLogout(@Valid @RequestBody ApplyRequest request) {
@@ -78,11 +86,12 @@ public class UserLogoutController extends BaseController {
             return R.fail("验证码错误或已过期");
         }
 
+
         // 4. 创建注销申请（7天冷却期）
         TxwxUserLogoutPO logout = new TxwxUserLogoutPO();
         logout.setUserId(userId);
         logout.setApplyTime(new Date());
-        logout.setCoolEndTime(new Date()); // 7天后
+        logout.setCoolEndTime(new Date(System.currentTimeMillis() + COOLING_DAYS * 24 * 60 * 60 * 1000));
         logout.setStatus("0"); // 冷却中
         logout.setCreateBy(username);
         logout.setUpdateBy(username);

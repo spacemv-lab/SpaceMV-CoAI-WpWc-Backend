@@ -61,4 +61,9 @@ public class DwsUsers implements IImportBaseModel {
             throw new ServiceException("传入数据日期需要在2025-11-01之前");
         }
     }
+
+    @Override
+    public String getRefDateStr() {
+        return refDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
 }

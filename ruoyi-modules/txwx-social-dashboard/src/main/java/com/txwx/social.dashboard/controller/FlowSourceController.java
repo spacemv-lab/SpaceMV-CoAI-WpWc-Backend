@@ -3,11 +3,13 @@ package com.txwx.social.dashboard.controller;
 import com.alibaba.excel.EasyExcel;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.dashboard.domain.entity.FlowSource;
 import com.txwx.social.dashboard.service.IDwsBizsummaryChannelDailyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +25,7 @@ public class FlowSourceController extends BaseController {
     @Autowired
     private IDwsBizsummaryChannelDailyService iDwsBizsummaryChannelDailyService;
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/list")
     @Operation(summary = "流量来源分析列表")
     public AjaxResult select(@RequestParam("accountId") Long accountId) {
@@ -30,6 +33,7 @@ public class FlowSourceController extends BaseController {
         return success(res);
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/exportExcel")
     @Operation(summary = "导出流量来源分析")
     public void exportExcel(HttpServletResponse response, @RequestParam("accountId") Long accountId) throws IOException {

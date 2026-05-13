@@ -38,7 +38,7 @@
         <tomcat.version>9.0.108</tomcat.version>
         <logback.version>1.2.13</logback.version>
         <spring-framework.version>5.3.39</spring-framework.version>
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <!-- 依赖声明 -->

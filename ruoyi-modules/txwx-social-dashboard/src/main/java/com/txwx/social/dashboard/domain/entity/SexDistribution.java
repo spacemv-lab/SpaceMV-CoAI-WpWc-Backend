@@ -33,6 +33,11 @@ public class SexDistribution implements IImportBaseModel {
     }
 
     @Override
+    public String getRefDateStr() {
+        return null; // SexDistribution无ref_date字段，跳过去重检查
+    }
+
+    @Override
     public void validate() {
         if (sex == null || sex.isEmpty() || userNumber == null) {
             throw new RuntimeException("每行数据不能为空!");

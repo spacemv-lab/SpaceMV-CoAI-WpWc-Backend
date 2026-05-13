@@ -36,6 +36,22 @@ public class ArticleDataAggregator {
     @Async("dataSyncExecutor")
     public void aggregateDataToDws(Long accountId) {
         logger.info("<##############################聚合文章数据到DWS层开始##############################>");
+        
+        // 先检查 ODS 层是否有数据，没有则直接跳过
+        String checkReadSql = "SELECT COUNT() as cnt FROM ods_article_read_daily WHERE account_id = ?";
+        List<Map<String, Object>> readCountList = clickhouseService.readData(checkReadSql, accountId);
+        Long readCount = 0L;
+        if (readCountList != null && !readCountList.isEmpty()) {
+            Object cnt = readCountList.get(0).get("cnt");
+            if (cnt instanceof Number) {
+                readCount = ((Number) cnt).longValue();
+            }
+        }
+        if (readCount == 0) {
+            logger.info("ods_article_read_daily 没有数据，跳过聚合，accountId: {}", accountId);
+            return;
+        }
+        
         String delSql = SqlUtils.deleteSql("dws_article_read");
         clickhouseService.singleInsert(delSql, accountId);
         try {
@@ -215,6 +231,21 @@ public class ArticleDataAggregator {
 
 
     public void aggregateArticleContentDataToDws(Long accountId) {
+        // 先检查 ods_article_detail_daily 是否有数据
+        String checkSql = "SELECT COUNT() as cnt FROM ods_article_detail_daily WHERE account_id = ?";
+        List<Map<String, Object>> countList = clickhouseService.readData(checkSql, accountId);
+        Long count = 0L;
+        if (countList != null && !countList.isEmpty()) {
+            Object cntObj = countList.get(0).get("cnt");
+            if (cntObj instanceof Number) {
+                count = ((Number) cntObj).longValue();
+            }
+        }
+        if (count == 0) {
+            log.info("ods_article_detail_daily 没有数据，跳过聚合，accountId: {}", accountId);
+            return;
+        }
+
         // 区间全部同步完成后，统一聚合一次
         try {
             String delSql = SqlUtils.deleteSql("dws_content_data");
@@ -562,6 +593,21 @@ public class ArticleDataAggregator {
     }
 
     public void aggregateDwsUsers(Long accountId) {
+        // 先检查 ods_users 是否有数据
+        String checkSql = "SELECT COUNT() as cnt FROM ods_users WHERE account_id = ?";
+        List<Map<String, Object>> countList = clickhouseService.readData(checkSql, accountId);
+        Long count = 0L;
+        if (countList != null && !countList.isEmpty()) {
+            Object cntObj = countList.get(0).get("cnt");
+            if (cntObj instanceof Number) {
+                count = ((Number) cntObj).longValue();
+            }
+        }
+        if (count == 0) {
+            log.info("ods_users 没有数据，跳过聚合，accountId: {}", accountId);
+            return;
+        }
+
         // 获取指定账户的ods_users表中ref_date的最早和最晚日期
         String startdate = getMinRefDateByAccount("ods_users", accountId);
         String enddate = getMaxRefDateByAccount("ods_users", accountId);

@@ -30,6 +30,11 @@ public class ChannelComposition implements IImportBaseModel {
     }
 
     @Override
+    public String getRefDateStr() {
+        return null; // ChannelComposition无ref_date字段
+    }
+
+    @Override
     public void validate() {
         if (channel == null || channel.isEmpty() || userNumber == null || proportion == null) {
             throw new RuntimeException("每行数据不能为空!");

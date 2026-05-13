@@ -3,6 +3,7 @@ package com.txwx.social.dashboard.controller;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.api.client.AccountApiClient;
 import com.txwx.social.dashboard.domain.request.HistoryTriggerRequest;
 import com.txwx.social.dashboard.schedule.WebChatDataCaptureTasks;
@@ -11,6 +12,7 @@ import com.txwx.social.dashboard.service.ArticleDataAggregator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +35,7 @@ public class WebChatDataCaptureContorller extends BaseController {
     private WebChatDataCaptureTasks webChatDataCaptureTasks;
 
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @GetMapping("/dataSync/{accountId}")
     @Operation(summary = "数据同步")
     public AjaxResult dataSync(@PathVariable("accountId") Long accountId,
@@ -51,6 +54,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @GetMapping("/dataSchedule/test")
     @Operation(summary = "同步任务测试")
     public AjaxResult dataSchedule() {
@@ -58,6 +62,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return AjaxResult.success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/users")
     public AjaxResult users(@RequestBody List<Long> accountIds){
         // 查询关注或取消关注人数
@@ -66,6 +71,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/usersHistory")
     public AjaxResult usersHistory(@RequestBody HistoryTriggerRequest request){
         // 查询关注或取消关注人数的历史数据
@@ -74,6 +80,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/articlePerday")
     public AjaxResult articlePerday(@RequestBody List<Long> accountIds){
         // 查询每日文章阅读、分享、收藏数据
@@ -81,6 +88,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/articlePerdayHistory")
     public AjaxResult articlePerdayHistory(@RequestBody HistoryTriggerRequest request){
         // 查询每日文章阅读、分享、收藏的历史数据
@@ -89,6 +97,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @Deprecated
     @PostMapping("/userreadPerday")
     public AjaxResult userreadPerday(@RequestBody List<Long> accountIds){
@@ -97,6 +106,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/userreadPerdayHistory")
     public AjaxResult userreadPerdayHistory(@RequestBody HistoryTriggerRequest request){
         // 查询每日图文阅读概括数据
@@ -105,6 +115,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/capturePublishedArticles")
     public AjaxResult capturePublishedArticles(@RequestBody List<Long> accountIds){
         // 已发布消息列表
@@ -112,12 +123,14 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/captureArticleReadDaily")
     public AjaxResult captureArticleReadDaily(@RequestBody List<Long> accountIds){
         webChatCaptureService.captureArticleReadDaily(accountIds.get(0));
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/captureArticleReadDailyHistory")
     public AjaxResult captureArticleReadDailyHistory(@RequestBody HistoryTriggerRequest request){
         webChatCaptureService.captureArticleReadDailyHistory(request.getStartdate(), request.getEnddate(),
@@ -125,6 +138,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/captureArticleSummaryDailyHistory")
     public AjaxResult captureArticleSummaryDailyHistory(@RequestBody HistoryTriggerRequest request){
 
@@ -133,6 +147,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/captureArticleShareDaily")
     public AjaxResult captureArticleShareDaily(@RequestBody List<Long> accountIds){
 
@@ -140,6 +155,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/captureArticleShareDailyHistory")
     public AjaxResult captureArticleShareDailyHistory(@RequestBody HistoryTriggerRequest request){
         webChatCaptureService.captureArticleShareDailyHistory(request.getStartdate(), request.getEnddate(),
@@ -147,6 +163,7 @@ public class WebChatDataCaptureContorller extends BaseController {
         return success();
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/aggregateArticleDataToDws")
     public AjaxResult aggregateArticleDataToDws(@RequestBody List<Long> accountIds){
         articleDataAggregator.aggregateDataToDws(accountIds.get(0));

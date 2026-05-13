@@ -12,6 +12,7 @@ import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.PageDomain;
 import com.ruoyi.common.core.web.page.TableDataInfo;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.dashboard.config.WebChatConfig;
 import com.txwx.social.dashboard.domain.condition.ContentDataSearchCondition;
 import com.txwx.social.dashboard.domain.dto.OdsArticleDetailDailyDTO;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +52,7 @@ public class ContentDataController extends BaseController {
     @Autowired
     private ArticleDataAggregator articleDataAggregator;
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/list")
     @Operation(summary = "内容数据列表")
     public TableDataInfo select(@RequestBody(required = false) ContentDataSearchCondition condition) {
@@ -58,6 +61,7 @@ public class ContentDataController extends BaseController {
         return getDataTable(res);
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @GetMapping("/downloadTemplate")
     @Operation(summary = "下载模板")
     public void downloadTemplate(HttpServletResponse response) throws IOException {
@@ -85,6 +89,7 @@ public class ContentDataController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/importExcel")
     @Operation(summary = "导入内容数据")
     public Object importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {

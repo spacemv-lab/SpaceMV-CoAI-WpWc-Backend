@@ -79,6 +79,11 @@ public class DwsBizsummaryChannelDaily implements IImportBaseModel {
     }
 
     @Override
+    public String getRefDateStr() {
+        return null;
+    }
+
+    @Override
     public void validate() {
         if (refDate == null
                 || readUserCnt == null || shareUser == null

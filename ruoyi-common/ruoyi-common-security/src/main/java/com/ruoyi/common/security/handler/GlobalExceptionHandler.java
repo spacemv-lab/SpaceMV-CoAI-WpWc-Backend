@@ -1,6 +1,7 @@
 package com.ruoyi.common.security.handler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
@@ -106,10 +107,13 @@ public class GlobalExceptionHandler
      * 拦截未知的运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
-    public AjaxResult handleRuntimeException(RuntimeException e, HttpServletRequest request)
+    public AjaxResult handleRuntimeException(RuntimeException e, HttpServletRequest request, HttpServletResponse response)
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生未知异常.", requestURI, e);
+        // 修复：上传文件时 Spring 会自动将响应 Content-Type 设为文件类型
+        // 导致 AjaxResult(JSON) 无法写入。强制重置为 JSON
+        response.setContentType("application/json;charset=UTF-8");
         return AjaxResult.error(e.getMessage());
     }
 
@@ -117,10 +121,13 @@ public class GlobalExceptionHandler
      * 系统异常
      */
     @ExceptionHandler(Exception.class)
-    public AjaxResult handleException(Exception e, HttpServletRequest request)
+    public AjaxResult handleException(Exception e, HttpServletRequest request, HttpServletResponse response)
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生系统异常.", requestURI, e);
+        // 修复：上传文件时 Spring 会自动将响应 Content-Type 设为文件类型
+        // 导致 AjaxResult(JSON) 无法写入。强制重置为 JSON
+        response.setContentType("application/json;charset=UTF-8");
         return AjaxResult.error(e.getMessage());
     }
 

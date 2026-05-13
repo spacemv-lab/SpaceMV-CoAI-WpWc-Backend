@@ -30,6 +30,11 @@ public class AgeDistribution implements IImportBaseModel {
     }
 
     @Override
+    public String getRefDateStr() {
+        return null; // AgeDistribution无ref_date字段，跳过去重检查
+    }
+
+    @Override
     public void validate() {
         if (age == null || age.isEmpty() || userNumber == null || proportion == null) {
             throw new RuntimeException("每行数据不能为空!");

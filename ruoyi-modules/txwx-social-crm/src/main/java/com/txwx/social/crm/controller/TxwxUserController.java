@@ -4,6 +4,7 @@ import com.ruoyi.common.core.constant.Constants;
 import com.ruoyi.common.core.constant.SecurityConstants;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
+import com.ruoyi.common.core.utils.sign.RsaUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.security.utils.SecurityUtils;
