@@ -140,7 +140,7 @@ public class SysUserController extends BaseController
     @PostMapping("/register")
     public R<Boolean> register(@RequestBody SysUser sysUser) throws Exception {
         String username = sysUser.getUserName();
-        sysUser.setPassword(RsaUtils.decryptByPrivateKey(sysUser.getPassword()));
+        sysUser.setPassword(SecurityUtils.encryptPassword(RsaUtils.decryptByPrivateKey(sysUser.getPassword())));
         if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser"))))
         {
             return R.fail("当前系统没有开启注册功能！");
