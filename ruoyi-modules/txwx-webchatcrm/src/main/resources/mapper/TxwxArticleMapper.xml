@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.webchatcrm.mapper.TxwxArticleMapper">
+
+    <resultMap type="com.txwx.webchatcrm.domain.po.TxwxArticlePO" id="TxwxArticleResult">
+        <result property="id"              column="id" />
+        <result property="mediaId"         column="media_id" />
+        <result property="articleId"       column="article_id" />
+        <result property="title"           column="title" />
+        <result property="author"          column="author" />
+        <result property="digest"          column="digest" />
+        <result property="content"         column="content" />
+        <result property="thumbMediaId"    column="thumb_media_id" />
+        <result property="needOpenComment" column="need_open_comment" />
+        <result property="onlyFansCanComment" column="only_fans_can_comment" />
+        <result property="articleType"     column="article_type" />
+        <result property="status"          column="status" />
+        <result property="submitter"       column="submitter" />
+        <result property="submitterId"       column="submitter_id" />
+        <result property="reviewer"        column="reviewer" />
+        <result property="publisher"       column="publisher" />
+        <result property="publishId"       column="publish_id" />
+        <result property="msgDataId"       column="msg_data_id" />
+        <result property="delFlag"         column="del_flag" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTxwxArticleVo">
+        select id, media_id, article_id, title, author, digest, content, thumb_media_id,
+               need_open_comment, only_fans_can_comment, article_type, status,
+               submitter, submitter_id, reviewer, publisher, publish_id, msg_data_id, del_flag,
+               create_by, create_time, update_by, update_time
+        from txwx_article
+        where del_flag = '0'
+    </sql>
+
+    <!-- 新增文章 -->
+    <insert id="insertArticle" parameterType="com.txwx.webchatcrm.domain.po.TxwxArticlePO" useGeneratedKeys="true" keyProperty="id">
+        insert into txwx_article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">media_id,</if>
+            <if test="articleId != null and articleId != ''">article_id,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="author != null and author != ''">author,</if>
+            <if test="digest != null and digest != ''">digest,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="thumbMediaId != null and thumbMediaId != ''">thumb_media_id,</if>
+            <if test="needOpenComment != null">need_open_comment,</if>
+            <if test="onlyFansCanComment != null">only_fans_can_comment,</if>
+            <if test="articleType != null and articleType != ''">article_type,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="submitter != null and submitter != ''">submitter,</if>
+            <if test="submitterId != null and submitterId != ''">submitter_id,</if>
+            <if test="reviewer != null and reviewer != ''">reviewer,</if>
+            <if test="publisher != null and publisher != ''">publisher,</if>
+            <if test="publishId != null and publishId != ''">publish_id,</if>
+            <if test="msgDataId != null and msgDataId != ''">msg_data_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">#{mediaId},</if>
+            <if test="articleId != null and articleId != ''">#{articleId},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="author != null and author != ''">#{author},</if>
+            <if test="digest != null and digest != ''">#{digest},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="thumbMediaId != null and thumbMediaId != ''">#{thumbMediaId},</if>
+            <if test="needOpenComment != null">#{needOpenComment},</if>
+            <if test="onlyFansCanComment != null">#{onlyFansCanComment},</if>
+            <if test="articleType != null and articleType != ''">#{articleType},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="submitter != null and submitter != ''">#{submitter},</if>
+            <if test="submitterId != null and submitterId != ''">#{submitterId},</if>
+            <if test="reviewer != null and reviewer != ''">#{reviewer},</if>
+            <if test="publisher != null and publisher != ''">#{publisher},</if>
+            <if test="publishId != null and publishId != ''">#{publishId},</if>
+            <if test="msgDataId != null and msgDataId != ''">#{msgDataId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新文章 -->
+    <update id="updateArticle" parameterType="com.txwx.webchatcrm.domain.po.TxwxArticlePO">
+        update txwx_article
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mediaId != null and mediaId != ''">media_id = #{mediaId},</if>
+            <if test="articleId != null and articleId != ''">article_id = #{articleId},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="author != null and author != ''">author = #{author},</if>
+            <if test="digest != null and digest != ''">digest = #{digest},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="thumbMediaId != null and thumbMediaId != ''">thumb_media_id = #{thumbMediaId},</if>
+            <if test="needOpenComment != null">need_open_comment = #{needOpenComment},</if>
+            <if test="onlyFansCanComment != null">only_fans_can_comment = #{onlyFansCanComment},</if>
+            <if test="articleType != null and articleType != ''">article_type = #{articleType},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="submitter != null and submitter != ''">submitter = #{submitter},</if>
+            <if test="submitterId != null and submitterId != ''">submitter_id = #{submitterId},</if>
+            <if test="reviewer != null and reviewer != ''">reviewer = #{reviewer},</if>
+            <if test="publisher != null and publisher != ''">publisher = #{publisher},</if>
+            <if test="publishId != null and publishId != ''">publish_id = #{publishId},</if>
+            <if test="msgDataId != null and msgDataId != ''">msg_data_id = #{msgDataId},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!-- 根据ID查询文章 -->
+    <select id="selectArticleById" resultMap="TxwxArticleResult">
+        <include refid="selectTxwxArticleVo"/>
+        and id = #{id}
+    </select>
+
+    <!-- 根据mediaId查询文章 -->
+    <select id="selectArticleByMediaId" resultMap="TxwxArticleResult">
+        <include refid="selectTxwxArticleVo"/>
+        and media_id = #{mediaId}
+    </select>
+
+    <!-- 查询草稿列表(支持状态、提交人、审核人过滤) -->
+    <select id="selectDraftList" resultMap="TxwxArticleResult">
+        <include refid="selectTxwxArticleVo"/>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="submitter != null and submitter != ''">
+            and submitter = #{submitter}
+        </if>
+        <if test="reviewer != null and reviewer != ''">
+            and reviewer = #{reviewer}
+        </if>
+        and status not in ('4','9','10')
+        order by create_time desc
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <!-- 查询草稿总数 -->
+    <select id="selectDraftCount" resultType="int">
+        select count(*) from txwx_article
+        where del_flag = '0'
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="submitter != null and submitter != ''">
+            and submitter = #{submitter}
+        </if>
+        <if test="reviewer != null and reviewer != ''">
+            and reviewer = #{reviewer}
+        </if>
+        and status != '4'
+    </select>
+
+    <!-- 查询已发布文章列表 -->
+    <select id="selectPublishedList" resultMap="TxwxArticleResult">
+        <include refid="selectTxwxArticleVo"/>
+        and status in ('4','9', '10')
+        order by update_time desc
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <!-- 查询已发布文章总数 -->
+    <select id="selectPublishedCount" resultType="int">
+        select count(*) from txwx_article
+        where del_flag = '0'
+        and status = '4'
+    </select>
+
+    <!-- 删除文章(逻辑删除) -->
+    <update id="deleteArticle">
+        update txwx_article set del_flag = '1'
+        where id = #{id}
+    </update>
+
+    <!-- 根据mediaId删除文章 -->
+    <update id="deleteArticleByMediaId">
+        update txwx_article set del_flag = '1'
+        where media_id = #{mediaId}
+    </update>
+
+    <!-- 查询发布中的文章列表 -->
+    <select id="selectPublishingArticles" resultMap="TxwxArticleResult">
+        <include refid="selectTxwxArticleVo"/>
+        and status = '5'
+        order by create_time asc
+    </select>
+
+    <!-- 批量更新文章状态 -->
+    <update id="batchUpdateStatus">
+        update txwx_article
+        <trim prefix="SET" suffixOverrides=",">
+            <trim prefix="status = CASE" suffix="END,">
+                <foreach collection="articles" item="article">
+                    <if test="article.status != null and article.status != ''">
+                        WHEN id = #{article.id} THEN #{article.status}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_time = CASE" suffix="END">
+                <foreach collection="articles" item="article">
+                    <if test="article.updateTime != null">
+                        WHEN id = #{article.id} THEN #{article.updateTime}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="articles" item="article" open="(" separator="," close=")">
+            #{article.id}
+        </foreach>
+    </update>
+
+</mapper>
