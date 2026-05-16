@@ -101,7 +101,7 @@ public class TxwxUserController extends BaseController {
         }
         SysUser sysUser = new SysUser();
         sysUser.setUserId(res.getData().getSysUser().getUserId());
-        sysUser.setPassword(RsaUtils.decryptByPrivateKey(password));
+        sysUser.setPassword(password);
         R<Boolean> changeRes = remoteUserService.remoteResetPwd(sysUser, SecurityConstants.INNER);
         if (changeRes == null || !Constants.SUCCESS.equals(changeRes.getCode()) || changeRes.getData() == null) {
             return R.fail("修改密码失败请稍后再试");
