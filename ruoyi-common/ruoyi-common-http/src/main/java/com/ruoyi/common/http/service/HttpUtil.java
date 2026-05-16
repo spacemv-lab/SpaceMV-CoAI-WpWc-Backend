@@ -16,6 +16,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIBuilder;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
@@ -44,7 +45,7 @@ public class HttpUtil {
         return httpClient.execute(httpGet, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -142,7 +143,7 @@ public class HttpUtil {
         return httpClient.execute(httpPost, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -177,7 +178,7 @@ public class HttpUtil {
         return httpClient.execute(httpPost, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -203,7 +204,7 @@ public class HttpUtil {
         return httpClient.execute(httpDelete, response -> {
             int statusCode = response.getCode();
             HttpEntity entity = response.getEntity();
-            String responseBody = entity != null ? EntityUtils.toString(entity) : "";
+            String responseBody = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : "";
 
             if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_REDIRECTION) {
                 return responseBody;
@@ -226,128 +227,6 @@ public class HttpUtil {
     public static void close() throws Exception {
         if (httpClient != null) {
             httpClient.close();
-        }
-    }
-
-    /**
-     * 测试方法
-     */
-    /*
-    public static void main(String[] args) {
-        try {
-            // 测试普通GET请求
-            System.out.println("=== 测试普通GET请求 ===");
-            String getResponse = get("https://httpbin.org/get");
-            System.out.println("普通GET响应: " + getResponse.substring(0, Math.min(200, getResponse.length())) + "...");
-
-            // 测试带参数的GET请求
-            System.out.println("\n=== 测试带参数的GET请求 ===");
-
-            // 创建查询参数Map
-            Map<String, String> queryParams = new HashMap<>();
-            queryParams.put("page", "1");
-            queryParams.put("limit", "20");
-            queryParams.put("keyword", "java");
-            queryParams.put("sort", "desc");
-            queryParams.put("category", "programming");
-
-            // 测试不带请求头的带参数GET请求
-            String paramResponse1 = getWithParams("https://httpbin.org/get", queryParams);
-            System.out.println("带参数GET响应1: " + paramResponse1.substring(0, Math.min(300, paramResponse1.length())) + "...");
-
-            // 测试带请求头的带参数GET请求
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "Bearer test_token_12345");
-            headers.put("User-Agent", "MyHttpClient/1.0");
-            headers.put("Accept", "application/json");
-
-            String paramResponse2 = getWithParams("https://httpbin.org/get", queryParams, headers);
-            System.out.println("带参数GET响应2: " + paramResponse2.substring(0, Math.min(300, paramResponse2.length())) + "...");
-
-            // 测试URL中已包含参数的GET请求
-            System.out.println("\n=== 测试URL中已包含参数的GET请求 ===");
-            Map<String, String> additionalParams = new HashMap<>();
-            additionalParams.put("name", "张三");
-            additionalParams.put("age", "25");
-            String complexUrlResponse = getWithParams("https://httpbin.org/get?base=value", additionalParams);
-            System.out.println("混合参数GET响应: " + complexUrlResponse.substring(0, Math.min(300, complexUrlResponse.length())) + "...");
-
-            // 测试特殊字符参数
-            System.out.println("\n=== 测试特殊字符参数的GET请求 ===");
-            Map<String, String> specialParams = new HashMap<>();
-            specialParams.put("email", "user@example.com");
-            specialParams.put("search", "java & spring");
-            specialParams.put("score", "95.5");
-            String specialResponse = getWithParams("https://httpbin.org/get", specialParams);
-            System.out.println("特殊字符参数GET响应: " + specialResponse.substring(0, Math.min(300, specialResponse.length())) + "...");
-
-            // 测试空参数的GET请求
-            System.out.println("\n=== 测试空参数的GET请求 ===");
-            String noParamResponse = getWithParams("https://httpbin.org/get", new HashMap<>());
-            System.out.println("空参数GET响应: " + noParamResponse.substring(0, Math.min(200, noParamResponse.length())) + "...");
-
-            // 测试POST JSON请求
-            System.out.println("\n=== 测试POST JSON请求 ===");
-            TestData testData = new TestData("测试用户", "test@example.com");
-            String postResponse = postJson("https://httpbin.org/post", null, testData);
-            System.out.println("POST JSON响应: " + postResponse.substring(0, Math.min(200, postResponse.length())) + "...");
-
-            // 测试POST表单请求
-            System.out.println("\n=== 测试POST表单请求 ===");
-            Map<String, String> formData = new HashMap<>();
-            formData.put("username", "testuser");
-            formData.put("password", "testpass");
-            formData.put("remember", "true");
-            String postFormResponse = postForm("https://httpbin.org/post", null, formData);
-            System.out.println("POST表单响应: " + postFormResponse.substring(0, Math.min(200, postFormResponse.length())) + "...");
-
-            // 测试DELETE请求
-            System.out.println("\n=== 测试DELETE请求 ===");
-            String deleteResponse = delete("https://httpbin.org/delete");
-            System.out.println("DELETE响应: " + deleteResponse.substring(0, Math.min(200, deleteResponse.length())) + "...");
-
-            System.out.println("\n所有测试请求执行完成！");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-     */
-
-    public static void main(String[] args) {
-        try {
-            /*
-            Map<String, String> queryParams = new HashMap<>();
-            queryParams.put("grant_type", "client_credential");
-            queryParams.put("appid", "******");
-            queryParams.put("secret", "******");
-
-            // 测试不带请求头的带参数GET请求
-            String paramResponse = getWithParams("https://api.weixin.qq.com/cgi-bin/token", queryParams);
-            System.out.println("带参数GET响应: " + paramResponse);
-             */
-
-            Map<String, String> specialParams = new HashMap<>();
-            specialParams.put("access_token", "99_jmNUs3aY9NQ_t-VgbQlmSLn0sMqyqtgE2xVVJsvB56orXIH64cp-rF2ESVbFVRQiTR4m-F3BUkJ80F5VGwZV6XMXWrP171PZ31GFCjg-1aUlmRjpEIl8SHhSzlkLHKjAJAGCF");
-            String url = buildUrlWithParams("https://api.weixin.qq.com/datacube/getusersummary", specialParams);
-
-            TestData testData = new TestData("2025-07-24", "2025-07-26");
-            String postResponse = postJson(url, null, testData);
-            System.out.println("带参数GET响应: " + postResponse);
-        }catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 

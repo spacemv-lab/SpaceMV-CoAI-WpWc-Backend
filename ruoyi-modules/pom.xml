@@ -14,8 +14,9 @@
         <module>ruoyi-job</module>
         <module>ruoyi-file</module>
         <module>txwx-website</module>
-        <module>txwx-webchat</module>
-        <module>txwx-webchatcrm</module>
+        <module>txwx-social-dashboard</module>
+        <module>txwx-social-crm</module>
+        <module>txwx-social-api</module>
     </modules>
 
     <artifactId>ruoyi-modules</artifactId>

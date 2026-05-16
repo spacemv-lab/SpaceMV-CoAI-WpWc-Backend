@@ -186,7 +186,7 @@ SpaceMV-CoAI-Wp/Wc 前端仓库可参考[SpaceMV-CoAI-Wp/Wc-frontend](https://gi
 
 本项目采用 **MIT** 许可证。
 
-* Copyright (c) 2018 RuoYi
+* Copyright (c) 2020 RuoYi
 * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -211,8 +211,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 如有任何问题、建议或商务合作需求，请联系项目维护团队。
 
 * **Email**: code@spacemv.com  
-* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-Backend/issues)
-* **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)
+* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-Backend/issues)预留
+* **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)预留
 
 更多信息可关注公司微信公众号：
 

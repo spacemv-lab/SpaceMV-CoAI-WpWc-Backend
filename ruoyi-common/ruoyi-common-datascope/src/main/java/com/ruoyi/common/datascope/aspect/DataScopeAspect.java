@@ -2,6 +2,7 @@ package com.ruoyi.common.datascope.aspect;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -55,6 +56,13 @@ public class DataScopeAspect
      * 数据权限过滤关键字
      */
     public static final String DATA_SCOPE = "dataScope";
+
+    /**
+     * 安全的正则表达式：只允许 SQL 标识符、数字、基本运算符、括号和空格
+     */
+    private static final Pattern SAFE_SQL_PATTERN = Pattern.compile(
+        "^[a-zA-Z0-9_\\s\\.,=()\\[\\]><!|&]+$"
+    );
 
     @Before("@annotation(controllerDataScope)")
     public void doBefore(JoinPoint point, DataScope controllerDataScope) throws Throwable
@@ -119,14 +127,18 @@ public class DataScopeAspect
             }
             else if (DATA_SCOPE_CUSTOM.equals(dataScope))
             {
-                if (scopeCustomIds.size() > 1)
+                // 验证 scopeCustomIds 是否都是数字
+                if (isValidIds(scopeCustomIds))
                 {
-                    // 多个自定数据权限使用in查询，避免多次拼接。
-                    sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_role_dept WHERE role_id in ({}) ) ", deptAlias, String.join(",", scopeCustomIds)));
-                }
-                else
-                {
-                    sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_role_dept WHERE role_id = {} ) ", deptAlias, role.getRoleId()));
+                    if (scopeCustomIds.size() > 1)
+                    {
+                        // 多个自定数据权限使用in查询，避免多次拼接。
+                        sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_role_dept WHERE role_id in ({}) ) ", deptAlias, String.join(",", scopeCustomIds)));
+                    }
+                    else
+                    {
+                        sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_role_dept WHERE role_id = {} ) ", deptAlias, role.getRoleId()));
+                    }
                 }
             }
             else if (DATA_SCOPE_DEPT.equals(dataScope))
@@ -164,9 +176,55 @@ public class DataScopeAspect
             if (StringUtils.isNotNull(params) && params instanceof BaseEntity)
             {
                 BaseEntity baseEntity = (BaseEntity) params;
-                baseEntity.getParams().put(DATA_SCOPE, " AND (" + sqlString.substring(4) + ")");
+                String dataScopeSql = " AND (" + sqlString.substring(4) + ")";
+                // 对生成的 SQL 进行二次校验，确保只包含安全字符
+                if (isValidDataScopeSql(dataScopeSql))
+                {
+                    baseEntity.getParams().put(DATA_SCOPE, dataScopeSql);
+                }
+                else
+                {
+                    // 如果 SQL 不安全，则设置为不查询任何数据
+                    baseEntity.getParams().put(DATA_SCOPE, " AND 1=0");
+                }
             }
         }
+    }
+
+    /**
+     * 验证 ID 列表是否只包含数字
+     */
+    private static boolean isValidIds(List<String> ids)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return false;
+        }
+        for (String id : ids)
+        {
+            if (!StringUtils.isNumeric(id))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 验证 dataScope SQL 是否安全，只允许包含安全的 SQL 字符
+     * 
+     * @param sql SQL 片段
+     * @return 是否安全
+     */
+    private static boolean isValidDataScopeSql(String sql)
+    {
+        if (StringUtils.isEmpty(sql))
+        {
+            return false;
+        }
+        // 移除空格后检查是否只包含安全的 SQL 字符
+        String sanitized = sql.replaceAll("\\s+", "");
+        return SAFE_SQL_PATTERN.matcher(sanitized).matches();
     }
 
     /**

@@ -2,14 +2,13 @@
 
 # 使用说明，用来提示输入参数
 usage() {
-	echo "Usage: sh 执行脚本.sh [port|base|nacos|modules|stop|rm]"
+	echo "Usage: sh 执行脚本.sh [port|base|modules|stop|rm]"
 	exit 1
 }
 
 # 开启所需端口
 port(){
 	firewall-cmd --add-port=80/tcp --permanent
-	firewall-cmd --add-port=81/tcp --permanent
 	firewall-cmd --add-port=8080/tcp --permanent
 	firewall-cmd --add-port=8848/tcp --permanent
 	firewall-cmd --add-port=9848/tcp --permanent
@@ -29,17 +28,12 @@ port(){
 
 # 启动基础环境（必须）
 base(){
-	docker-compose up -d txwx-mysql txwx-redis
-}
-
-# 启动基础环境（必须）
-nacos(){
-	docker-compose up -d txwx-nacos
+	docker-compose up -d ruoyi-mysql ruoyi-redis ruoyi-nacos
 }
 
 # 启动程序模块（必须）
 modules(){
-	docker-compose up -d txwx-nginx ruoyi-gateway ruoyi-auth ruoyi-modules-system ruoyi-modules-file txwx-website txwx-webchatcrm
+	docker-compose up -d ruoyi-nginx ruoyi-gateway ruoyi-auth ruoyi-modules-system ruoyi-modules-file txwx-website txwx-webchatcrm
 }
 
 # 关闭所有环境/模块
@@ -59,9 +53,6 @@ case "$1" in
 ;;
 "base")
 	base
-;;
-"nacos")
-	nacos
 ;;
 "modules")
 	modules

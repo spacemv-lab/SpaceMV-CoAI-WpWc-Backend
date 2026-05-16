@@ -1,17 +1,3 @@
-/*
- * Copyright 2026 the original author or authors.
- *
- * Licensed under the MIT License;
- * you may not use this file except in compliance with the License.
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- 
- * the copywrite is belongs to  SpaceMV  team
- */
 package com.txwx.web.service;
 
 import com.txwx.web.domain.TxwxPageButton;
@@ -28,50 +14,56 @@ import java.util.List;
 public interface IPageButtonConfigService 
 {
     // ========================= 保存操作 =========================
-    
+
     /**
      * 保存页面按钮配置（到临时表）
-     * 
+     *
      * @param pageCode 页面代码
-     * @param pageButtonTempList 按钮配置临时表列表
+     * @param pageButtonTempList 按钮配置临时表列表（包含下拉按钮列表dropButtonList）
      * @return 结果
      */
     int savePageButtonConfig(String pageCode, List<TxwxPageButtonTemp> pageButtonTempList);
 
     // ========================= 预览操作 =========================
-    
+
     /**
-     * 获取临时表中的按钮配置列表
-     * 
+     * 获取临时表中的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置临时表集合
      */
     List<TxwxPageButtonTemp> previewPageButtonConfig(String pageCode);
 
     /**
-     * 获取临时表中展示状态的按钮配置列表
-     * 
+     * 获取临时表中展示状态的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置临时表集合
      */
     List<TxwxPageButtonTemp> previewShowPageButtonConfig(String pageCode);
 
-
+    /**
+     * 获取临时表中已发布状态的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
+     * @param pageCode 页面代码
+     * @param isPublish 是否已发布
+     * @return 按钮配置临时表集合
+     */
     List<TxwxPageButtonTemp> previewPublishPageButtonConfig(String pageCode, String isPublish);
 
     // ========================= 展示操作（正式表数据） =========================
-    
+
     /**
-     * 获取正式表中的按钮配置列表
-     * 
+     * 获取正式表中的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置正式表集合
      */
     List<TxwxPageButton> displayPageButtonConfig(String pageCode);
 
     /**
-     * 获取正式表中展示状态的按钮配置列表
-     * 
+     * 获取正式表中展示状态的按钮配置列表（包含下拉按钮列表dropButtonList）
+     *
      * @param pageCode 页面代码
      * @return 按钮配置正式表集合
      */

@@ -14,7 +14,6 @@ cp ../sql/txwx.sql ./mysql/db
 # copy html
 echo "begin copy html "
 cp -r ../ruoyi-ui/dist/** ./nginx/html/dist
-cp -r ../ruoyi-ui/dist-console/** ./nginx-console/html/dist
 
 
 # copy jar

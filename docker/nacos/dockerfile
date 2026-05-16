@@ -1,5 +1,7 @@
 # 基础镜像
-FROM nacos/nacos-server:2.0.4-slim
+FROM nacos/nacos-server:v3.0.1
 # author
 MAINTAINER txwx
 
+# 复制conf文件到路径
+COPY ./conf/application.properties /home/nacos/conf/application.properties

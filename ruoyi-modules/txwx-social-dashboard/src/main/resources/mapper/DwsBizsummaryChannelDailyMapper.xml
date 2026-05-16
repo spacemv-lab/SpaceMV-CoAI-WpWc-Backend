@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.dashboard.mapper.DwsBizsummaryChannelDailyMapper">
+
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO dws_bizsummary_channel_daily
+        (
+        ref_date,
+        read_user_cnt,
+        share_user,
+        redirect_ori_page_count,
+        redirect_ori_page_user,
+        collection_count,
+        collection_user,
+        send_page_count,
+        channel,
+        account_id
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.refDate},
+            #{item.readUserCnt},
+            #{item.shareUser},
+            #{item.redirectOriPageCount},
+            #{item.redirectOriPageUser},
+            #{item.collectionCount},
+            #{item.collectionUser},
+            #{item.sendPageCount},
+            #{item.channel},
+            #{item.accountId}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectSource" resultType="com.txwx.social.dashboard.domain.entity.FlowSource">
+        SELECT
+            channel_fixed AS channel,
+            read_users AS readUser,
+            concat(toString(round(read_users * 100.0 / total_read_users, 2)), '%') AS proportion
+        FROM (
+                 SELECT
+                     CASE
+                         WHEN channel IN ('其它', '其他') THEN '其他'
+                         ELSE channel
+                         END AS channel_fixed,
+                     sum(read_user_cnt) AS read_users,
+                     sum(sum(read_user_cnt)) OVER () AS total_read_users
+                 FROM dws_bizsummary_channel_daily
+                 WHERE channel != '全部'
+                 and account_id = #{accountId}
+                 GROUP BY channel_fixed
+             )
+        ORDER BY read_users DESC
+    </select>
+
+
+    <select id="selectDataBoardReadSource" resultType="java.util.Map">
+        SELECT
+        CASE
+        WHEN channel IN ('其它', '其他') THEN '其他'
+        ELSE channel
+        END AS channel_fixed,
+        sum(read_user_cnt) AS read_users
+        FROM dws_bizsummary_channel_daily
+        WHERE channel != '全部'
+        and account_id = #{accountId}
+        GROUP BY channel_fixed
+        ORDER BY read_users DESC
+    </select>
+
+</mapper>

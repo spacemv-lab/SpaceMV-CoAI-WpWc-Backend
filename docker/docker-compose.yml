@@ -1,9 +1,21 @@
 version : '3.8'
-networks:
-  app-net:
-    driver: bridge
-    name: app-net
 services:
+  txwx-nacos:
+    container_name: txwx-nacos
+    image: txwx-nacos
+    build:
+      context: ./nacos
+    environment:
+      - MODE=standalone
+    volumes:
+      - ./nacos/logs/:/home/nacos/logs
+      - ./nacos/conf/application.properties:/home/nacos/conf/application.properties
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    depends_on:
+      - txwx-mysql
   txwx-mysql:
     container_name: txwx-mysql
     image: txwx-mysql
@@ -15,20 +27,6 @@ services:
       - ./mysql/conf:/etc/mysql/conf.d
       - ./mysql/logs:/logs
       - ./mysql/data:/var/lib/mysql
-    healthcheck:
-      test:
-        [
-          "CMD", 
-          "mysqladmin", 
-          "ping", 
-          "-h", "localhost", 
-          "-u", "root", 
-          "-p******"
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
     command: [
           'mysqld',
           '--innodb-buffer-pool-size=80M',
@@ -38,14 +36,11 @@ services:
           '--lower-case-table-names=1'
         ]
     environment:
-      MYSQL_DATABASE: defaultdb
-      MYSQL_ROOT_PASSWORD: ******
-      MYSQL_INITDB_SKIP_TZINFO: 1
-    networks:
-      - app-net
+      MYSQL_DATABASE: <your-database-name>
+      MYSQL_ROOT_PASSWORD: <your-root-password>
   txwx-redis:
-    container_name: txwx-redis
-    image: txwx-redis
+    container_name: <your-redis-container-name>
+    image: <your-redis-image-name>
     build:
       context: ./redis
     ports:
@@ -54,29 +49,6 @@ services:
       - ./redis/conf/redis.conf:/home/ruoyi/redis/redis.conf
       - ./redis/data:/data
     command: redis-server /home/ruoyi/redis/redis.conf
-    networks:
-      - app-net
-  txwx-nacos:
-    container_name: txwx-nacos
-    image: txwx-nacos
-    build:
-      context: ./nacos
-    environment:
-      - MODE=standalone
-      - PREFER_HOST_MODE=hostname
-    volumes:
-      - ./nacos/logs/:/home/nacos/logs
-      - ./nacos/conf/application.properties:/home/nacos/conf/application.properties
-    ports:
-      - "8848:8848"
-      - "9848:9848"
-      - "9849:9849"
-    depends_on:
-      - txwx-mysql
-    links:
-      - txwx-mysql
-    networks:
-      - app-net
   txwx-nginx:
     container_name: txwx-nginx
     image: txwx-nginx
@@ -92,25 +64,6 @@ services:
       - ruoyi-gateway
     links:
       - ruoyi-gateway
-    networks:
-      - app-net
-  txwx-nginx-console:
-    container_name: txwx-nginx-console
-    image: txwx-nginx-console
-    build:
-      context: ./nginx-console
-    ports:
-      - "81:80"
-    volumes:
-      - ./nginx-console/html/dist:/home/ruoyi/projects/ruoyi-ui
-      - ./nginx-console/conf/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx-console/logs:/var/log/nginx
-    depends_on:
-      - ruoyi-gateway
-    links:
-      - ruoyi-gateway
-    networks:
-      - app-net   
   ruoyi-gateway:
     container_name: ruoyi-gateway
     build:
@@ -122,8 +75,6 @@ services:
       - txwx-redis
     links:
       - txwx-redis
-    networks:
-      - app-net
   ruoyi-auth:
     container_name: ruoyi-auth
     build:
@@ -135,8 +86,6 @@ services:
       - txwx-redis
     links:
       - txwx-redis
-    networks:
-      - app-net
   ruoyi-modules-system:
     container_name: ruoyi-modules-system
     build:
@@ -150,8 +99,6 @@ services:
     links:
       - txwx-redis
       - txwx-mysql
-    networks:
-      - app-net
   ruoyi-modules-gen:
     container_name: ruoyi-modules-gen
     build:
@@ -163,8 +110,6 @@ services:
       - txwx-mysql
     links:
       - txwx-mysql
-    networks:
-      - app-net
   ruoyi-modules-job:
     container_name: ruoyi-modules-job
     build:
@@ -176,8 +121,6 @@ services:
       - txwx-mysql
     links:
       - txwx-mysql
-    networks:
-      - app-net
   ruoyi-modules-file:
     container_name: ruoyi-modules-file
     build:
@@ -187,8 +130,6 @@ services:
       - "9300:9300"
     volumes:
     - ./ruoyi/uploadPath:/home/ruoyi/uploadPath
-    networks:
-      - app-net
   ruoyi-visual-monitor:
     container_name: ruoyi-visual-monitor
     build:
@@ -196,8 +137,6 @@ services:
       dockerfile: dockerfile
     ports:
       - "9100:9100"
-    networks:
-      - app-net
   txwx-website:
     container_name: txwx-website
     build:
@@ -211,8 +150,6 @@ services:
     links:
       - txwx-redis
       - txwx-mysql
-    networks:
-      - app-net
   txwx-webchatcrm:
     container_name: txwx-webchatcrm
     build:
@@ -226,5 +163,3 @@ services:
     links:
       - txwx-redis
       - txwx-mysql
-    networks:
-      - app-net    

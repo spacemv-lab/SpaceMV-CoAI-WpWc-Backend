@@ -52,7 +52,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			and date_format(r.create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
 		</if>
 		<!-- 数据范围过滤 -->
-		${params.dataScope}
+		<if test="params.dataScope != null and params.dataScope != ''">
+			<choose>
+				<when test="params.dataScope.matches('(?i)^\\s*AND\\s*\\(.*\\)\\s*$')">
+					${params.dataScope}
+				</when>
+				<otherwise>
+					AND 1=0
+				</otherwise>
+			</choose>
+		</if>
 		order by r.role_sort
 	</select>
     

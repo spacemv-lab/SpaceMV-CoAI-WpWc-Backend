@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.TxwxChannelMapper">
+
+    <resultMap type="com.txwx.social.crm.domain.po.TxwxChannelPO" id="TxwxChannelResult">
+        <result property="id" column="id"/>
+        <result property="channelName" column="channel_name"/>
+        <result property="channelType" column="channel_type"/>
+        <result property="channelDesc" column="channel_desc"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectChannelVo">
+        select id, channel_name, channel_type, channel_desc, del_flag, create_by, create_time, update_by, update_time from txwx_channel
+    </sql>
+
+    <select id="selectChannelList" parameterType="com.txwx.social.crm.domain.po.TxwxChannelPO" resultMap="TxwxChannelResult">
+        <include refid="selectChannelVo"/>
+        <where>
+            <if test="channelName != null and channelName != ''">
+                and channel_name like concat('%', #{channelName}, '%')
+            </if>
+            <if test="channelType != null and channelType != ''">
+                and channel_type = #{channelType}
+            </if>
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectChannelById" parameterType="Long" resultMap="TxwxChannelResult">
+        <include refid="selectChannelVo"/>
+        where id = #{id} and del_flag = '0'
+    </select>
+
+    <select id="selectChannelByIds" resultMap="TxwxChannelResult">
+        <include refid="selectChannelVo"/>
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and del_flag = '0'
+    </select>
+
+    <insert id="insertChannel" parameterType="com.txwx.social.crm.domain.po.TxwxChannelPO">
+        insert into txwx_channel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="channelName != null and channelName != ''">channel_name,</if>
+            <if test="channelType != null and channelType != ''">channel_type,</if>
+            <if test="channelDesc != null and channelDesc != ''">channel_desc,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="channelName != null and channelName != ''">#{channelName},</if>
+            <if test="channelType != null and channelType != ''">#{channelType},</if>
+            <if test="channelDesc != null and channelDesc != ''">#{channelDesc},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateChannel" parameterType="com.txwx.social.crm.domain.po.TxwxChannelPO">
+        update txwx_channel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="channelName != null and channelName != ''">channel_name = #{channelName},</if>
+            <if test="channelType != null and channelType != ''">channel_type = #{channelType},</if>
+            <if test="channelDesc != null and channelDesc != ''">channel_desc = #{channelDesc},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteChannelByIds" parameterType="Long">
+        update txwx_channel set del_flag = '1' where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

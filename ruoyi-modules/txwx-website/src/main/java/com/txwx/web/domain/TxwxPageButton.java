@@ -1,32 +1,17 @@
-/*
- * Copyright 2026 the original author or authors.
- *
- * Licensed under the MIT License;
- * you may not use this file except in compliance with the License.
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- 
- * the copywrite is belongs to  SpaceMV  team
- */
 package com.txwx.web.domain;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * 页面按钮配置表 page_button
- * 
+ *
  * @author txwx
  */
 public class TxwxPageButton extends BaseEntity
@@ -39,7 +24,7 @@ public class TxwxPageButton extends BaseEntity
     /** 页面标识 */
     private String pageCode;
 
-    /** 按钮类型（1-文字按钮 2-图片按钮） */
+    /** 按钮类型（1-文字按钮 2-图片按钮 3-下拉按钮） */
     private String buttonType;
 
     /** 按钮文案 */
@@ -65,6 +50,9 @@ public class TxwxPageButton extends BaseEntity
 
     /** 排序序号 */
     private Integer sortOrder;
+
+    /** 下拉按钮列表（当buttonType=3时使用） */
+    private List<DropButton> dropButtonList;
 
     public Long getButtonId()
     {
@@ -157,6 +145,16 @@ public class TxwxPageButton extends BaseEntity
     public void setSortOrder(Integer sortOrder)
     {
         this.sortOrder = sortOrder;
+    }
+
+    public List<DropButton> getDropButtonList()
+    {
+        return dropButtonList;
+    }
+
+    public void setDropButtonList(List<DropButton> dropButtonList)
+    {
+        this.dropButtonList = dropButtonList;
     }
 
     public String getState() {
