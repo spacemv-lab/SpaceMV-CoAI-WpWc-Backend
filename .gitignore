@@ -40,3 +40,7 @@
 /CLAUDE.md
 /mvnw
 /开源前核查清单.md
+
+# 前端构建产物
+/ruoyi-ui/dist/
+/ruoyi-ui/dist-console/

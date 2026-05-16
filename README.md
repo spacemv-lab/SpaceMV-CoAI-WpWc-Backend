@@ -2,7 +2,7 @@
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: 产业星球运营智能体服务端</h1>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a> 
 <br>
-<strong>版本: v1.0.0</strong> &nbsp;|&nbsp; <strong>最后更新: 2026-05-16</strong>
+<strong>版本: v1.2.0</strong> &nbsp;|&nbsp; <strong>最后更新: 2026-05-16</strong>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README-EN.md"><strong>English</strong></a>

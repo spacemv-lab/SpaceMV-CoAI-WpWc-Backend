@@ -2,7 +2,7 @@
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: Industrial Planet Operations AI Agent Server-side</h1>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
 <br>
-<strong>Version: v1.0.0</strong> &nbsp;|&nbsp; <strong>Last Updated: 2026-05-16</strong>
+<strong>Version: v1.2.0</strong> &nbsp;|&nbsp; <strong>Last Updated: 2026-05-16</strong>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README_EN.md"><strong>English</strong></a>
