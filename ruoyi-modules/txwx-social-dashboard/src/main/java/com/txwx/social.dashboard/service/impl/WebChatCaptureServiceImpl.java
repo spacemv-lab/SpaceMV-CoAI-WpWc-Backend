@@ -113,7 +113,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserCapture(String accessToken, Long accountId) {
         logger.info("<##############################微信公众号每日文章阅读/分享/收藏抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         //(1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -130,7 +129,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     private boolean validateHistoryParams(String startdate, String endDate, String accessToken, Long accountId) {
         if (StringUtils.isBlank(startdate) || StringUtils.isBlank(endDate)
                 || StringUtils.isBlank(accessToken) || accountId == null) {
-            System.out.println("参数不完整");
             return false;
         }
         return true;
@@ -179,8 +177,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     private void processOdsUserData(List<WebChatUser> allUserData, Long accountId) {
         Map<String, List<WebChatUser>> day2UserDataMap = allUserData.stream()
                 .collect(Collectors.groupingBy(WebChatUser::getRef_date));
-        System.out.println("<------获取的历史用户数据条数------> " + allUserData.size());
-        System.out.println("<------获取的历史用户------> " + new Gson().toJson(day2UserDataMap));
         List<Object[]> batchArgs = new ArrayList<>();
         String sql = "SELECT 1 FROM ods_users WHERE ref_date = ? LIMIT 1";
         day2UserDataMap.forEach((date, users) -> {
@@ -247,7 +243,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleTotalDetailDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容发表详细数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         String insertSql = webChatConfig.getInsertarticledetaildailysql();
         if (insertSql == null || insertSql.isEmpty()) {
@@ -261,7 +256,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
         List<ArticleDetailDaily> articleDetailDailyList = null;
         try {
             articleDetailDailyList = WebChatUtil.getArticleDetailDaily(accessToken, yesterdayFormat, yesterdayFormat);
-            System.out.println("########看看原始数据##########" + new Gson().toJson(articleDetailDailyList));
         } catch (Exception ex) {
             logger.error("抓取发表内容发表详细数据失败:" + ex.getMessage());
         }
@@ -293,7 +287,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatArticleUptackCapture(String accessToken, Long accountId) {
         logger.info("<##############################微信公众号每日文章阅读/分享/收藏抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         //(1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -357,7 +350,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void webChatUserReadCapture(String accessToken, Long accountId) {
         logger.info("<##############################微信公众号每日图文阅读概括数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         //(1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -422,7 +414,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleReadDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容每日阅读数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         // (1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -441,7 +432,6 @@ public class WebChatCaptureServiceImpl implements IWebChatCaptureService {
     @Override
     public void captureArticleShareDaily(String accessToken, Long accountId) {
         logger.info("<##############################发表内容每日分享数据抓取开始##############################>");
-        logger.info("传入的凭证->" + accessToken);
 
         // (1)定义抓取日期
         LocalDate yesterday = LocalDate.now().minusDays(1);

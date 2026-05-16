@@ -53,7 +53,6 @@ public class SyncDataService {
             long startTime = System.currentTimeMillis();
             // 同步逻辑
             log.info("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            System.out.println("开始同步数据..." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             // 用户趋势统计接口
             syncUserWithDate(accessToken, accountId, startdate, enddate);
             // 文章阅读数据原始抓取
@@ -552,7 +551,7 @@ public class SyncDataService {
      */
     public void syncArticleTotalDetailHistoryRange(String accessToken, Long accountId, String startDate, String endDate) {
         log.info("<##############################发表内容发表详细数据历史区间同步开始##############################>");
-        log.info("传入的凭证->{}", accessToken);
+       
         log.info("开始日期={}, 结束日期={}", startDate, endDate);
 
         LocalDate start;
@@ -593,7 +592,7 @@ public class SyncDataService {
     public void syncUserWithDate(String accessToken, Long accountId, String startdate, String enddate) {
 
         log.info("<##############################微信公众号用户抓取开始，开始日期：{}, 结束日期:{} ##############################>", startdate, enddate);
-        log.info("传入的凭证->{}", accessToken);
+   
 
         List<String> missingDates = getMissingDates("ods_users", accountId, startdate, enddate);
         if (CollectionUtils.isEmpty(missingDates)) {
@@ -644,7 +643,7 @@ public class SyncDataService {
     public void syncArticleSummaryDailyOneMonth(String accessToken, Long accountId, String startdate, String refDateStr) {
 
         log.info("<##############################发表内容概况总数据抓取开始，日期：{} ##############################>", refDateStr);
-        log.info("传入的凭证->{}", accessToken);
+    
 
         List<String> missingDates = getMissingDates("ods_article_summary_daily", accountId, startdate, refDateStr);
         if (CollectionUtils.isEmpty(missingDates)) {
@@ -704,7 +703,7 @@ public class SyncDataService {
 
     public void syncArticleDetailWithdate(String accessToken, Long accountId, String curdate) {
         log.info("<##############################发表内容发表详细数据单天同步开始##############################>");
-        log.info("传入的凭证->{}", accessToken);
+    
         log.info("开始日期->{}， 结束日期->{}", curdate, curdate);
 
         String insertSql = webChatConfig.getInsertarticledetaildailysql();

@@ -36,11 +36,11 @@ services:
           '--lower-case-table-names=1'
         ]
     environment:
-      MYSQL_DATABASE: 'txwx'
-      MYSQL_ROOT_PASSWORD: Txwx@123
+      MYSQL_DATABASE: <your-database-name>
+      MYSQL_ROOT_PASSWORD: <your-root-password>
   txwx-redis:
-    container_name: txwx-redis
-    image: txwx-redis
+    container_name: <your-redis-container-name>
+    image: <your-redis-image-name>
     build:
       context: ./redis
     ports:
