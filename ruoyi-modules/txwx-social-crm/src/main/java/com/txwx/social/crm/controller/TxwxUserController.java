@@ -89,8 +89,7 @@ public class TxwxUserController extends BaseController {
      * 获取当前用户信息
      */
     @PutMapping("/resetPwd")
-    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password)
-    {
+    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password) throws Exception {
         String username = processUserName(accountName);
         if (StringUtils.isNull(username))
         {
@@ -102,7 +101,7 @@ public class TxwxUserController extends BaseController {
         }
         SysUser sysUser = new SysUser();
         sysUser.setUserId(res.getData().getSysUser().getUserId());
-        sysUser.setPassword(password);
+        sysUser.setPassword(RsaUtils.decryptByPrivateKey(password));
         R<Boolean> changeRes = remoteUserService.remoteResetPwd(sysUser, SecurityConstants.INNER);
         if (changeRes == null || !Constants.SUCCESS.equals(changeRes.getCode()) || changeRes.getData() == null) {
             return R.fail("修改密码失败请稍后再试");
