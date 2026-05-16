@@ -1,6 +1,8 @@
 <div align="center">
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: Industrial Planet Operations AI Agent Server-side</h1>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
+<br>
+<strong>Version: v1.0.0</strong> &nbsp;|&nbsp; <strong>Last Updated: 2026-05-16</strong>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README_EN.md"><strong>English</strong></a>
@@ -41,7 +43,7 @@ SpaceMV-CoAI-Wp/Wc Backend is developed based on the master branch of [RuoYi-Clo
 | **Clickhouse public service** | ruoyi-common\_ruoyi-common-clickhouse | Clickhouse database integration |
 | **http public service** | ruoyi-common\_ruoyi-common-http | http invoke integration |
 | **Official Website Content Management** | ruoyi-modules\_txwx-website | Customize the official website content based on the design of Tianxun Micro Company's website. |
-| **WeChat Official Account Content Management** | ruoyi-modules\_txwx-webchatcrm | Content editing, review, and publishing for WeChat Official Account. |
+| **WeChat Official Account Content Management** | ruoyi-modules\_txwx-social-crm | Content editing, review, and publishing for WeChat Official Account. |
 
 ## **Technical Architecture**
 
@@ -73,7 +75,7 @@ server
 │       └── ruoyi-job                                 // Scheduled tasks [9203]
 │       └── ruoyi-file                                // File service [9300]
 │       └── txwx-website                              // Official website content management service [9203]
-│       └── txwx-webchatcrm                           // WeChat official account service [9205]
+│       └── txwx-social-crm                           // WeChat official account service [9205]
 ├── ruoyi-visual          // Graphical management module
 │       └── ruoyi-visual-monitor                      // Monitoring center [9100]
 ├──pom.xml                // Common dependencies
@@ -134,8 +136,8 @@ server
 ### **System Deployment and Startup**
 ```bash
 # Clone repository  
-git clone https://github.com/spacemv-lab/SpaceMV-CRM-backend.git   
-cd SpaceMV-CRM-backend
+git clone https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend.git   
+cd SpaceMV-CoAI-WpWc-Backend
 
 # Build
 mvn clean install
@@ -155,7 +157,7 @@ sh deploy.sh base
 # Buildnacos Dockerimageand start initialization
 sh deploy.sh nacos
 
-# BuildserviceDockerimage(includingtxwx-website、txwx-webchatcrm)and start initialization
+# BuildserviceDockerimage(includingtxwx-website、txwx-social-crm)and start initialization
 sh deploy.sh modules
 
 # Open the host machineport
@@ -186,11 +188,18 @@ We warmly welcome community developers to participate in the construction of Spa
 * Please place common service components under the ruoyi-common directory.
 
 
+## **⚠️ Disclaimer**
+
+This software is provided "AS IS", without any express or implied warranty. In no event shall the authors or copyright holders be liable for any claim, damages or other liability arising from the use of this software.
+
+See the [LICENSE](./LICENSE) file for details.
+
+
 ## **License**
 
 This project is licensed under the MIT License
 
-* Copyright (c) 2018 RuoYi
+* Copyright (c) 2020 RuoYi
 * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -215,7 +224,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 For any questions, suggestions or business cooperation needs, please contact the project maintenance team.
 
 * **Email**: code@spacemv.com  
-* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-Backend/issues)
+* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/issues)
 * **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)
 
 For more information, you can follow the company's WeChat official account:

@@ -150,10 +150,10 @@ services:
     links:
       - txwx-redis
       - txwx-mysql
-  txwx-webchatcrm:
-    container_name: txwx-webchatcrm
+  txwx-social-crm:
+    container_name: txwx-social-crm
     build:
-      context: ./ruoyi/modules/txwx-webchatcrm
+      context: ./ruoyi/modules/txwx-social-crm
       dockerfile: dockerfile
     ports:
       - "9205:9205"
