@@ -44,3 +44,6 @@
 # 前端构建产物
 /ruoyi-ui/dist/
 /ruoyi-ui/dist-console/
+
+# macOS 系统残留文件（ZIP解压产生的目录）
+__MACOSX/
