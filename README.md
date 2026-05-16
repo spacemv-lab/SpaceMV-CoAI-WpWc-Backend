@@ -1,6 +1,8 @@
 <div align="center">
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: 产业星球运营智能体服务端</h1>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a> 
+<br>
+<strong>版本: v1.2.0</strong> &nbsp;|&nbsp; <strong>最后更新: 2026-05-16</strong>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README-EN.md"><strong>English</strong></a>
@@ -38,7 +40,7 @@ SpaceMV-CoAI-Wp/Wc Backend 基于 [RuoYi-Cloud](https://gitee.com/y_project/RuoY
 | **Clickhouse公共服务** | ruoyi-common\_ruoyi-common-clickhouse | Clickhouse数据库集成。 |
 | **http公共服务** | ruoyi-common\_ruoyi-common-http | http调用集成。 |
 | **官网网页内容管理** | ruoyi-modules\_txwx-website | 按照天巡微小公司官网样式进行官网网页内容自定义。 |
-| **微信公众号内容管理** | ruoyi-modules\_txwx-webchatcrm | 微信公众号内容编辑、审核和发布。 |
+| **微信公众号内容管理** | ruoyi-modules\_txwx-social-crm | 微信公众号内容编辑、审核和发布。 |
 
 ## **🏗 技术架构**
 
@@ -70,7 +72,7 @@ server
 │       └── ruoyi-job                                 // 定时任务 [9203]
 │       └── ruoyi-file                                // 文件服务 [9300]
 │       └── txwx-website                              // 官网内容管理服务 [9203]
-│       └── txwx-webchatcrm                           // 微信公众号服务 [9205]
+│       └── txwx-social-crm                           // 微信公众号服务 [9205]
 ├── ruoyi-visual          // 图形化管理模块
 │       └── ruoyi-visual-monitor                      // 监控中心 [9100]
 ├──pom.xml                // 公共依赖
@@ -130,8 +132,8 @@ server
 ### **系统部署和启动**
 ```bash
 # 克隆仓库  
-git clone https://github.com/spacemv-lab/SpaceMV-CRM-backend.git   
-cd SpaceMV-CRM-backend
+git clone https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend.git   
+cd SpaceMV-CoAI-WpWc-Backend
 
 # 构建
 mvn clean install
@@ -151,7 +153,7 @@ sh deploy.sh base
 # 构建nacos Docker镜像以及启动并初始化
 sh deploy.sh nacos
 
-# 构建服务Docker镜像(含txwx-website、txwx-webchatcrm)以及启动并初始化
+# 构建服务Docker镜像(含txwx-website、txwx-social-crm)以及启动并初始化
 sh deploy.sh modules
 
 # 打开宿主机端口
@@ -180,6 +182,13 @@ SpaceMV-CoAI-Wp/Wc 前端仓库可参考[SpaceMV-CoAI-Wp/Wc-frontend](https://gi
 
 * 添加新的微服务时，请放置在ruoyi-modules下  
 * 公共服务组件请放置在ruoyi-common下
+
+
+## **⚠️ 免责声明**
+
+本软件按"原样"提供，不提供任何明示或暗示的保证，包括但不限于适销性、特定用途适用性和非侵权性的保证。在任何情况下，作者或版权持有人均不对因使用本软件而产生的任何索赔、损害或其他责任负责，无论是在合同诉讼、侵权诉讼还是其他诉讼中。
+
+详情请参阅 [LICENSE](./LICENSE) 文件。
 
 
 ## **📄 许可证**
@@ -211,7 +220,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 如有任何问题、建议或商务合作需求，请联系项目维护团队。
 
 * **Email**: code@spacemv.com  
-* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-ScAI-Backend/issues)预留
+* **Issues**: [GitHub Issues](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/issues)预留
 * **Discussions**: [GitHub Discussions](https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend/discussions)预留
 
 更多信息可关注公司微信公众号：

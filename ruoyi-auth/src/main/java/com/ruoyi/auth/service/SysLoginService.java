@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.ruoyi.auth.service;
 
 import com.ruoyi.auth.form.RegisterBody;
@@ -166,12 +173,12 @@ public class SysLoginService
         {
             throw new ServiceException("账户长度必须在2到20个字符之间");
         }
-        if (password.length() < UserConstants.PASSWORD_MIN_LENGTH
+        /*if (password.length() < UserConstants.PASSWORD_MIN_LENGTH
                 || password.length() > UserConstants.PASSWORD_MAX_LENGTH)
         {
             throw new ServiceException("密码长度必须在5到20个字符之间");
         }
-
+*/
         if (!StringUtils.hasText(source) || SecurityConstants.INNER.equals(source)) {
             register(username, password);
             return;
@@ -184,12 +191,11 @@ public class SysLoginService
 
     private void registerTxUser(RegisterBody registerBody) {
         String username = registerBody.getUsername();
-        String password = registerBody.getPassword();
         TxUser txUser = new TxUser();
         txUser.setUserName(username);
         txUser.setNickName(username);
         txUser.setPwdUpdateDate(DateUtils.getNowDate());
-        txUser.setPassword(SecurityUtils.encryptPassword(password));
+        txUser.setPassword(registerBody.getPassword());
         txUser.setTxPhonenumber(registerBody.getPhonenumber());
         txUser.setTxEmail(registerBody.getEmail());
         txUser.setPhoneVerifyCode(registerBody.getPhoneVerifyCode());

@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.crm.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
+import com.aliyun.teaopenapi.models.Config;
 import com.ruoyi.common.core.constant.Constants;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
@@ -11,6 +19,7 @@ import com.ruoyi.common.redis.service.RedisService;
 import com.txwx.social.crm.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

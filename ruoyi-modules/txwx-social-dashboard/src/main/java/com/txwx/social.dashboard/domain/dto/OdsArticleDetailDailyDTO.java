@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.dashboard.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
@@ -9,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @ExcelIgnoreUnannotated
@@ -96,5 +104,10 @@ public class OdsArticleDetailDailyDTO implements IImportBaseModel {
         if (!statDate.isBefore(targetDate)) {
             throw new ServiceException("上传统计日期不得晚于或等于2025-11-01");
         }
+    }
+
+    @Override
+    public String getRefDateStr() {
+        return refDate.format(DateTimeFormatter.ISO_DATE);
     }
 }

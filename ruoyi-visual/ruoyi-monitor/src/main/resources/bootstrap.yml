@@ -14,12 +14,12 @@ spring:
     nacos:
       discovery:
         # 服务注册地址
-        server-addr: <nacos-ip>:<nacos-port>
-        namespace: <your-namespace-id>
+        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
+        namespace: ${NACOS_NAMESPACE:-public}
       config:
         # 配置中心地址
-        server-addr: <nacos-ip>:<nacos-port>
-        namespace: <your-namespace-id>
+        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
+        namespace: ${NACOS_NAMESPACE:-public}
         # 配置文件格式
         file-extension: yml
         # 共享配置

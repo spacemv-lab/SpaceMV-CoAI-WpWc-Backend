@@ -1,7 +1,15 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.crm.controller;
 
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.crm.domain.po.TxwxGraphicInformationImagePO;
 import com.txwx.social.crm.domain.vo.WebChatGraphicInformationImageVO;
 import com.txwx.social.crm.domain.vo.WebChatMaterialPermanentVO;
@@ -10,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +40,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取永久素材列表
      */
+    @PreAuthorize("@ss.hasPermi('material:permanent:api')")
     @PostMapping("/permanentList")
     @Operation(summary = "获取永久素材列表")
     public AjaxResult permanentList(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
@@ -45,6 +55,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 分页获取永久素材列表
      */
+    @PreAuthorize("@ss.hasPermi('material:permanent:api')")
     @PostMapping("/permanentListByPage")
     @Operation(summary = "分页获取永久素材")
     public AjaxResult permanentListByPage(@Parameter(description = "pageNum") @RequestParam(defaultValue = "1") int pageNum,
@@ -61,6 +72,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取永久素材总数
      */
+    @PreAuthorize("@ss.hasPermi('material:permanent:api')")
     @PostMapping("/permanentTotalCount")
     @Operation(summary = "获取永久素材总数")
     public AjaxResult getPermanentTotalCount(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
@@ -75,6 +87,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 上传永久素材
      */
+    @PreAuthorize("@ss.hasPermi('material:permanent:api')")
     @PostMapping("/permanentAdd")
     @Operation(summary = "上传永久素材")
     public AjaxResult permanentAdd(@Parameter(description = "文件")@RequestParam("file") MultipartFile file,
@@ -97,6 +110,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 根据mediaId删除永久素材
      */
+    @PreAuthorize("@ss.hasPermi('material:permanent:api')")
     @DeleteMapping("/{accountId}/permanentDelete/{mediaId}")
     @Operation(summary = "删除永久素材")
     public AjaxResult permanentDelete(@PathVariable("mediaId") String mediaId){
@@ -111,6 +125,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取图文消息图片列表
      */
+    @PreAuthorize("@ss.hasPermi('material:imageText:api')")
     @PostMapping("/gInfoImgList")
     @Operation(summary = "获取图文消息列表")
     public AjaxResult GraphicInformationImageList(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
@@ -125,6 +140,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 分页获取图文消息图片列表
      */
+    @PreAuthorize("@ss.hasPermi('material:imageText:api')")
     @Operation(summary = "分页获取图文消息列表")
     @PostMapping("/gInfoImgListByPage")
     public AjaxResult GraphicInformationImageListByPage(@RequestParam(defaultValue = "1") int pageNum,
@@ -141,6 +157,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 获取图文消息图片总数
      */
+    @PreAuthorize("@ss.hasPermi('material:imageText:api')")
     @PostMapping("/gInfoImgTotalCount")
     @Operation(summary = "获取图文消息总数")
     public AjaxResult getGraphicInformationImageTotalCount(@NotEmpty(message = "账号列表不能为空")@RequestBody List<Long> accountIds){
@@ -155,6 +172,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 上传图文消息图片
      */
+    @PreAuthorize("@ss.hasPermi('material:imageText:api')")
     @PostMapping("/gInfoImgAdd")
     @Operation(summary = "上传图文消息列表")
     public AjaxResult GraphicInformationImageAdd(@RequestParam("file") MultipartFile file,
@@ -177,6 +195,7 @@ public class WebChatMaterialContorller extends BaseController {
     /**
      * @description: 根据mediaId删除图文消息图片
      */
+    @PreAuthorize("@ss.hasPermi('material:imageText:api')")
     @DeleteMapping("/gInfoImgDelete/{mediaId}")
     @Operation(summary = "查询图文消息详情")
     public AjaxResult GraphicInformationImageDelete( @PathVariable("mediaId") String mediaId){

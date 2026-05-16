@@ -33,7 +33,7 @@ base(){
 
 # 启动程序模块（必须）
 modules(){
-	docker-compose up -d ruoyi-nginx ruoyi-gateway ruoyi-auth ruoyi-modules-system ruoyi-modules-file txwx-website txwx-webchatcrm
+	docker-compose up -d ruoyi-nginx ruoyi-gateway ruoyi-auth ruoyi-modules-system ruoyi-modules-file txwx-website txwx-social-crm
 }
 
 # 关闭所有环境/模块

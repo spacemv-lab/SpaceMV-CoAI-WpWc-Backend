@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.crm.controller;
 
 import com.ruoyi.common.core.domain.R;
@@ -5,6 +12,7 @@ import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.TableDataInfo;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.client.AccountApiClient;
 import com.txwx.social.api.domain.dto.AccountDTO;
@@ -19,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +63,7 @@ public class AccountController extends BaseController implements AccountApiClien
      * @return 分页结果
      */
     //TODO 角色权限分配
-    //@PreAuthorize("@ss.hasPermi('system:account:list')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/management/list")
     @Operation(summary = "查询账号列表")
     public TableDataInfo list(@RequestBody AccountQueryRequest request) {
@@ -69,7 +78,7 @@ public class AccountController extends BaseController implements AccountApiClien
      * @param request 产品请求
      * @return 产品ID
      */
-    //@PreAuthorize("@ss.hasPermi('system:account:add')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/management")
     public AjaxResult add(@RequestBody AccountAddOrUpdateRequest request) {
         accountChainService.insertAccount(request.getAccountDTO());
@@ -81,7 +90,7 @@ public class AccountController extends BaseController implements AccountApiClien
      * @param request 账号主体
      * @return 结果
      */
-    //@PreAuthorize("@ss.hasPermi('system:product:edit')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PutMapping("/management")
     public AjaxResult edit(@RequestBody AccountAddOrUpdateRequest request) {
         accountChainService.updateAccount(request.getAccountDTO());
@@ -93,7 +102,7 @@ public class AccountController extends BaseController implements AccountApiClien
      * @param accountId 产品ID
      * @return 结果
      */
-    //@PreAuthorize("@ss.hasPermi('system:product:remove')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @DeleteMapping("/management/{accountId}")
     public AjaxResult remove(
             @PathVariable @NotNull(message = "账号ID不能为空") Long accountId

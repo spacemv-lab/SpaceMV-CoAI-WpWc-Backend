@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.crm.controller;
 
 import com.ruoyi.common.core.constant.Constants;
 import com.ruoyi.common.core.constant.SecurityConstants;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
+import com.ruoyi.common.core.utils.sign.RsaUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.security.utils.SecurityUtils;
@@ -81,8 +89,7 @@ public class TxwxUserController extends BaseController {
      * 获取当前用户信息
      */
     @PutMapping("/resetPwd")
-    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password)
-    {
+    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password) throws Exception {
         String username = processUserName(accountName);
         if (StringUtils.isNull(username))
         {

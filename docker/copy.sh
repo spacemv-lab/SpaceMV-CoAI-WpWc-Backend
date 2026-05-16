@@ -41,5 +41,5 @@ cp ../ruoyi-modules/ruoyi-gen/target/ruoyi-modules-gen.jar ./ruoyi/modules/gen/j
 echo "begin copy txwx-website "
 cp ../ruoyi-modules/txwx-website/target/txwx-website.jar ./ruoyi/modules/txwx-website/jar
 
-echo "begin copy txwx-webchatcrm "
-cp ../ruoyi-modules/txwx-webchatcrm/target/txwx-webchatcrm.jar ./ruoyi/modules/txwx-webchatcrm/jar
+echo "begin copy txwx-social-crm "
+cp ../ruoyi-modules/txwx-social-crm/target/txwx-social-crm.jar ./ruoyi/modules/txwx-social-crm/jar

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.dashboard.controller;
 
 import com.alibaba.excel.EasyExcel;
@@ -8,18 +15,22 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.TableDataInfo;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.dashboard.config.WebChatConfig;
 import com.txwx.social.dashboard.domain.condition.BaseSearchCondition;
 import com.txwx.social.dashboard.domain.entity.DwsUsers;
 import com.txwx.social.dashboard.domain.vo.ImportResultVo;
+import com.txwx.social.dashboard.exception.ImportException;
 import com.txwx.social.dashboard.service.IDwsUsersService;
 import com.txwx.social.dashboard.util.ImportUtil;
 import com.txwx.social.dashboard.util.SqlUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -40,6 +51,7 @@ public class UserDataController extends BaseController {
     @Autowired
     private IDwsUsersService iDwsUsersService;
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/list")
     @Operation(summary = "用户数据列表")
     public TableDataInfo select(@RequestBody(required = false) BaseSearchCondition condition) {
@@ -48,6 +60,7 @@ public class UserDataController extends BaseController {
         return getDataTable(usersList);
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @GetMapping("/downloadTemplate")
     @Operation(summary = "下载模板")
     public void downloadTemplate(HttpServletResponse response) throws IOException {
@@ -75,22 +88,29 @@ public class UserDataController extends BaseController {
         }
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/importExcel")
     @Operation(summary = "导入用户数据")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file, HttpServletResponse response, @RequestParam("accountId") Long accountId) throws Exception {
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file, @RequestParam("accountId") Long accountId) throws Exception {
 
         Map<String, Object> extInfo = new HashMap<>();
         extInfo.put("accountId", accountId);
-        ImportResultVo res = importUtil.importExcel(file,
-                DwsUsers.class,
-                webChatConfig.getInsertdwsuserssql(),
-                response,
-                null,
-                extInfo);
-        if (!res.getErrors().isEmpty()) return null;
-        else return success("导入成功!");
+        try {
+            ImportResultVo res = importUtil.importExcel(file,
+                    DwsUsers.class,
+                    webChatConfig.getInsertdwsuserssql(),
+                    null,
+                    extInfo);
+            if (res.getSkippedCount() != null && res.getSkippedCount() > 0) {
+                return AjaxResult.success("导入成功，但跳过了 " + res.getSkippedCount() + " 条重复数据");
+            }
+            return AjaxResult.success("导入成功!");
+        } catch (ImportException e) {
+            return AjaxResult.error(e.getMessage(), e.getErrors());
+        }
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductData:api')")
     @PostMapping("/exportExcel")
     @Operation(summary = "导出用户数据")
     public void exportExcel(HttpServletResponse response, @RequestBody(required = false) BaseSearchCondition condition) throws IOException {

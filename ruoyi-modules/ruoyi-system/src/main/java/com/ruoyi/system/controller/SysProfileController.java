@@ -1,7 +1,17 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.ruoyi.system.controller;
 
 import java.util.Arrays;
 import java.util.Map;
+
+import com.ruoyi.common.core.utils.sign.RsaUtils;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,10 +105,9 @@ public class SysProfileController extends BaseController
      */
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping("/updatePwd")
-    public AjaxResult updatePwd(@RequestBody Map<String, String> params)
-    {
-        String oldPassword = params.get("oldPassword");
-        String newPassword = params.get("newPassword");
+    public AjaxResult updatePwd(@RequestBody Map<String, String> params) throws Exception {
+        String oldPassword = RsaUtils.decryptByPrivateKey(params.get("oldPassword"));
+        String newPassword = RsaUtils.decryptByPrivateKey(params.get("newPassword"));
         LoginUser loginUser = SecurityUtils.getLoginUser();
         Long userId = loginUser.getUserid();
         String password = loginUser.getSysUser().getPassword();

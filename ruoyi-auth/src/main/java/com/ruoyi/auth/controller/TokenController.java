@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.ruoyi.auth.controller;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +40,7 @@ public class TokenController
     @PostMapping("login")
     public R<?> login(@RequestBody LoginBody form) throws Exception {
         // 用户登录
-        LoginUser userInfo = sysLoginService.login(form.getUsername(), form.getPassword());
+        LoginUser userInfo = sysLoginService.login(form.getUsername(), RsaUtils.decryptByPrivateKey(form.getPassword()));
 
         // 获取登录token
         return R.ok(tokenService.createToken(userInfo));
@@ -89,8 +96,7 @@ public class TokenController
     }
 
     @PostMapping("register")
-    public R<?> register(@RequestBody RegisterBody registerBody)
-    {
+    public R<?> register(@RequestBody RegisterBody registerBody) throws Exception {
         // 用户注册
         sysLoginService.register(registerBody);
         return R.ok();

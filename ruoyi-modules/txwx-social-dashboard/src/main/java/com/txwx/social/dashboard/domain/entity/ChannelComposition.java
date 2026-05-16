@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.dashboard.domain.entity;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
@@ -27,6 +34,11 @@ public class ChannelComposition implements IImportBaseModel {
     @Override
     public Object[] toObject(Long accountId) {
         return new Object[]{channel, userNumber, proportion, accountId};
+    }
+
+    @Override
+    public String getRefDateStr() {
+        return null; // ChannelComposition无ref_date字段
     }
 
     @Override

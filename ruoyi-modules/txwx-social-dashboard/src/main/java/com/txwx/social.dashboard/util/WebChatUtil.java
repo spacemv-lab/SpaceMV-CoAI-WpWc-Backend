@@ -1,6 +1,14 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.dashboard.util;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.ruoyi.common.core.utils.sign.RsaUtils;
 import com.ruoyi.common.http.service.HttpUtil;
 import com.txwx.social.dashboard.domain.*;
 import com.txwx.social.dashboard.domain.dto.GetPublishedListRequest;
@@ -37,7 +45,7 @@ public class WebChatUtil {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("grant_type", "client_credential");
         queryParams.put("appid", appId);
-        queryParams.put("secret", secret);
+        queryParams.put("secret", RsaUtils.decryptByPrivateKey(secret));
 
         // 测试不带请求头的带参数GET请求
         String token = null;

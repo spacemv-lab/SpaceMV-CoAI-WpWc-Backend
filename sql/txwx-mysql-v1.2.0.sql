@@ -1794,7 +1794,7 @@ CREATE TABLE `txwx_user_register` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'wpai-prod'
+-- Dumping routines for database 'database_name'
 --
 --
 -- WARNING: can't read the INFORMATION_SCHEMA.libraries table. It's most probably an old server 5.7.30-0ubuntu0.18.04.1.

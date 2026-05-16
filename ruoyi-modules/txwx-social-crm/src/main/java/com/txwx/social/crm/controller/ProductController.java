@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.crm.controller;
 
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.TableDataInfo;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.ruoyi.common.security.utils.SecurityUtils;
 import com.txwx.social.api.client.ProductApiClient;
 import com.txwx.social.api.domain.dto.*;
@@ -21,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -100,8 +109,7 @@ public class ProductController extends BaseController implements ProductApiClien
      * @param request 产品查询条件
      * @return 分页结果
      */
-    //TODO 角色权限分配
-    //@PreAuthorize("@ss.hasPermi('system:product:list')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/management/list")
     @Operation(summary = "查询产品列表")
     public TableDataInfo list(@RequestBody ProductQueryRequest request) {
@@ -118,7 +126,7 @@ public class ProductController extends BaseController implements ProductApiClien
      * @param request 产品请求
      * @return 产品ID
      */
-    //@PreAuthorize("@ss.hasPermi('system:product:add')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/management")
     public AjaxResult add(@RequestBody ProductAddOrUpdateRequest request) {
         List<UserPermissionDTO> userPermissions = Lists.newArrayList();
@@ -138,7 +146,7 @@ public class ProductController extends BaseController implements ProductApiClien
      * @param request 产品主体
      * @return 结果
      */
-    //@PreAuthorize("@ss.hasPermi('system:product:edit')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PutMapping("/management")
     public AjaxResult edit(@RequestBody ProductAddOrUpdateRequest request) {
         productChainService.updateProduct(request.getProductDTO(), request.getUserPermissions(), request.getProductChannels());
@@ -150,7 +158,7 @@ public class ProductController extends BaseController implements ProductApiClien
      * @param productId 产品ID
      * @return 结果
      */
-    //@PreAuthorize("@ss.hasPermi('system:product:remove')")
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @DeleteMapping("/management/{productId}")
     public AjaxResult remove(
             @PathVariable @NotNull(message = "产品ID不能为空") Long productId
@@ -159,6 +167,7 @@ public class ProductController extends BaseController implements ProductApiClien
         return AjaxResult.success("产品删除成功");
     }
 
+    @PreAuthorize("@ss.hasPermi('media:mediaProductManage:api')")
     @PostMapping("/management/{id}")
     @Operation(summary = "查询产品详情")
     public AjaxResult getProductById(@Parameter(description = "产品ID") @PathVariable("id") Long id, @RequestBody QueryConfig queryConfig) {

@@ -1,13 +1,22 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.dashboard.domain.entity;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.ruoyi.common.core.utils.DateUtils;
 import com.txwx.social.dashboard.mapper.IImportBaseModel;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @TableName("dws_content_data")
@@ -60,5 +69,10 @@ public class DwsContentData implements IImportBaseModel {
     @Override
     public Object[] toObject(Long accountId) {
         return new Object[]{createTime, title, readUserTotal, shareUser, readSubscribeUser, url, accountId};
+    }
+
+    @Override
+    public String getRefDateStr() {
+        return createTime.format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 }

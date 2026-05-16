@@ -36,11 +36,11 @@ services:
           '--lower-case-table-names=1'
         ]
     environment:
-      MYSQL_DATABASE: <your-database-name>
-      MYSQL_ROOT_PASSWORD: <your-root-password>
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-spacemv}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-your_root_password}
   txwx-redis:
-    container_name: <your-redis-container-name>
-    image: <your-redis-image-name>
+    container_name: ${REDIS_CONTAINER_NAME:-txwx-redis}
+    image: ${REDIS_IMAGE_NAME:-txwx-redis}
     build:
       context: ./redis
     ports:
@@ -150,10 +150,10 @@ services:
     links:
       - txwx-redis
       - txwx-mysql
-  txwx-webchatcrm:
-    container_name: txwx-webchatcrm
+  txwx-social-crm:
+    container_name: txwx-social-crm
     build:
-      context: ./ruoyi/modules/txwx-webchatcrm
+      context: ./ruoyi/modules/txwx-social-crm
       dockerfile: dockerfile
     ports:
       - "9205:9205"

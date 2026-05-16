@@ -1,7 +1,15 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.crm.controller;
 
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.security.annotation.RequiresPermissions;
 import com.txwx.social.crm.domain.po.TxwxArticlePO;
 import com.txwx.social.crm.domain.vo.*;
 import com.txwx.social.crm.service.IArticleService;
@@ -9,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -33,6 +42,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 新增草稿
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/addDraft")
     @Operation(summary = "新增草稿")
     public AjaxResult addDraft(@Parameter(description = "文章信息") @Valid @RequestBody ArticleVO articleVO) {
@@ -43,6 +53,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询草稿列表
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/draftList")
     @Operation(summary = "查询草稿列表")
     public AjaxResult getDraftList(@Parameter(description = "草稿查询请求") @Valid @RequestBody ArticleDraftReqVO reqVO) {
@@ -53,6 +64,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询草稿总数
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/draftCount")
     @Operation(summary = "查询草稿总数")
     public AjaxResult getDraftCount(@Parameter(description = "草稿查询请求")@Valid @RequestBody ArticleDraftReqVO reqVO) {
@@ -63,6 +75,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询草稿详情
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @GetMapping("/draftDetail/{id}")
     @Operation(summary = "查询草稿详情")
     public AjaxResult getDraftDetail(@Parameter(description = "草稿ID") @PathVariable Long id) {
@@ -73,6 +86,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 获取草稿列表（从微信官方查询）
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @GetMapping("/draftListFromTencent")
     @Operation(summary = "微信官方获取草稿列表")
     public AjaxResult draftListFromTencent(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
@@ -87,6 +101,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询发布状态
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @GetMapping("/publishStatus/{id}")
     @Operation(summary = "查询文章发布状态")
     public AjaxResult getPublishStatus(@PathVariable Long id) {
@@ -97,6 +112,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 更新草稿
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/updateDraft")
     @Operation(summary = "更新草稿")
     public AjaxResult updateDraft(@Valid @RequestBody ArticleVO articleVO) {
@@ -107,6 +123,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 删除草稿
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @DeleteMapping("/deleteDraft/{id}")
     @Operation(summary = "删除草稿")
     public AjaxResult deleteDraft(@PathVariable("id") Long id) {
@@ -117,6 +134,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 提交审核
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/submitForReview/{id}")
     @Operation(summary = "提交审核")
     public AjaxResult submitForReview(@PathVariable Long id) {
@@ -127,6 +145,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 审核草稿
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/reviewDraft")
     @Operation(summary = "审核草稿")
     public AjaxResult reviewDraft(@RequestParam Long id,
@@ -138,6 +157,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 发布草稿
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/publishDraft")
     @Operation(summary = "发布草稿")
     public AjaxResult publishDraft(@RequestParam Long id) {
@@ -148,6 +168,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询已发布文章列表
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @PostMapping("/publishedList")
     @Operation(summary = "查询已发布文章记录")
     public AjaxResult getPublishedList(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
@@ -157,6 +178,7 @@ public class ArticleController extends BaseController {
         return success(list);
     }
 
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @GetMapping("/publishedListFromTencent")
     @Operation(summary = "从微信获取发布列表")
     public AjaxResult publishedListFromTencent(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
@@ -170,6 +192,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 查询已发布文章总数
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @GetMapping("/publishedCount")
     @Operation(summary = "查询已发布文章总数")
     public AjaxResult getPublishedCount(@NotEmpty(message = "账号列表不能为空") @RequestParam("accountIds") List<Long> accountIds) {
@@ -180,6 +203,7 @@ public class ArticleController extends BaseController {
     /**
      * @description: 删除已发布文章
      */
+    @PreAuthorize("@ss.hasPermi('articleManage:article:api')")
     @DeleteMapping("/deletePublishedArticle/{id}")
     @Operation(summary = "删除已发布文章")
     public AjaxResult deletePublishedArticle(@PathVariable("id") Long id) {

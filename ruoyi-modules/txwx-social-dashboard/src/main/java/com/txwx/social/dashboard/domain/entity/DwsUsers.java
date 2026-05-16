@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 成都天巡微小卫星科技有限责任公司
+ *
+ * Licensed under the MIT License.
+ * See LICENSE file for details.
+ */
+
 package com.txwx.social.dashboard.domain.entity;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
@@ -60,5 +67,10 @@ public class DwsUsers implements IImportBaseModel {
         if (!refDate.isBefore(targetDate)) {
             throw new ServiceException("传入数据日期需要在2025-11-01之前");
         }
+    }
+
+    @Override
+    public String getRefDateStr() {
+        return refDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 }
