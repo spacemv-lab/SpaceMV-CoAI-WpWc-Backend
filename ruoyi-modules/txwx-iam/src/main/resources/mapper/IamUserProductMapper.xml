@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.iam.mapper.IamUserProductMapper">
+
+    <resultMap type="com.ruoyi.iam.entity.IamUserProduct" id="IamUserProductResult">
+        <id     property="id"             column="id"               />
+        <result property="iamUserId"      column="iam_user_id"      />
+        <result property="productLine"    column="product_line"     />
+        <result property="productUserId"  column="product_user_id"  />
+        <result property="createTime"     column="create_time"      />
+        <result property="updateTime"     column="update_time"      />
+        <result property="delFlag"        column="del_flag"         />
+    </resultMap>
+
+    <sql id="selectIamUserProductVo">
+        SELECT id, iam_user_id, product_line, product_user_id,
+               create_time, update_time, del_flag
+        FROM iam_user_product
+    </sql>
+
+    <update id="softDeleteByIamUserId">
+        UPDATE iam_user_product SET del_flag = '1' WHERE iam_user_id = #{iamUserId}
+    </update>
+
+</mapper>

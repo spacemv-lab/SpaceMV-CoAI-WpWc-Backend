@@ -1,0 +1,7 @@
+# 本地应用配置（覆盖 Nacos 共享配置）
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.ruoyi.iam.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

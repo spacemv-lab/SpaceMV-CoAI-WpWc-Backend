@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.iam.mapper.IamUserChannelMapper">
+
+    <resultMap type="com.ruoyi.iam.entity.IamUserChannel" id="IamUserChannelResult">
+        <id     property="id"              column="id"              />
+        <result property="userId"          column="user_id"         />
+        <result property="productLine"     column="product_line"    />
+        <result property="channelType"     column="channel_type"    />
+        <result property="channelAccount"  column="channel_account" />
+        <result property="isPrimary"       column="is_primary"      />
+        <result property="channelUserInfo" column="channel_user_info" />
+        <result property="bindTime"        column="bind_time"       />
+        <result property="status"          column="status"          />
+        <result property="delFlag"         column="del_flag"        />
+    </resultMap>
+
+    <sql id="selectIamUserChannelVo">
+        SELECT id, user_id, product_line, channel_type, channel_account,
+               is_primary, channel_user_info, bind_time, status, del_flag
+        FROM iam_user_channel
+    </sql>
+
+    <select id="selectByChannel" resultMap="IamUserChannelResult">
+        <include refid="selectIamUserChannelVo"/>
+        WHERE product_line = #{productLine}
+          AND channel_type = #{channelType}
+          AND channel_account = #{channelAccount}
+          AND del_flag = '0'
+    </select>
+
+    <select id="selectByUserId" resultMap="IamUserChannelResult">
+        <include refid="selectIamUserChannelVo"/>
+        WHERE user_id = #{userId}
+          AND status = '0'
+          AND del_flag = '0'
+    </select>
+
+    <select id="selectByUserIdAndType" resultMap="IamUserChannelResult">
+        <include refid="selectIamUserChannelVo"/>
+        WHERE user_id = #{userId}
+          AND product_line = #{productLine}
+          AND channel_type = #{channelType}
+          AND status = '0'
+          AND del_flag = '0'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO iam_user_channel (
+            user_id, product_line, channel_type, channel_account,
+            is_primary, channel_user_info, status, del_flag
+        ) VALUES (
+            #{userId}, #{productLine}, #{channelType}, #{channelAccount},
+            #{isPrimary}, #{channelUserInfo}, '0', '0'
+        )
+    </insert>
+
+    <update id="unbind">
+        UPDATE iam_user_channel SET status = '1' WHERE id = #{id}
+    </update>
+
+    <update id="updateIsPrimary">
+        UPDATE iam_user_channel SET is_primary = '0' WHERE id = #{id}
+    </update>
+
+    <update id="softDeleteByUserId">
+        UPDATE iam_user_channel SET del_flag = '1' WHERE user_id = #{userId}
+    </update>
+
+</mapper>

@@ -1,0 +1,21 @@
+# Tomcat
+server:
+  port: 19001
+
+# Spring
+spring:
+  application:
+    name: txwx-iam
+  profiles:
+    active: @spring.profile@
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.0.10.102:8848
+        namespace: @nacos.namespace@
+      config:
+        server-addr: 10.0.10.102:8848
+        namespace: @nacos.namespace@
+        file-extension: yml
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
