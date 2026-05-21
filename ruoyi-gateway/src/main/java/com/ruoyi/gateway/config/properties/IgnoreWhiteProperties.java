@@ -24,9 +24,15 @@ import org.springframework.context.annotation.Configuration;
 public class IgnoreWhiteProperties
 {
     /**
-     * 放行白名单配置，网关不校验此处的白名单
+     * 放行白名单配置（ant 模式，支持 ? * **）
      */
     private List<String> whites = new ArrayList<>();
+
+    /**
+     * 按模块前缀放行（如 /txwx-iam，匹配该前缀下所有路径）
+     * 比 whites 更宽松：只做 startsWith 匹配，无需写完整 ant 模式
+     */
+    private List<String> modules = new ArrayList<>();
 
     public List<String> getWhites()
     {
@@ -36,5 +42,15 @@ public class IgnoreWhiteProperties
     public void setWhites(List<String> whites)
     {
         this.whites = whites;
+    }
+
+    public List<String> getModules()
+    {
+        return modules;
+    }
+
+    public void setModules(List<String> modules)
+    {
+        this.modules = modules;
     }
 }

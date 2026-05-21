@@ -17,6 +17,7 @@
         <module>txwx-social-dashboard</module>
         <module>txwx-social-crm</module>
         <module>txwx-social-api</module>
+        <module>txwx-iam</module>
     </modules>
 
     <artifactId>ruoyi-modules</artifactId>

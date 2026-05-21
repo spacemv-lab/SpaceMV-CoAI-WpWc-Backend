@@ -37,7 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				AND notice_type = #{noticeType}
 			</if>
 			<if test="createBy != null and createBy != ''">
-				AND create_by like concat('%', #{createBy}, '%')
+				AND (create_by = #{createBy} OR create_by = 'system')
 			</if>
 		</where>
     </select>

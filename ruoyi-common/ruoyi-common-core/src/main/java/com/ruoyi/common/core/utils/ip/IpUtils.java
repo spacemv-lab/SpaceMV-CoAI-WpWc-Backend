@@ -323,7 +323,7 @@ public class IpUtils
     }
 
     /**
-     * 是否为特定格式如:“ip-range-start-ip-range-end”的ip段字符串
+     * 是否为特定格式如:“10.10.10.1-10.10.10.99”的ip段字符串
      */
     public static boolean isIPSegment(String ipSeg)
     {
@@ -358,7 +358,7 @@ public class IpUtils
     /**
      * 校验ip是否符合过滤串规则
      * 
-     * @param filter 过滤IP列表,支持后缀'*'通配,支持网段如:`ip-range-start-ip-range-end`
+     * @param filter 过滤IP列表,支持后缀'*'通配,支持网段如:`10.10.10.1-10.10.10.99`
      * @param ip 校验IP地址
      * @return boolean 结果
      */

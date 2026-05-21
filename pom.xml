@@ -16,7 +16,7 @@
         <ruoyi.version>3.6.6</ruoyi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.6.1</spring-cloud-alibaba.version>
@@ -38,7 +38,7 @@
         <tomcat.version>9.0.108</tomcat.version>
         <logback.version>1.2.13</logback.version>
         <spring-framework.version>5.3.39</spring-framework.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
     </properties>
 
     <!-- 依赖声明 -->
@@ -359,14 +359,28 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
@@ -412,5 +426,42 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+    <!-- 多环境配置 -->
+    <profiles>
+        <profile>
+            <!-- 本地/开发环境 -->
+            <id>dev</id>
+            <properties>
+                <spring.profile>dev</spring.profile>
+                <nacos.namespace>6b5e989c-ad74-4363-b488-9c221bea9913</nacos.namespace>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <!-- 测试环境 -->
+            <id>test</id>
+            <properties>
+                <spring.profile>test</spring.profile>
+                <nacos.namespace>0897c032-0653-4049-afbc-a39f39d89131</nacos.namespace>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <!-- 生产环境 -->
+            <id>prod</id>
+            <properties>
+                <spring.profile>prod</spring.profile>
+                <nacos.namespace>7a77dea7-1529-4bd6-8d0c-79c5ab7eb49c</nacos.namespace>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
 
 </project>

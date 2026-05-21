@@ -33,4 +33,9 @@ public class ServiceNameConstants
      * 天巡自媒体管理的serviceid
      */
     public static final String TX_SOCIAL_CRM_SERVICE = "txwx-social-crm";
+
+    /**
+     * IAM 认证服务的serviceid
+     */
+    public static final String IAM_SERVICE = "txwx-iam";
 }

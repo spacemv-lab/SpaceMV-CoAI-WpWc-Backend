@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.system.domain.SysNotice;
 import com.ruoyi.system.mapper.SysNoticeMapper;
 import com.ruoyi.system.service.ISysNoticeService;
+import com.ruoyi.common.security.utils.SecurityUtils;
 
 /**
  * 公告 服务层实现
@@ -46,6 +47,8 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     @Override
     public List<SysNotice> selectNoticeList(SysNotice notice)
     {
+        // 数据权限：普通用户只能看到自己创建的和 system 系统自动同步的通知
+        notice.setCreateBy(SecurityUtils.getUsername());
         return noticeMapper.selectNoticeList(notice);
     }
 
