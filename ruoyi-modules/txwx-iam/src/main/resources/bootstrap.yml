@@ -11,11 +11,13 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 10.0.10.102:8848
-        namespace: @nacos.namespace@
+        # 服务注册地址（通过环境变量注入，默认适用 Docker Compose 部署）
+        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
+        namespace: ${NACOS_NAMESPACE:-public}
       config:
-        server-addr: 10.0.10.102:8848
-        namespace: @nacos.namespace@
+        # 配置中心地址
+        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
+        namespace: ${NACOS_NAMESPACE:-public}
         file-extension: yml
         shared-configs:
           - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
