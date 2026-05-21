@@ -5,3 +5,9 @@ MAINTAINER txwx
 
 # 复制conf文件到路径
 COPY ./conf/application.properties /home/nacos/conf/application.properties
+
+# 复制启动校验脚本并设置为入口
+COPY nacos-entrypoint.sh /home/nacos/nacos-entrypoint.sh
+RUN chmod +x /home/nacos/nacos-entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "/home/nacos/nacos-entrypoint.sh"]

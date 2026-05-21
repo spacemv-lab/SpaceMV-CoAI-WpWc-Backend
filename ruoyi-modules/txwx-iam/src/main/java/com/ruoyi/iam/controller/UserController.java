@@ -70,7 +70,7 @@ public class UserController
     /**
      * 重置密码
      */
-    //@CaptchaValidate
+    @CaptchaValidate
     @PutMapping("/password")
     @Operation(summary = "修改密码")
     public R<Void> updatePassword(HttpServletRequest request, @Parameter(description = "密码修改请求") @RequestBody PasswordChangeRequest req)
