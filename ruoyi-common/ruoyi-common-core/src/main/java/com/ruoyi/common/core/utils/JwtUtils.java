@@ -22,7 +22,22 @@ import io.jsonwebtoken.SignatureAlgorithm;
  */
 public class JwtUtils
 {
-    public static String secret = TokenConstants.SECRET;
+    /**
+     * 获取 JWT 签名密钥（从 TokenConstants 延迟读取，避免类加载时序问题）
+     *
+     * TokenConstants.SECRET 由 Spring @Value 注入，在 ApplicationContext 初始化完成后才写入。
+     * 因此不能在 static 字段初始化时缓存，必须在每次调用时通过 TokenConstants.SECRET 获取。
+     */
+    private static String getSecret()
+    {
+        String secret = TokenConstants.SECRET;
+        if (secret == null)
+        {
+            throw new IllegalStateException(
+                "JWT 签名密钥未配置！请检查 Nacos 或 bootstrap.yml 中的 token.secret 配置项。");
+        }
+        return secret;
+    }
 
     /**
      * 从数据声明生成令牌
@@ -32,7 +47,7 @@ public class JwtUtils
      */
     public static String createToken(Map<String, Object> claims)
     {
-        String token = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secret).compact();
+        String token = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, getSecret()).compact();
         return token;
     }
 
@@ -44,7 +59,7 @@ public class JwtUtils
      */
     public static Claims parseToken(String token)
     {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(getSecret()).parseClaimsJws(token).getBody();
     }
 
     /**
