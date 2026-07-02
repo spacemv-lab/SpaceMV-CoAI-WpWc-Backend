@@ -45,4 +45,6 @@ public interface TxwxPermanentMaterialImageMapper {
 
 
     TxwxPermanentMaterialImagePO selectPermanentMaterialImageByMediaId(@Param("mediaId") String mediaId);
+
+    TxwxPermanentMaterialImagePO selectPermanentMaterialImageBySourceUrl(@Param("sourceUrl") String sourceUrl, @Param("accountId") Long accountId);
 }

@@ -1,7 +1,11 @@
 # 本地应用配置（覆盖 Nacos 共享配置）
+iam:
+  jwt:
+    secret: ${IAM_JWT_SECRET:}
+
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.ruoyi.iam.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

@@ -27,8 +27,11 @@ public class WebChatMaterialPermanentVO {
     @Schema(description = "更新时间")
     private String updateTime;
 
-    @Schema(description = "URL")
+    @Schema(description = "微信URL")
     private String url;
+
+    @Schema(description = "来源URL(MinIO)")
+    private String sourceUrl;
 
     @Schema(description = "文件")
     private MultipartFile file;

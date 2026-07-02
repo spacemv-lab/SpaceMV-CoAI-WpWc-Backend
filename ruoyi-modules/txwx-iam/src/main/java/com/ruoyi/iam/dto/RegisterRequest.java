@@ -40,6 +40,9 @@ public class RegisterRequest implements CaptchaRequest
     @Schema(description = "备用邮箱")
     private String bakEmail;
 
+    @Schema(description = "产品线标识（不传默认 spacemv-coai）")
+    private String productLine;
+
     @Schema(description = "图形验证码UUID（由 /auth/v1/code 接口返回）")
     private String uuid;
 

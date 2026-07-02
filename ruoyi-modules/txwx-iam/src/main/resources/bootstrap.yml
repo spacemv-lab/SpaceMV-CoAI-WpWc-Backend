@@ -11,13 +11,16 @@ spring:
   cloud:
     nacos:
       discovery:
-        # 服务注册地址（通过环境变量注入，默认适用 Docker Compose 部署）
-        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
-        namespace: ${NACOS_NAMESPACE:-public}
+        server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+        namespace: @nacos.namespace@
       config:
-        # 配置中心地址
-        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
-        namespace: ${NACOS_NAMESPACE:-public}
+        server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+        namespace: @nacos.namespace@
         file-extension: yml
+        # 白名单配置：extension-configs + 独立 Group（物理隔离，不影响已有业务配置）
+        extension-configs:
+          - data-id: register-whitelist.yml
+            group: WHITELIST_GROUP
+            refresh: true
         shared-configs:
           - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}

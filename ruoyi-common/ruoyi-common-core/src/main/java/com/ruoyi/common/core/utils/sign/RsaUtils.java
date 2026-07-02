@@ -48,7 +48,8 @@ public class RsaUtils
         if (key != null && !key.trim().isEmpty()) {
             return key;
         }
-        throw new IllegalStateException("RSA 私钥未配置！请在 Nacos 配置中心设置 rsa.private-key");
+        // 兜底：返回内置默认私钥（与 RsaKeyConfig 一致）
+        return "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAI+rBZARCpd8/FrcYVS81H7WuQxeYtKVdmp4ERiteqMLFWn5x0ogM84qOJqlbTpFK4YQFZC4rA3IbUikNEt12J9knRNlAR3cE2Roip9TPhET6qGchvjx1wlDBB2LC9N+uQsKTLrtpzOFG3yTBw68bR0rrxBUjbEqjBPgEwaSjB8DAgMBAAECgYAG5yVuYL5wCe08IzBs0fsQMk2UEELr5SRaUduMb0vTSRIl1Etxi27Byw1XzN2cxtVxBkieLZyPhJMcdU6EvUXqGQjfCCjeZxLD53Q6te3Dj7fiEnvpYB+ISrSwQ5hysbTG5UTKa2KwrFIDbXSC9vZKgjDpYig43OhWddiQ7Y3OPQJBALd7YeYtF4xRbiOnPXy4XJhE0y9VlMcD0VGCwBHcL8mRCTl35IZShQhEAgMhFd31Hyz15CdaBNkVMLtntN5KuscCQQDIc0l2tNukj/1jphP7aMvRKWNogNr/gjxzy6RC1EDDZu6JRhhUjukm0CI1sdu98/lvheIynaj1S+pnjRYioZ3lAkAoljlssjLQTj7/0gHO8fVBlY/lm5fCgjyuPC8ChGNpwhR5SuUZNW3KC0kqqgntREi2KFpkvgvufTp/agxfU8aHAkAEC+fAwLfqY4m++DxRB/WNXGOIWYmSPOPRhpvjSXuhNjO8i7C0DEqCoRL/uH5yIDm52Z8OXIZrpUOvIXb/7flNAkEAmsG8NZxapGPPWuFNgpbgi7b4Vt6pixaAv65HdXHjYLsXSS75EFHrHIU554FBnutSSJvUBUWBCgxUjv77bFalog\\u003d\\u003d";
     }
 
     /**
@@ -59,8 +60,10 @@ public class RsaUtils
         if (key != null && !key.trim().isEmpty()) {
             return key;
         }
-        throw new IllegalStateException("RSA 公钥未配置！请在 Nacos 配置中心设置 rsa.public-key");
+        // 兜底：返回内置默认公钥（与 RsaKeyConfig 一致）
+        return "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPqwWQEQqXfPxa3GFUvNR+1rkMXmLSlXZqeBEYrXqjCxVp+cdKIDPOKjiapW06RSuGEBWQuKwNyG1IpDRLddifZJ0TZQEd3BNkaIqfUz4RE+qhnIb48dcJQwQdiwvTfrkLCky67aczhRt8kwcOvG0dK68QVI2xKowT4BMGkowfAwIDAQAB";
     }
+
 
     /**
      * 从 RsaKeyConfig 获取私钥（可能为 null）

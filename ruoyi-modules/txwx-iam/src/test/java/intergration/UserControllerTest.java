@@ -478,7 +478,8 @@ class UserControllerTest
                 mock(StringRedisTemplate.class),
                 mockUserEventPublisher, mockRedisService,remoteUserService,iamUserProductMapper,validateCodeService,
                 "test-secret","secret",
-                7200L
+                7200L,
+                2592000L
             );
         }
 
@@ -606,7 +607,8 @@ class UserControllerTest
                 mockUserEventPublisher,
                 mockRedisService, remoteUserService,iamUserProductMapper,validateCodeService,
                 "test-secret","secret",
-                7200L
+                7200L,
+                2592000L
             );
         }
 
@@ -717,7 +719,8 @@ class UserControllerTest
                 mockUserEventPublisher,
                 mockRedisService, remoteUserService,iamUserProductMapper,validateCodeService,
                 "test-secret","secret",
-                7200L
+                7200L,
+                2592000L
             );
         }
 

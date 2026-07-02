@@ -8,6 +8,7 @@
 package com.ruoyi.iam.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruoyi.iam.config.RegisterWhitelistConfig;
 import com.ruoyi.iam.controller.AuthController;
 import com.ruoyi.iam.controller.ChannelController;
 import com.ruoyi.iam.controller.UserController;
@@ -20,6 +21,7 @@ import com.ruoyi.system.api.RemoteUserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,8 +94,14 @@ class AuthFlowE2ETest
     @Mock
     private IamValidateCodeService validateCodeService;
 
+    @Mock
+    private RegisterWhitelistConfig registerWhitelistConfig;
+
+    @Mock
+    private RegisterValidator registerValidator;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final byte[] secret = "test-secret-key-for-jwt-signing-must-be-long-enough".getBytes(StandardCharsets.UTF_8);
+    private final Key secret = Keys.hmacShaKeyFor("test-secret-key-for-jwt-signing-must-be-long-enough".getBytes(StandardCharsets.UTF_8));
 
     private TokenService tokenService;
     private AuthService authService;
@@ -111,7 +120,7 @@ class AuthFlowE2ETest
             .claim("product_line", "spacemv-coai")
             .claim("channels", new String[]{})
             .claim("type", "access")
-            .signWith(SignatureAlgorithm.HS256, secret)
+            .signWith(secret, SignatureAlgorithm.HS256)
             .compact();
     }
 
@@ -124,7 +133,7 @@ class AuthFlowE2ETest
             .setExpiration(new java.util.Date(System.currentTimeMillis() + 2592000000L))
             .claim("userId", userId)
             .claim("type", "refresh")
-            .signWith(SignatureAlgorithm.HS256, secret)
+            .signWith(secret, SignatureAlgorithm.HS256)
             .compact();
     }
 
@@ -161,8 +170,8 @@ class AuthFlowE2ETest
     {
         tokenService = org.mockito.Mockito.spy(new TokenService("test-secret-key-for-jwt-signing-must-be-long-enough", 7200L, 2592000L));
         authService = new AuthService(userMapper, channelMapper, backupContactMapper, authLogMapper, passwordEncoder,
-            tokenService, verifyCodeService, redisTemplate, userEventPublisher, redisService, remoteUserService, iamUserProductMapper, validateCodeService,"test-secret-key-for-jwt-signing", "secret", 7200L);
-        authController = new AuthController(authService, tokenService, deactivateService, validateCodeService);
+            tokenService, verifyCodeService, redisTemplate, userEventPublisher, redisService, remoteUserService, iamUserProductMapper, validateCodeService,"test-secret-key-for-jwt-signing", "secret", 7200L, 2592000L);
+        authController = new AuthController(authService, tokenService, deactivateService, validateCodeService, registerWhitelistConfig, registerValidator);
 
         UserController userController = new UserController(authService);
         ChannelController channelController = new ChannelController(
@@ -259,7 +268,7 @@ class AuthFlowE2ETest
             .setExpiration(new java.util.Date(System.currentTimeMillis() - 7199000L))
             .claim("userId", 1L)
             .claim("type", "access")
-            .signWith(SignatureAlgorithm.HS256, secret)
+            .signWith(secret, SignatureAlgorithm.HS256)
             .compact();
 
         mockMvc.perform(get("/auth/v1/user/me")

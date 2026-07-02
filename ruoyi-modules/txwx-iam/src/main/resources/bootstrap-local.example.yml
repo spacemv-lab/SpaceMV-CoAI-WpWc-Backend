@@ -1,0 +1,71 @@
+# Tomcat
+server:
+  port: 19001
+
+# Spring
+spring:
+  application:
+    name: txwx-iam
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+        register-enabled: false
+      config:
+        enabled: false
+  datasource:
+    dynamic:
+      primary: mysql
+      strict: false
+      datasource:
+        mysql:
+          url: jdbc:mysql://YOUR_DB_HOST:3306/ry-cloud2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+          username: YOUR_DB_USER
+          password: YOUR_DB_PASSWORD
+          driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: YOUR_REDIS_HOST
+    port: 6379
+    password: YOUR_REDIS_PASSWORD
+
+iam:
+  jwt:
+    secret: YOUR_LOCAL_IAM_JWT_SECRET
+    access-token-validity: 7200
+    refresh-token-validity: 2592000
+  product-line: spacemv-coai
+  token-validation:
+    whitelist:
+      - /auth/v1/code
+      - /auth/v1/checkHuman
+      - /auth/v1/checkunique
+      - /auth/v1/register
+      - /auth/v1/login
+      - /auth/v1/verify-code/send
+      - /auth/v1/verify-code/check
+      - /auth/v1/password/forget/reset
+      - /auth/v1/token/refresh
+      - /auth/v1/register/whitelist/check
+      - /auth/v1/inner/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /favicon.ico
+
+txwx:
+  sms:
+    aliyun:
+      ALIBABA_CLOUD_ACCESS_KEY_ID: YOUR_ALIYUN_SMS_ACCESS_KEY_ID
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: YOUR_ALIYUN_SMS_ACCESS_KEY_SECRET
+      endpoint: dysmsapi.aliyuncs.com
+      region-id: cn-hangzhou
+      sign-name: YOUR_SMS_SIGN_NAME
+      template:
+        verification-code: YOUR_SMS_TEMPLATE_CODE
+  email:
+    host: smtp.huaweicloud.com
+    port: 465
+    username: YOUR_SMTP_USERNAME
+    password: YOUR_SMTP_PASSWORD
+    from-alias: YOUR_FROM_ALIAS
+    subject: 验证码
+    content-template: 您的验证码是：{code}

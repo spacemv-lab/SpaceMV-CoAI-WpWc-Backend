@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    dynamic:
+      druid:
+        initial-size: 2
+        min-idle: 1
+        max-active: 5
+      datasource:
+        postgres:
+          url: ${TXWX_POSTGRES_URL:jdbc:postgresql://YOUR_POSTGRES_HOST:5432/YOUR_DB_NAME}
+          username: ${TXWX_POSTGRES_USERNAME:postgres}
+          password: ${TXWX_POSTGRES_PASSWORD:}
+          driver-class-name: org.postgresql.Driver
+          druid:
+            initial-size: 0
+            validation-query: SELECT 1

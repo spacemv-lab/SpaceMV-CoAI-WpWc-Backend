@@ -1,0 +1,86 @@
+# Tomcat
+server:
+  port: 8080
+
+# Spring
+spring:
+  application:
+    name: ruoyi-gateway
+  redis:
+    host: YOUR_REDIS_HOST
+    port: 6379
+    password: YOUR_REDIS_PASSWORD
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+        register-enabled: false
+      config:
+        enabled: false
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowed-methods: "*"
+            allowed-headers: "*"
+            allow-credentials: true
+            exposedHeaders: "Content-Disposition,Content-Type,Cache-Control"
+      routes:
+        - id: txwx-social-crm
+          uri: http://127.0.0.1:9205
+          predicates:
+            - Path=/txwx-social-crm/**
+          filters:
+            - StripPrefix=1
+        - id: ruoyi-system
+          uri: http://127.0.0.1:9201
+          predicates:
+            - Path=/system/**
+          filters:
+            - StripPrefix=1
+        - id: txwx-iam
+          uri: http://127.0.0.1:19001
+          predicates:
+            - Path=/inner/**
+          filters:
+            - StripPrefix=1
+        - id: txwx-iam-direct
+          uri: http://127.0.0.1:19001
+          predicates:
+            - Path=/txwx-iam/**
+          filters:
+            - StripPrefix=1
+
+security:
+  captcha:
+    enabled: true
+    type: math
+  xss:
+    enabled: true
+    excludeUrls:
+      - /system/notice
+      - /crm-website/companyDetail/save
+  ignore:
+    whites:
+      - /auth/logout
+      - /auth/login
+      - /auth/token
+      - /auth/register
+      - /auth/checkHuman
+      - /*/v2/api-docs
+      - /*/v3/api-docs
+      - /csrf
+      - /txwx-social-crm/content/site/wendao/articles
+      - /txwx-social-crm/content/site/wendao/articles/*
+      - /txwx-social-crm/user/checkunique
+      - /txwx-social-crm/verify/sms/send
+      - /txwx-social-crm/verify/email/send
+      - /txwx-social-crm/verify/code/check
+      - /txwx-social-crm/user/resetPwd
+      - /inner/user/*
+      - /txwx-iam/**
+
+springdoc:
+  webjars:
+    prefix:

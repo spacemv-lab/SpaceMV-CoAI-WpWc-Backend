@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.content.ContentPublishJobMapper">
+
+    <resultMap id="ContentPublishJobResult" type="com.txwx.social.crm.domain.content.ContentPublishJob">
+        <id property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="targetCode" column="target_code"/>
+        <result property="status" column="status"/>
+        <result property="scheduledAt" column="scheduled_at"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="finishedAt" column="finished_at"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleSlug" column="article_slug"/>
+        <result property="articleStatus" column="article_status"/>
+        <result property="articleDelFlag" column="article_del_flag"/>
+        <result property="siteUrl" column="site_url"/>
+        <result property="externalUrl" column="external_url"/>
+        <result property="resultId" column="result_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.txwx.social.crm.domain.content.ContentPublishJob" useGeneratedKeys="true" keyProperty="id">
+        insert into content_publish_job (
+            article_id, target_code, status, scheduled_at, started_at, finished_at,
+            operator_id, operator_name, error_message, create_by, update_by, remark, del_flag
+        ) values (
+            #{articleId}, #{targetCode}, #{status}, #{scheduledAt}, #{startedAt}, #{finishedAt},
+            #{operatorId}, #{operatorName}, #{errorMessage}, #{createBy}, #{updateBy}, #{remark}, '0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.txwx.social.crm.domain.content.ContentPublishJob">
+        update content_publish_job
+        <trim prefix="set" suffixOverrides=",">
+            update_time = CURRENT_TIMESTAMP,
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="scheduledAt != null">scheduled_at = #{scheduledAt},</if>
+            <if test="startedAt != null">started_at = #{startedAt},</if>
+            <if test="finishedAt != null">finished_at = #{finishedAt},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="operatorName != null">operator_name = #{operatorName},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <select id="selectById" resultMap="ContentPublishJobResult">
+        select j.id, j.article_id, j.target_code, j.status, j.scheduled_at, j.started_at, j.finished_at,
+               j.operator_id, j.operator_name, j.error_message,
+               a.title as article_title, a.slug as article_slug,
+               a.status as article_status, a.del_flag as article_del_flag,
+               r.id as result_id, r.site_url, r.external_url,
+               j.create_by, j.create_time, j.update_by, j.update_time, j.remark, j.del_flag
+        from content_publish_job j
+        left join content_article a on a.id = j.article_id
+        left join content_publish_result r on r.id = (
+            select max(r2.id)
+            from content_publish_result r2
+            where r2.job_id = j.id
+              and r2.del_flag = '0'
+        )
+        where j.id = #{id}
+          and j.del_flag = '0'
+        order by r.id desc
+        limit 1
+    </select>
+
+    <select id="selectByArticleId" resultMap="ContentPublishJobResult">
+        select j.id, j.article_id, j.target_code, j.status, j.scheduled_at, j.started_at, j.finished_at,
+               j.operator_id, j.operator_name, j.error_message,
+               a.title as article_title, a.slug as article_slug,
+               a.status as article_status, a.del_flag as article_del_flag,
+               r.id as result_id, r.site_url, r.external_url,
+               j.create_by, j.create_time, j.update_by, j.update_time, j.remark, j.del_flag
+        from content_publish_job j
+        left join content_article a on a.id = j.article_id
+        left join content_publish_result r on r.id = (
+            select max(r2.id)
+            from content_publish_result r2
+            where r2.job_id = j.id
+              and r2.del_flag = '0'
+        )
+        where j.article_id = #{articleId}
+          and j.del_flag = '0'
+        order by j.create_time desc, j.id desc
+    </select>
+
+    <select id="selectSuccessByArticleIdAndTarget" resultMap="ContentPublishJobResult">
+        select j.id, j.article_id, j.target_code, j.status, j.scheduled_at, j.started_at, j.finished_at,
+               j.operator_id, j.operator_name, j.error_message,
+               a.title as article_title, a.slug as article_slug,
+               a.status as article_status, a.del_flag as article_del_flag,
+               r.id as result_id, r.site_url, r.external_url,
+               j.create_by, j.create_time, j.update_by, j.update_time, j.remark, j.del_flag
+        from content_publish_job j
+        left join content_article a on a.id = j.article_id
+        left join content_publish_result r on r.id = (
+            select max(r2.id)
+            from content_publish_result r2
+            where r2.job_id = j.id
+              and r2.del_flag = '0'
+        )
+        where j.article_id = #{articleId}
+          and j.target_code = #{targetCode}
+          and j.status = 'SUCCESS'
+          and j.del_flag = '0'
+        order by j.create_time desc, j.id desc
+        limit 1
+    </select>
+
+    <select id="selectList" resultMap="ContentPublishJobResult">
+        select j.id, j.article_id, j.target_code, j.status, j.scheduled_at, j.started_at, j.finished_at,
+               j.operator_id, j.operator_name, j.error_message,
+               a.title as article_title, a.slug as article_slug,
+               a.status as article_status, a.del_flag as article_del_flag,
+               r.id as result_id, r.site_url, r.external_url,
+               j.create_by, j.create_time, j.update_by, j.update_time, j.remark, j.del_flag
+        from content_publish_job j
+        left join content_article a on a.id = j.article_id
+        left join content_publish_result r on r.id = (
+            select max(r2.id)
+            from content_publish_result r2
+            where r2.job_id = j.id
+              and r2.del_flag = '0'
+        )
+        where j.del_flag = '0'
+        <if test="articleId != null">
+            and j.article_id = #{articleId}
+        </if>
+        <if test="articleTitle != null and articleTitle != ''">
+            and a.title like concat('%', #{articleTitle}, '%')
+        </if>
+        <if test="targetCode != null and targetCode != ''">
+            and j.target_code = #{targetCode}
+        </if>
+        <if test="status != null and status != ''">
+            and j.status = #{status}
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and j.operator_name like concat('%', #{operatorName}, '%')
+        </if>
+        <if test="beginTime != null">
+            and j.create_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and j.create_time &lt;= #{endTime}
+        </if>
+        order by j.create_time desc, j.id desc
+    </select>
+
+    <select id="selectProcessingByTargetCode" resultMap="ContentPublishJobResult">
+        select j.id, j.article_id, j.target_code, j.status, j.scheduled_at, j.started_at, j.finished_at,
+               j.operator_id, j.operator_name, j.error_message,
+               a.title as article_title, a.slug as article_slug,
+               a.status as article_status, a.del_flag as article_del_flag,
+               r.id as result_id, r.site_url, r.external_url,
+               j.create_by, j.create_time, j.update_by, j.update_time, j.remark, j.del_flag
+        from content_publish_job j
+        left join content_article a on a.id = j.article_id
+        left join content_publish_result r on r.id = (
+            select max(r2.id)
+            from content_publish_result r2
+            where r2.job_id = j.id
+              and r2.del_flag = '0'
+        )
+        where j.target_code = #{targetCode}
+          and j.status = 'PROCESSING'
+          and j.del_flag = '0'
+        order by j.create_time asc, j.id asc
+    </select>
+</mapper>

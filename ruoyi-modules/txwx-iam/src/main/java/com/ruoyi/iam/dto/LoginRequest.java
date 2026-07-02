@@ -31,6 +31,9 @@ public class LoginRequest implements CaptchaRequest
     @Schema(description = "图形验证码")
     private String code;
 
+    @Schema(description = "产品线标识（不传默认 spacemv-coai）")
+    private String productLine;
+
     @Schema(description = "登录类型：password / sms")
     private String loginType;
 }

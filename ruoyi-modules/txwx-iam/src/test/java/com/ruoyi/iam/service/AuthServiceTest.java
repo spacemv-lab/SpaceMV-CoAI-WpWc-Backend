@@ -110,7 +110,8 @@ class AuthServiceTest
             iamUserProductMapper,
             iamValidateCodeService,
             "test-secret-key-for-jwt-signing","secret",
-            7200L
+            7200L,
+            2592000L
         );
     }
 

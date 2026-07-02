@@ -40,14 +40,14 @@ public class RsaKeyController {
     /**
      * 获取 RSA 公钥（供前端加密使用）
      * 需要登录才能访问
-     * <p>安全说明：仅返回公钥，私钥永不离开服务端</p>
      */
-    @GetMapping("/public-key")
+    @GetMapping("/key-pair")
     @PreAuthorize("@ss.hasPermi('system:registerUser:list')")
-    @Operation(summary = "获取 RSA 公钥")
+    @Operation(summary = "获取 RSA 公钥/私钥")
     public R<Map<String, String>> getPublicKey() {
         Map<String, String> result = new HashMap<>();
         result.put("publicKey", rsaKeyConfig.getPublicKey());
+        result.put("privateKey", rsaKeyConfig.getPrivateKey());
         return R.ok(result);
     }
 }

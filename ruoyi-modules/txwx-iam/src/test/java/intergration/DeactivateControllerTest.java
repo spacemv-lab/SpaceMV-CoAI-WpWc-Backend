@@ -8,13 +8,11 @@
 package intergration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruoyi.iam.config.RegisterWhitelistConfig;
 import com.ruoyi.iam.controller.AuthController;
 import com.ruoyi.iam.dto.DeactivateRequest;
 import com.ruoyi.iam.dto.DeactivateStatusResponse;
-import com.ruoyi.iam.service.AuthService;
-import com.ruoyi.iam.service.DeactivateService;
-import com.ruoyi.iam.service.IamValidateCodeService;
-import com.ruoyi.iam.service.TokenService;
+import com.ruoyi.iam.service.*;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,6 +52,12 @@ class DeactivateControllerTest
     @Mock
     private IamValidateCodeService validateCodeService;
 
+    @Mock
+    private RegisterWhitelistConfig registerWhitelistConfig;
+
+    @Mock
+    private RegisterValidator registerValidator;
+
     private MockMvc mockMvc;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -61,7 +65,7 @@ class DeactivateControllerTest
     @BeforeEach
     void setUp()
     {
-        var controller = new AuthController(authService, tokenService, deactivateService, validateCodeService);
+        var controller = new AuthController(authService, tokenService, deactivateService, validateCodeService, registerWhitelistConfig, registerValidator);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
             .setControllerAdvice(new com.ruoyi.iam.controller.GlobalExceptionHandler())
             .build();

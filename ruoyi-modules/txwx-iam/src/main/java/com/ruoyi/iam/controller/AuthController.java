@@ -13,6 +13,8 @@ import com.ruoyi.iam.dto.*;
 import com.ruoyi.iam.service.AuthService;
 import com.ruoyi.iam.service.DeactivateService;
 import com.ruoyi.iam.service.IamValidateCodeService;
+import com.ruoyi.iam.config.RegisterWhitelistConfig;
+import com.ruoyi.iam.service.RegisterValidator;
 import com.ruoyi.iam.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,14 +38,19 @@ public class AuthController
     private final TokenService tokenService;
     private final DeactivateService deactivateService;
     private final IamValidateCodeService validateCodeService;
+    private final RegisterWhitelistConfig registerWhitelistConfig;
+    private final RegisterValidator registerValidator;
 
     public AuthController(AuthService authService, TokenService tokenService,
-                          DeactivateService deactivateService, IamValidateCodeService validateCodeService)
+                          DeactivateService deactivateService, IamValidateCodeService validateCodeService,
+                          RegisterWhitelistConfig registerWhitelistConfig, RegisterValidator registerValidator)
     {
         this.authService = authService;
         this.tokenService = tokenService;
         this.deactivateService = deactivateService;
         this.validateCodeService = validateCodeService;
+        this.registerWhitelistConfig = registerWhitelistConfig;
+        this.registerValidator = registerValidator;
     }
 
     /**
@@ -122,6 +129,21 @@ public class AuthController
         {
             throw new com.ruoyi.common.core.exception.ServiceException("缺少必填参数");
         }
+        // productLine 默认值（兼容旧前端不传此字段）
+        if (req.getProductLine() == null || req.getProductLine().isEmpty()) {
+            req.setProductLine("spacemv-coai");
+        }
+
+        // 白名单校验（隔离开关：仅在白名单配置 enabled=true 时生效）
+        if (registerWhitelistConfig.isEnabled()) {
+            com.ruoyi.iam.dto.WhitelistCheckResult checkResult = registerValidator.canRegister(req.getChannelAccount(), req.getProductLine());
+            if (!checkResult.isAllowed()) {
+                com.ruoyi.common.core.exception.ServiceException se = new com.ruoyi.common.core.exception.ServiceException("当前账号不在注册白名单中", 403);
+                se.setDetailMessage("REGISTRATION_DENIED");
+                throw se;
+            }
+        }
+
         LoginResponse resp = authService.register(req);
         return R.ok(resp);
     }
@@ -129,7 +151,6 @@ public class AuthController
     /**
      * 快捷登录
      */
-    //@CaptchaValidate
     @PostMapping("/login")
     @Operation(summary = "用户登录")
     public R<LoginResponse> login(@Parameter(description = "登录凭证") @RequestBody LoginRequest req)
@@ -143,6 +164,10 @@ public class AuthController
             (!"password".equals(req.getLoginType()) && !"sms".equals(req.getLoginType())))
         {
             throw new com.ruoyi.common.core.exception.ServiceException("不支持的登录方式");
+        }
+        // productLine 默认值（兼容旧前端不传此字段）
+        if (req.getProductLine() == null || req.getProductLine().isEmpty()) {
+            req.setProductLine("spacemv-coai");
         }
 
         LoginResponse resp = authService.login(req);
@@ -372,25 +397,17 @@ public class AuthController
 
     /**
      * 内部接口：验证 token 有效性（供 Feign 调用）
+     * <p>
+     * 返回 {@link TokenValidateResponse}，包含 valid、userId、username、productLine。
+     * 同时支持 accessToken（旧产品线）和 refreshToken（新产品线）。
      */
     @PostMapping("/inner/user/validate")
-    @Operation(summary = "验证 Token 有效性")
-    public R<Boolean> validateToken(HttpServletRequest request)
+    @Operation(summary = "验证 Token 有效性（含用户信息）")
+    public R<TokenValidateResponse> validateToken(HttpServletRequest request)
     {
         String token = extractToken(request);
-        if (token == null)
-        {
-            return R.ok(false);
-        }
-        try
-        {
-            tokenService.parseToken(token);
-            return R.ok(true);
-        }
-        catch (Exception e)
-        {
-            return R.ok(false);
-        }
+        TokenValidateResponse resp = authService.validateTokenWithUser(token);
+        return R.ok(resp);
     }
 
     /**

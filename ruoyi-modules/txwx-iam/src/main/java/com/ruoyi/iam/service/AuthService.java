@@ -21,6 +21,7 @@ import com.ruoyi.iam.dto.ProfileUpdateRequest;
 import com.ruoyi.iam.dto.RegisterRequest;
 import com.ruoyi.iam.dto.SendAuthVerifyCodeRequest;
 import com.ruoyi.iam.dto.InnerUserImportRequest;
+import com.ruoyi.iam.dto.TokenValidateResponse;
 import com.ruoyi.iam.dto.UserLoginUserDTO;
 import com.ruoyi.iam.entity.IamAuthLog;
 import com.ruoyi.iam.entity.IamUser;
@@ -40,14 +41,15 @@ import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.system.api.model.LoginUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -78,6 +80,7 @@ public class AuthService
 
     private final String productLine;
     private final long accessTokenValidity;
+    private final long refreshTokenValidity;
     private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
     private final com.ruoyi.iam.service.UserEventPublisher userEventPublisher;
     private final com.ruoyi.common.redis.service.RedisService redisService;
@@ -101,9 +104,10 @@ public class AuthService
         RemoteUserService remoteUserService,
         IamUserProductMapper iamUserProductMapper,
         IamValidateCodeService captchaService,
-        @Value("${iam.token-validators.business.secret:abcdefghijklmnopqrstuvwxyz}") String businessSecret,
+        @Value("${iam.token-validators.business.secret}") String businessSecret,
         @Value("${iam.jwt.secret}") String secret,
-        @Value("${iam.jwt.access-token-validity:7200}") long accessTokenValidity)
+        @Value("${iam.jwt.access-token-validity:7200}") long accessTokenValidity,
+        @Value("${iam.jwt.refresh-token-validity:2592000}") long refreshTokenValidity)
     {
         this.userMapper = userMapper;
         this.channelMapper = channelMapper;
@@ -114,6 +118,7 @@ public class AuthService
         this.verifyCodeService = verifyCodeService;
         this.productLine = "spacemv-coai";
         this.accessTokenValidity = accessTokenValidity;
+        this.refreshTokenValidity = refreshTokenValidity;
         this.redisTemplate = redisTemplate;
         this.userEventPublisher = userEventPublisher;
         this.redisService = redisService;
@@ -262,6 +267,7 @@ public class AuthService
     public LoginResponse register(RegisterRequest request) throws Exception {
         String account = request.getChannelAccount();
         String type = request.getChannelType();
+        String reqProductLine = request.getProductLine() != null ? request.getProductLine() : this.productLine;
 
         // 1. 验证码校验
         if (!verifyCodeService.verifyCode(type, account, request.getVerifyCode()))
@@ -280,7 +286,7 @@ public class AuthService
 
         // 3. 通道唯一性检查
         LambdaQueryWrapper<IamUserChannel> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(IamUserChannel::getProductLine, productLine)
+        wrapper.eq(IamUserChannel::getProductLine, reqProductLine)
             .eq(IamUserChannel::getChannelType, type)
             .eq(IamUserChannel::getChannelAccount, account)
             .eq(IamUserChannel::getStatus, "0");
@@ -320,7 +326,7 @@ public class AuthService
         user.setPasswordHash(passwordHash);
         user.setDisplayName(account);
         user.setStatus("0");
-        user.setProductLine(productLine);
+        user.setProductLine(reqProductLine);
         user.setUserFrom("register");
         user.setCreateTime(new Date());
 
@@ -330,7 +336,7 @@ public class AuthService
         // 7. 创建通道
         IamUserChannel channel = new IamUserChannel();
         channel.setUserId(userId);
-        channel.setProductLine(productLine);
+        channel.setProductLine(reqProductLine);
         channel.setChannelType(type);
         channel.setChannelAccount(account);
         channel.setIsPrimary("1");
@@ -349,51 +355,77 @@ public class AuthService
             backupContactMapper.insert(backup);
         }
 
-        // 9. 同步到 sys_user（Feign 调用 system 模块，通过映射表解耦 ID）
-        try
+        // 9. 同步到 sys_user（仅 spacemv-coai 产品线需要 Feign 同步 + 映射表）
+        if ("spacemv-coai".equals(reqProductLine))
         {
-            SysUser sysUser = new SysUser();
-            sysUser.setUserName(username);
-            sysUser.setNickName(account);
-            if ("phone".equals(type))
+            try
             {
-                sysUser.setPhonenumber(account);
+                SysUser sysUser = new SysUser();
+                sysUser.setUserName(username);
+                sysUser.setNickName(account);
+                if ("phone".equals(type))
+                {
+                    sysUser.setPhonenumber(account);
+                }
+                else if ("email".equals(type))
+                {
+                    sysUser.setEmail(account);
+                }
+                sysUser.setStatus("0");
+                sysUser.setDelFlag("0");
+                sysUser.setUserType("10");
+                // 注意：不设置 userId，由 system 模块自增生成
+                R<Long> syncResult = remoteUserService.syncIamUser(sysUser, SecurityConstants.INNER);
+                if (R.isSuccess(syncResult) && syncResult.getData() != null)
+                {
+                    Long sysUserId = syncResult.getData();
+                    // 写入映射表维护 iam_user ↔ sys_user 关系
+                    IamUserProduct mapping = new IamUserProduct();
+                    mapping.setIamUserId(userId);
+                    mapping.setProductLine(reqProductLine);
+                    mapping.setProductUserId(sysUserId);
+                    iamUserProductMapper.insert(mapping);
+                    log.info("IAM 注册同步成功: iamUserId={}, sysUserId={}, productLine={}",
+                        userId, sysUserId, reqProductLine);
+                }
+                else
+                {
+                    log.warn("IAM 注册同步到 sys_user 返回失败: {}", syncResult != null ? syncResult.getMsg() : "null");
+                }
             }
-            else if ("email".equals(type))
+            catch (Exception e)
             {
-                sysUser.setEmail(account);
-            }
-            sysUser.setStatus("0");
-            sysUser.setDelFlag("0");
-            sysUser.setUserType("10");
-            // 注意：不设置 userId，由 system 模块自增生成
-            R<Long> syncResult = remoteUserService.syncIamUser(sysUser, SecurityConstants.INNER);
-            if (R.isSuccess(syncResult) && syncResult.getData() != null)
-            {
-                Long sysUserId = syncResult.getData();
-                // 写入映射表维护 iam_user ↔ sys_user 关系
-                IamUserProduct mapping = new IamUserProduct();
-                mapping.setIamUserId(userId);
-                mapping.setProductLine(productLine);
-                mapping.setProductUserId(sysUserId);
-                iamUserProductMapper.insert(mapping);
-                log.info("IAM 注册同步成功: iamUserId={}, sysUserId={}, productLine={}",
-                    userId, sysUserId, productLine);
-            }
-            else
-            {
-                log.warn("IAM 注册同步到 sys_user 返回失败: {}", syncResult != null ? syncResult.getMsg() : "null");
+                log.error("IAM 注册同步到 sys_user 异常, userId={}, username={}", userId, username, e);
+                // 不阻断注册流程 — 不影响用户正常使用
             }
         }
-        catch (Exception e)
+        else
         {
-            log.error("IAM 注册同步到 sys_user 异常, userId={}, username={}", userId, username, e);
-            // 不阻断注册流程 — 不影响用户正常使用
+            log.info("register: 新产品线 productLine={}，跳过 Feign 同步到 sys_user", reqProductLine);
         }
 
-        // 10. 签发 JWT + LoginUser 写入 Redis
-        String accessToken = createAccessTokenWithLoginUser(user.getId(), username, user);
-        String refreshToken = tokenService.createRefreshToken(userId);
+        // 10. 签发令牌
+        String refreshToken = tokenService.createRefreshToken(userId, username, reqProductLine);
+
+        LoginResponse response = new LoginResponse();
+        response.setRefreshToken(refreshToken);
+        response.setUserId(userId);
+        response.setUsername(username);
+        response.setProductLine(reqProductLine);
+
+        if ("spacemv-coai".equals(reqProductLine))
+        {
+            // 旧产品线：签发 accessToken + 写 Redis（兼容 RuoYi Gateway AuthFilter）
+            String accessToken = createAccessTokenWithLoginUser(user.getId(), username, user, reqProductLine);
+            response.setAccessToken(accessToken);
+            response.setExpiresIn(accessTokenValidity);
+        }
+        else
+        {
+            // 新产品线：无独立库、无双写，仅用 refreshToken
+            response.setAccessToken(null);
+            response.setExpiresIn(refreshTokenValidity);
+        }
 
         // 11. 审计日志
         auditLog(userId, type, "register", "success", null, account);
@@ -402,13 +434,6 @@ public class AuthService
         userEventPublisher.publishUserCreated(userId, username, type, account);
 
         // 13. 返回
-        LoginResponse response = new LoginResponse();
-        response.setAccessToken(accessToken);
-        response.setRefreshToken(refreshToken);
-        response.setUserId(userId);
-        response.setUsername(username);
-        response.setProductLine(productLine);
-        response.setExpiresIn(accessTokenValidity);
         return response;
     }
 
@@ -419,32 +444,31 @@ public class AuthService
     {
         String account = request.getChannelAccount();
         String loginType = request.getLoginType();
+        String reqProductLine = request.getProductLine() != null ? request.getProductLine() : this.productLine;
 
-        // ========== 图形验证码校验（仅密码登录需要） ==========
-        if ("password".equals(loginType) && request.getUuid() != null && request.getCode() != null)
-        {
-            validateCaptcha(request.getUuid(), request.getCode());
-        }
+        // 验证码已由前端在 login 前调 checkHuman 校验并消费（一次性）
+        // 此处不再重复校验，避免 checkHuman→login 双重校验导致"验证码已失效"
+        // @CaptchaValidate 注释掉的同理
 
         if ("sms".equals(loginType))
         {
             // 短信登录：按通道查找
-            IamUser user = findByChannel(account, "phone");
+            IamUser user = findByChannel(account, "phone", reqProductLine);
             if (user == null)
             {
                 auditLog(null, "phone", "login", "fail", "用户不存在", account);
                 throw new ServiceException("用户不存在");
             }
             request.setChannelAccount(account);
-            return smsLogin(request);
+            return smsLogin(request, reqProductLine);
         }
 
         // 密码登录：三步定位（username精确 → channel → username模糊）
         IamUser user = null;
         String matchedAccount = account;
 
-        // 第一步：username 精确匹配
-        user = findByUsername(account);
+        // 第一步：username 精确匹配（按 productLine 隔离）
+        user = findByUsername(account, reqProductLine);
         if (user != null)
         {
             matchedAccount = user.getUsername();
@@ -452,10 +476,10 @@ public class AuthService
         else
         {
             // 第二步：channel 精确匹配（先找 phone，再找 email）
-            user = findByChannel(account, "phone");
+            user = findByChannel(account, "phone", reqProductLine);
             if (user == null)
             {
-                user = findByChannel(account, "email");
+                user = findByChannel(account, "email", reqProductLine);
             }
             if (user != null)
             {
@@ -463,8 +487,8 @@ public class AuthService
             }
             else
             {
-                // 第三步：username 模糊匹配（手机号/邮箱作为用户名的一部分）
-                user = findByUsernameLike(account);
+                // 第三步：username 模糊匹配 — 按 productLine 隔离
+                user = findByUsernameLike(account, reqProductLine);
                 if (user != null)
                 {
                     matchedAccount = user.getDisplayName();
@@ -496,7 +520,7 @@ public class AuthService
         String finalAccount = matchedAccount;
         return doLogin(finalUser, request, () -> {
             try {
-                return passwordLogin(finalUser, request, finalAccount);
+                return passwordLogin(finalUser, request, finalAccount, reqProductLine);
             } catch (Exception e) {
                 throw new ServiceException(e.getMessage());
             }
@@ -553,12 +577,16 @@ public class AuthService
      * 按通道查找：先 phone，再 email
      */
     public LoginResponse passwordLogin(LoginRequest request) {
+        return passwordLogin(request, this.productLine);
+    }
+
+    public LoginResponse passwordLogin(LoginRequest request, String reqProductLine) {
         String account = request.getChannelAccount();
 
-        IamUser user = findByChannel(account, "phone");
+        IamUser user = findByChannel(account, "phone", reqProductLine);
         if (user == null)
         {
-            user = findByChannel(account, "email");
+            user = findByChannel(account, "email", reqProductLine);
         }
         if (user == null)
         {
@@ -566,7 +594,7 @@ public class AuthService
             throw new ServiceException("用户不存在");
         }
         try {
-            return passwordLogin(user, request, user.getDisplayName());
+            return passwordLogin(user, request, user.getDisplayName(), reqProductLine);
         } catch (Exception e) {
             throw new ServiceException("密码登录失败");
         }
@@ -576,6 +604,10 @@ public class AuthService
      * 密码登录（重载：带指定用户）
      */
     private LoginResponse passwordLogin(IamUser user, LoginRequest request, String matchedAccount) throws Exception {
+        return passwordLogin(user, request, matchedAccount, this.productLine);
+    }
+
+    private LoginResponse passwordLogin(IamUser user, LoginRequest request, String matchedAccount, String reqProductLine) throws Exception {
         String account = request.getChannelAccount();
 
         // 检查登录限流
@@ -618,7 +650,7 @@ public class AuthService
         user.setLastLoginTime(new Date());
         userMapper.updateById(user);
 
-        return createLoginResponse(user);
+        return createLoginResponse(user, reqProductLine);
     }
 
     /**
@@ -626,10 +658,15 @@ public class AuthService
      */
     public LoginResponse smsLogin(LoginRequest request)
     {
+        return smsLogin(request, this.productLine);
+    }
+
+    public LoginResponse smsLogin(LoginRequest request, String reqProductLine)
+    {
         String account = request.getChannelAccount();
 
         // 先查用户（用于限流检查）
-        IamUser channelUser = findByChannel(account, "phone");
+        IamUser channelUser = findByChannel(account, "phone", reqProductLine);
         Long userId = channelUser != null ? channelUser.getId() : null;
         IamUser user = channelUser;
 
@@ -680,13 +717,18 @@ public class AuthService
         // 清除失败计数
         clearLoginFail(user.getId());
 
-        return createLoginResponse(user);
+        return createLoginResponse(user, reqProductLine);
     }
 
     private IamUser findByChannel(String account, String type)
     {
+        return findByChannel(account, type, this.productLine);
+    }
+
+    private IamUser findByChannel(String account, String type, String reqProductLine)
+    {
         LambdaQueryWrapper<IamUserChannel> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(IamUserChannel::getProductLine, productLine)
+        wrapper.eq(IamUserChannel::getProductLine, reqProductLine)
             .eq(IamUserChannel::getChannelType, type)
             .eq(IamUserChannel::getChannelAccount, account)
             .eq(IamUserChannel::getStatus, "0");
@@ -704,12 +746,21 @@ public class AuthService
      */
     private IamUser findByUsername(String username)
     {
+        return findByUsername(username, null);
+    }
+
+    private IamUser findByUsername(String username, String reqProductLine)
+    {
         if (username == null || username.isBlank())
         {
             return null;
         }
         LambdaQueryWrapper<IamUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(IamUser::getUsername, username).eq(IamUser::getDelFlag, "0");
+        if (reqProductLine != null)
+        {
+            wrapper.eq(IamUser::getProductLine, reqProductLine);
+        }
         return userMapper.selectOne(wrapper);
     }
 
@@ -718,12 +769,21 @@ public class AuthService
      */
     private IamUser findByUsernameLike(String phoneLike)
     {
+        return findByUsernameLike(phoneLike, null);
+    }
+
+    private IamUser findByUsernameLike(String phoneLike, String reqProductLine)
+    {
         if (phoneLike == null || phoneLike.isBlank())
         {
             return null;
         }
         LambdaQueryWrapper<IamUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(IamUser::getUsername, phoneLike).eq(IamUser::getDelFlag, "0");
+        if (reqProductLine != null)
+        {
+            wrapper.eq(IamUser::getProductLine, reqProductLine);
+        }
         IamUser user = userMapper.selectOne(wrapper);
         // 模糊匹配只返回第一个结果，需二次验证是否为有效手机号
         if (user != null && user.getDisplayName() != null && user.getDisplayName().equals(phoneLike))
@@ -733,21 +793,43 @@ public class AuthService
         // 也尝试直接匹配 displayName（通常是手机号）
         LambdaQueryWrapper<IamUser> wrapper2 = new LambdaQueryWrapper<>();
         wrapper2.eq(IamUser::getDisplayName, phoneLike).eq(IamUser::getDelFlag, "0");
+        if (reqProductLine != null)
+        {
+            wrapper2.eq(IamUser::getProductLine, reqProductLine);
+        }
         return userMapper.selectOne(wrapper2);
     }
 
     private LoginResponse createLoginResponse(IamUser user)
     {
-        String accessToken = createAccessTokenWithLoginUser(user.getId(), user.getUsername(), user);
-        String refreshToken = tokenService.createRefreshToken(user.getId());
+        return createLoginResponse(user, this.productLine);
+    }
+
+    private LoginResponse createLoginResponse(IamUser user, String reqProductLine)
+    {
+        // 刷新令牌携带 username + product_line 上下文
+        String refreshToken = tokenService.createRefreshToken(user.getId(), user.getUsername(), reqProductLine);
 
         LoginResponse response = new LoginResponse();
-        response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
-        response.setProductLine(productLine);
-        response.setExpiresIn(accessTokenValidity);
+        response.setProductLine(reqProductLine);
+
+        if ("spacemv-coai".equals(reqProductLine))
+        {
+            // 旧产品线：签发 accessToken + 写 Redis（兼容 RuoYi Gateway AuthFilter）
+            String accessToken = createAccessTokenWithLoginUser(user.getId(), user.getUsername(), user, reqProductLine);
+            response.setAccessToken(accessToken);
+            response.setExpiresIn(accessTokenValidity);
+        }
+        else
+        {
+            // 新产品线：无独立库 / 无双写，仅用 refreshToken 作为主 token
+            // 不写 Redis login_tokens、不签发 RuoYi 兼容 accessToken
+            response.setAccessToken(null);
+            response.setExpiresIn(refreshTokenValidity);
+        }
 
         auditLog(user.getId(), "phone", "login", "success", null, user.getDisplayName());
         return response;
@@ -922,6 +1004,52 @@ public class AuthService
     public IamUser getUserById(Long userId)
     {
         return userMapper.selectById(userId);
+    }
+
+    /**
+     * 内部接口：验证 token 并返回用户信息（供 Feign / 内部调用）
+     * <p>
+     * 接受 accessToken 和 refreshToken，解析后校验 iam_user 表存在且未删除。
+     *
+     * @param token 原始 JWT token
+     * @return TokenValidateResponse（valid=false 时 userId/username/productLine 为 null）
+     */
+    public TokenValidateResponse validateTokenWithUser(String token)
+    {
+        if (token == null || token.isEmpty())
+        {
+            return new TokenValidateResponse(false, null, null, null);
+        }
+        try
+        {
+            io.jsonwebtoken.Claims claims = tokenService.parseToken(token);
+            Long userId = claims.get("userId", Long.class);
+            if (userId == null)
+            {
+                userId = claims.get("user_id", Long.class);
+            }
+            if (userId == null)
+            {
+                return new TokenValidateResponse(false, null, null, null);
+            }
+
+            // 查 iam_user 表验证用户存在
+            IamUser user = userMapper.selectById(userId);
+            if (user == null || "2".equals(user.getDeleteStatus()) || !"0".equals(user.getStatus()))
+            {
+                return new TokenValidateResponse(false, userId, null, null);
+            }
+
+            String username = claims.get("username", String.class);
+            String productLine = claims.get("product_line", String.class);
+
+            return new TokenValidateResponse(true, userId, username, productLine);
+        }
+        catch (Exception e)
+        {
+            log.warn("validateTokenWithUser failed: {}", e.getMessage());
+            return new TokenValidateResponse(false, null, null, null);
+        }
     }
 
     /**
@@ -1137,8 +1265,9 @@ public class AuthService
         // 必须传 String 给 setSigningKey(Date)，与 JwtUtils 行为一致（jjwt 0.9.1 自动 base64 解码）
         try
         {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(businessSecret)
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(businessSigningKey())
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
             String userKey = claims.get(SecurityConstants.USER_KEY, String.class);
@@ -1216,17 +1345,18 @@ public class AuthService
             throw new ServiceException("用户名不能为空");
         }
 
+        String reqProductLine = req.getProductLine() != null ? req.getProductLine() : productLine;
+
         // 已存在则直接签发
         LambdaQueryWrapper<IamUser> checkWrapper = new LambdaQueryWrapper<>();
         checkWrapper.eq(IamUser::getUsername, username).eq(IamUser::getDelFlag, "0");
         IamUser existing = userMapper.selectOne(checkWrapper);
         if (existing != null)
         {
-            return createLoginResponse(existing);
+            return createLoginResponse(existing, reqProductLine);
         }
 
         // 插入 iam_user
-        String reqProductLine = req.getProductLine() != null ? req.getProductLine() : productLine;
         IamUser user = new IamUser();
         user.setUsername(username);
         user.setPasswordHash(req.getPasswordHash());
@@ -1270,7 +1400,7 @@ public class AuthService
                     user.getId(), req.getProductUserId(), reqProductLine);
         }
 
-        return createLoginResponse(user);
+        return createLoginResponse(user, reqProductLine);
     }
 
     /**
@@ -1307,10 +1437,15 @@ public class AuthService
      */
     private String createAccessTokenWithLoginUser(Long iamUserId, String username, IamUser iamUser)
     {
+        return createAccessTokenWithLoginUser(iamUserId, username, iamUser, this.productLine);
+    }
+
+    private String createAccessTokenWithLoginUser(Long iamUserId, String username, IamUser iamUser, String reqProductLine)
+    {
         // 查询 iam_user_product 映射表，获取真实的 sys_user.userId
         LambdaQueryWrapper<IamUserProduct> mappingQuery = new LambdaQueryWrapper<>();
         mappingQuery.eq(IamUserProduct::getIamUserId, iamUserId)
-            .eq(IamUserProduct::getProductLine, productLine);
+            .eq(IamUserProduct::getProductLine, reqProductLine);
         IamUserProduct mapping = iamUserProductMapper.selectOne(mappingQuery);
         Long productUserId = mapping != null ? mapping.getProductUserId() : iamUserId;
 
@@ -1341,9 +1476,10 @@ public class AuthService
         claims.put(com.ruoyi.common.core.constant.SecurityConstants.USER_KEY, userKey);
         claims.put(com.ruoyi.common.core.constant.SecurityConstants.DETAILS_USER_ID, productUserId);
         claims.put(com.ruoyi.common.core.constant.SecurityConstants.DETAILS_USERNAME, username);
-        claims.put("product_line", productLine);
+        claims.put("product_line", reqProductLine);
         return JwtUtils.createToken(claims);
     }
+
 
     /**
      * 获取账号类型：1=手机号，2=邮箱，0=未知
@@ -1446,3 +1582,7 @@ public class AuthService
         log.info("忘记密码重置成功: userId={}, account={}, type={}", channel.getUserId(), account, channelType);
     }
 }
+    private Key businessSigningKey()
+    {
+        return Keys.hmacShaKeyFor(businessSecret.getBytes(StandardCharsets.UTF_8));
+    }

@@ -105,7 +105,7 @@
             <if test="productId != null">product_id = #{productId},</if>
             <if test="accountName != null and accountName != ''">account_name = #{accountName},</if>
             <if test="accountNo != null and accountNo != ''">account_no = #{accountNo},</if>
-            <if test="appid != null and appid != ''">appid = #{appid},</if>
+            <if test="appId != null and appId != ''">appid = #{appId},</if>
             <if test="secret != null and secret != ''">secret = #{secret},</if>
             <if test="token != null and token != ''">token = #{token},</if>
             <if test="encodingAesKey != null and encodingAesKey != ''">encoding_aes_key = #{encodingAesKey},</if>

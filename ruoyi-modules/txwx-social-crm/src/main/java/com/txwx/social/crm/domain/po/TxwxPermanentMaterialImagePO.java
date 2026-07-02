@@ -28,8 +28,11 @@ public class TxwxPermanentMaterialImagePO extends BaseEntity {
     @Schema(description = "图片名称")
     private String name;
 
-    @Schema(description = "图片URL")
+    @Schema(description = "微信图片URL")
     private String url;
+
+    @Schema(description = "来源图片URL(MinIO)")
+    private String sourceUrl;
 
     @Schema(description = "删除标志(0代表存在 1代表删除)")
     private String delFlag;

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.content.ArticleTemplateMapper">
+
+    <resultMap id="ArticleTemplateResult" type="com.txwx.social.crm.domain.content.ArticleTemplate">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="category" column="category"/>
+        <result property="platform" column="platform"/>
+        <result property="stylePreset" column="style_preset"/>
+        <result property="snapshotJson" column="snapshot_json"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="description" column="description"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectTemplateVo">
+        SELECT id, name, category, platform, style_preset, snapshot_json,
+               thumbnail_url, description, sort_order, is_default,
+               create_by, create_time, update_by, update_time, remark, del_flag
+        FROM article_template
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_template (
+            name, category, platform, style_preset, snapshot_json,
+            thumbnail_url, description, sort_order, is_default,
+            create_by, create_time, update_by, update_time, remark, del_flag
+        ) VALUES (
+            #{name}, #{category}, #{platform}, #{stylePreset}, #{snapshotJson},
+            #{thumbnailUrl}, #{description}, #{sortOrder}, COALESCE(#{isDefault}, '0'),
+            #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}, COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE article_template
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="stylePreset != null">style_preset = #{stylePreset},</if>
+            <if test="snapshotJson != null">snapshot_json = #{snapshotJson},</if>
+            <if test="thumbnailUrl != null">thumbnail_url = #{thumbnailUrl},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isDefault != null">is_default = #{isDefault},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        WHERE id = #{id} AND del_flag = '0'
+    </update>
+
+    <update id="deleteById">
+        UPDATE article_template SET del_flag = '1', update_time = sysdate()
+        WHERE id = #{id} AND del_flag = '0'
+    </update>
+
+    <select id="selectById" resultMap="ArticleTemplateResult">
+        <include refid="selectTemplateVo"/>
+        WHERE id = #{id} AND del_flag = '0'
+    </select>
+
+    <select id="selectList" resultMap="ArticleTemplateResult">
+        <include refid="selectTemplateVo"/>
+        <where>
+            del_flag = '0'
+            <if test="name != null and name != ''">AND name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="category != null and category != ''">AND category = #{category}</if>
+            <if test="platform != null and platform != ''">AND platform = #{platform}</if>
+        </where>
+        ORDER BY sort_order ASC, create_time DESC
+    </select>
+
+    <select id="selectByPlatform" resultMap="ArticleTemplateResult">
+        <include refid="selectTemplateVo"/>
+        WHERE platform = #{platform} AND del_flag = '0'
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectDefault" resultMap="ArticleTemplateResult">
+        <include refid="selectTemplateVo"/>
+        WHERE is_default = '1' AND del_flag = '0'
+        LIMIT 1
+    </select>
+
+</mapper>

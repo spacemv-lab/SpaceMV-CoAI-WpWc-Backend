@@ -8,6 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="mediaId"    column="media_id"    />
         <result property="name"       column="name"       />
         <result property="url"        column="url"        />
+        <result property="sourceUrl"  column="source_url"  />
         <result property="delFlag"    column="del_flag"   />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
@@ -26,11 +27,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="name"       column="name"       />
         <result property="updateTime" column="update_time" />
         <result property="url"        column="url"        />
+        <result property="sourceUrl"  column="source_url"  />
         <result property="accountId"        column="account_id"        />
     </resultMap>
 
     <sql id="selectPermanentMaterialImageVo">
-        select id, media_id, name, url, create_time, create_by, del_flag, account_id
+        select id, media_id, name, url, source_url, create_time, create_by, del_flag, account_id
         from txwx_permanent_material_image
         where del_flag = '0'
     </sql>
@@ -79,6 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="mediaId != null and mediaId != ''">media_id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="url != null and url != ''">url,</if>
+            <if test="sourceUrl != null and sourceUrl != ''">source_url,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="accountId != null and accountId != ''">account_id,</if>
@@ -87,6 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="mediaId != null and mediaId != ''">#{mediaId},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="url != null and url != ''">#{url},</if>
+            <if test="sourceUrl != null and sourceUrl != ''">#{sourceUrl},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="accountId != null and accountId != ''">#{accountId},</if>
@@ -104,6 +108,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mediaId != null and mediaId != ''">
             AND media_id = #{mediaId}
         </if>
+    </select>
+
+    <select id="selectPermanentMaterialImageBySourceUrl" resultMap="TxwxPermanentMaterialImageResult">
+        <include refid="selectPermanentMaterialImageVo"/>
+        AND source_url = #{sourceUrl}
+        AND account_id = #{accountId}
+        limit 1
     </select>
 
 </mapper>

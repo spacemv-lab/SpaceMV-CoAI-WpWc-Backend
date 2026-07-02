@@ -7,7 +7,6 @@
 
 package com.ruoyi.common.core.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -24,11 +23,10 @@ import java.util.List;
  * - 直接注入 Environment，Nacos 配置自动桥接到 Environment
  * - 支持热刷新（通过 Nacos listener 或手动 refresh()）
  *
- * <p>密钥读取优先级：仅从 Nacos/本地 YAML 配置读取，禁止内置默认密钥（安全要求）
+ * <p>密钥读取优先级：Nacos > 本地 YAML > 内置默认值
  *
  * @author txwx
  */
-@Slf4j
 @Component
 public class RsaKeyConfig {
 
@@ -37,6 +35,14 @@ public class RsaKeyConfig {
 
     /** RSA 公钥配置键 */
     private static final String CONF_KEY_PUBLIC = "rsa_public_key";
+
+    /** 内置默认私钥（兜底，当 Nacos 无配置时） */
+    private static final String DEFAULT_PRIVATE_KEY =
+        "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAI+rBZARCpd8/FrcYVS81H7WuQxeYtKVdmp4ERiteqMLFWn5x0ogM84qOJqlbTpFK4YQFZC4rA3IbUikNEt12J9knRNlAR3cE2Roip9TPhET6qGchvjx1wlDBB2LC9N+uQsKTLrtpzOFG3yTBw68bR0rrxBUjbEqjBPgEwaSjB8DAgMBAAECgYAG5yVuYL5wCe08IzBs0fsQMk2UEELr5SRaUduMb0vTSRIl1Etxi27Byw1XzN2cxtVxBkieLZyPhJMcdU6EvUXqGQjfCCjeZxLD53Q6te3Dj7fiEnvpYB+ISrSwQ5hysbTG5UTKa2KwrFIDbXSC9vZKgjDpYig43OhWddiQ7Y3OPQJBALd7YeYtF4xRbiOnPXy4XJhE0y9VlMcD0VGCwBHcL8mRCTl35IZShQhEAgMhFd31Hyz15CdaBNkVMLtntN5KuscCQQDIc0l2tNukj/1jphP7aMvRKWNogNr/gjxzy6RC1EDDZu6JRhhUjukm0CI1sdu98/lvheIynaj1S+pnjRYioZ3lAkAoljlssjLQTj7/0gHO8fVBlY/lm5fCgjyuPC8ChGNpwhR5SuUZNW3KC0kqqgntREi2KFpkvgvufTp/agxfU8aHAkAEC+fAwLfqY4m++DxRB/WNXGOIWYmSPOPRhpvjSXuhNjO8i7C0DEqCoRL/uH5yIDm52Z8OXIZrpUOvIXb/7flNAkEAmsG8NZxapGPPWuFNgpbgi7b4Vt6pixaAv65HdXHjYLsXSS75EFHrHIU554FBnutSSJvUBUWBCgxUjv77bFalog\\u003d\\u003d";
+
+    /** 内置默认公钥（兜底，当 Nacos 无配置时） */
+    private static final String DEFAULT_PUBLIC_KEY =
+        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPqwWQEQqXfPxa3GFUvNR+1rkMXmLSlXZqeBEYrXqjCxVp+cdKIDPOKjiapW06RSuGEBWQuKwNyG1IpDRLddifZJ0TZQEd3BNkaIqfUz4RE+qhnIb48dcJQwQdiwvTfrkLCky67aczhRt8kwcOvG0dK68QVI2xKowT4BMGkowfAwIDAQAB";
 
     @Autowired
     private Environment environment;
@@ -75,27 +81,32 @@ public class RsaKeyConfig {
 
     /**
      * 重新加载 RSA 密钥
-     * - 优先从 Nacos/本地YAML读取 rsa_private_key / rsa_public_key
-     * - 未配置时拒绝使用（安全要求：禁止使用内置兜底值）
+     * - 优先从 Nacos 读取 rsa_private_key / rsa_public_key
+     * - Nacos 无配置时使用内置默认值
      */
     public synchronized void refresh() {
-        String privateValue = environment.getProperty(CONF_KEY_PRIVATE);
-        String publicValue  = environment.getProperty(CONF_KEY_PUBLIC);
-
-        if (privateValue == null || privateValue.trim().isEmpty()) {
-            log.error("RSA 私钥未配置，请通过Nacos或本地YAML配置 rsa_private_key");
-        }
-        if (publicValue == null || publicValue.trim().isEmpty()) {
-            log.error("RSA 公钥未配置，请通过Nacos或本地YAML配置 rsa_public_key");
-        }
-
-        this.privateKey = privateValue;
-        this.publicKey  = publicValue;
+        this.privateKey = loadKey(CONF_KEY_PRIVATE);
+        this.publicKey = loadKey(CONF_KEY_PUBLIC);
 
         // 通知监听器
         for (Runnable listener : listeners) {
             listener.run();
         }
+    }
+
+    /**
+     * 加载单个 key 的配置值
+     */
+    private String loadKey(String key) {
+        String value = environment.getProperty(key);
+        if (value != null && !value.trim().isEmpty()) {
+            return value;
+        }
+        // Nacos 无配置 → 使用内置默认值
+        if (key.equals(CONF_KEY_PRIVATE)) {
+            return DEFAULT_PRIVATE_KEY;
+        }
+        return DEFAULT_PUBLIC_KEY;
     }
 
     /**

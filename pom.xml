@@ -29,7 +29,7 @@
         <commons.io.version>2.19.0</commons.io.version>
         <velocity.version>2.3</velocity.version>
         <fastjson.version>2.0.57</fastjson.version>
-        <jjwt.version>0.9.1</jjwt.version>
+        <jjwt.version>0.11.5</jjwt.version>
         <minio.version>8.2.2</minio.version>
         <poi.version>4.1.2</poi.version>
         <springdoc.version>1.6.9</springdoc.version>
@@ -172,7 +172,17 @@
             <!-- JWT -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
                 <version>${jjwt.version}</version>
             </dependency>
 
@@ -316,6 +326,13 @@
                 <version>1.6.2</version>
             </dependency>
 
+            <!-- Google Guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>33.4.8-jre</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
@@ -429,18 +446,12 @@
 
     <!-- 多环境配置 -->
     <profiles>
-        <!--
-            注意事项：
-            nacos.namespace 为 Maven 资源过滤占位符（@nacos.namespace@），
-            实际命名空间 ID 建议通过环境变量 ${NACOS_NAMESPACE} 注入 bootstrap.yml，
-            此处仅作 Maven 构建默认值使用，部署前请修改为真实 Nacos 命名空间 ID。
-        -->
         <profile>
             <!-- 本地/开发环境 -->
             <id>dev</id>
             <properties>
                 <spring.profile>dev</spring.profile>
-                <nacos.namespace>dev-namespace-id</nacos.namespace>
+                <nacos.namespace>6b5e989c-ad74-4363-b488-9c221bea9913</nacos.namespace>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -451,7 +462,7 @@
             <id>test</id>
             <properties>
                 <spring.profile>test</spring.profile>
-                <nacos.namespace>test-namespace-id</nacos.namespace>
+                <nacos.namespace>0897c032-0653-4049-afbc-a39f39d89131</nacos.namespace>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -462,7 +473,7 @@
             <id>prod</id>
             <properties>
                 <spring.profile>prod</spring.profile>
-                <nacos.namespace>prod-namespace-id</nacos.namespace>
+                <nacos.namespace>7a77dea7-1529-4bd6-8d0c-79c5ab7eb49c</nacos.namespace>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>

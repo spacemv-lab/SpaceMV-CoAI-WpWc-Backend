@@ -62,6 +62,7 @@ public class IamTokenValidationFilter implements Filter {
             @Value("${iam.token-validation.whitelist:/auth/v1/code,/auth/v1/checkHuman,/auth/v1/checkunique," +
                     "/auth/v1/register,/auth/v1/login,/auth/v1/verify-code/send,/auth/v1/verify-code/check," +
                     "/auth/v1/password/forget/reset,/auth/v1/token/refresh," +
+                    "/auth/v1/register/whitelist/check," +
                     "/auth/v1/inner/**,/swagger-ui/**,/v3/api-docs/**,/favicon.ico}") List<String> whitelist) {
         this.productLine = productLine;
         this.whitelist = whitelist;
