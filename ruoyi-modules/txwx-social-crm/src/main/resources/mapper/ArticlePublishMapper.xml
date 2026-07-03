@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.content.ArticlePublishMapper">
+
+    <resultMap id="ArticlePublishResult" type="com.txwx.social.crm.domain.content.ArticlePublish">
+        <id property="id" column="id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="platform" column="platform"/>
+        <result property="platformTitle" column="platform_title"/>
+        <result property="platformTags" column="platform_tags"/>
+        <result property="stylePreset" column="style_preset"/>
+        <result property="status" column="status"/>
+        <result property="contentJsonSnapshot" column="content_json_snapshot"/>
+        <result property="platformArticleId" column="platform_article_id"/>
+        <result property="platformUrl" column="platform_url"/>
+        <result property="errorCode" column="error_code"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="retryCount" column="retry_count"/>
+        <result property="isActive" column="is_active"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+        <!-- 关联查询字段 -->
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleStatus" column="article_status"/>
+    </resultMap>
+
+    <sql id="selectPublishRecordVo">
+        SELECT ap.id, ap.article_id, ap.platform, ap.platform_title, ap.platform_tags,
+               ap.style_preset, ap.status, ap.content_json_snapshot,
+               ap.platform_article_id, ap.platform_url,
+               ap.error_code, ap.error_message, ap.retry_count,
+               ap.is_active, ap.published_at,
+               ap.remark, ap.del_flag
+        FROM article_publish ap
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_publish (
+            article_id, platform, platform_title, platform_tags, style_preset,
+            status, content_json_snapshot,
+            platform_article_id, platform_url,
+            error_code, error_message, retry_count,
+            is_active, published_at,
+            remark, del_flag
+        ) VALUES (
+            #{articleId}, #{platform}, #{platformTitle}, #{platformTags}, #{stylePreset},
+            #{status}, #{contentJsonSnapshot},
+            #{platformArticleId}, #{platformUrl},
+            #{errorCode}, #{errorMessage}, #{retryCount},
+            COALESCE(#{isActive}, '1'), #{publishedAt},
+            #{remark}, COALESCE(#{delFlag}, '0')
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE article_publish
+        <set>
+            <if test="platformTitle != null">platform_title = #{platformTitle},</if>
+            <if test="platformTags != null">platform_tags = #{platformTags},</if>
+            <if test="stylePreset != null">style_preset = #{stylePreset},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="contentJsonSnapshot != null">content_json_snapshot = #{contentJsonSnapshot},</if>
+            <if test="platformArticleId != null">platform_article_id = #{platformArticleId},</if>
+            <if test="platformUrl != null">platform_url = #{platformUrl},</if>
+            <if test="errorCode != null">error_code = #{errorCode},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage},</if>
+            <if test="retryCount != null">retry_count = #{retryCount},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="publishedAt != null">published_at = #{publishedAt},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        WHERE id = #{id} AND del_flag = '0'
+    </update>
+
+    <select id="selectById" resultMap="ArticlePublishResult">
+        <include refid="selectPublishRecordVo"/>
+        WHERE ap.id = #{id} AND ap.del_flag = '0'
+    </select>
+
+    <select id="selectByArticleAndPlatform" resultMap="ArticlePublishResult">
+        <include refid="selectPublishRecordVo"/>
+        WHERE ap.article_id = #{articleId}
+          AND ap.platform = #{platform}
+          AND ap.del_flag = '0'
+        LIMIT 1
+    </select>
+
+    <select id="selectByArticleId" resultMap="ArticlePublishResult">
+        <include refid="selectPublishRecordVo"/>
+        WHERE ap.article_id = #{articleId} AND ap.del_flag = '0'
+        ORDER BY ap.platform
+    </select>
+
+    <select id="selectSuccessByArticleId" resultMap="ArticlePublishResult">
+        <include refid="selectPublishRecordVo"/>
+        WHERE ap.article_id = #{articleId}
+          AND ap.status = 'SUCCESS'
+          AND ap.is_active = '1'
+          AND ap.del_flag = '0'
+        ORDER BY ap.platform
+    </select>
+
+    <select id="selectList" resultMap="ArticlePublishResult">
+        SELECT ap.*, ca.title AS article_title, ca.status AS article_status
+        FROM article_publish ap
+        LEFT JOIN content_article ca ON ca.id = ap.article_id AND ca.del_flag = '0'
+        <where>
+            ap.del_flag = '0'
+            <if test="articleId != null">AND ap.article_id = #{articleId}</if>
+            <if test="platform != null and platform != ''">AND ap.platform = #{platform}</if>
+            <if test="status != null and status != ''">AND ap.status = #{status}</if>
+            <if test="isActive != null and isActive != ''">AND ap.is_active = #{isActive}</if>
+        </where>
+        ORDER BY ap.id DESC
+    </select>
+
+    <update id="markDeleted">
+        UPDATE article_publish
+        SET is_active = '0'
+        WHERE id = #{id} AND del_flag = '0'
+    </update>
+
+    <update id="markDeletedByArticleId">
+        UPDATE article_publish
+        SET is_active = '0'
+        WHERE article_id = #{articleId} AND del_flag = '0'
+    </update>
+
+    <update id="incrementRetryCount">
+        UPDATE article_publish
+        SET retry_count = retry_count + 1
+        WHERE id = #{id} AND del_flag = '0'
+    </update>
+
+</mapper>

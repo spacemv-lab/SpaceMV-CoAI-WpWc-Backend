@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.content.ContentPublishResultMapper">
+
+    <resultMap id="ContentPublishResultResult" type="com.txwx.social.crm.domain.content.ContentPublishResult">
+        <id property="id" column="id"/>
+        <result property="jobId" column="job_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="targetCode" column="target_code"/>
+        <result property="externalId" column="external_id"/>
+        <result property="externalUrl" column="external_url"/>
+        <result property="siteUrl" column="site_url"/>
+        <result property="payloadJson" column="payload_json"/>
+        <result property="resultJson" column="result_json"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.txwx.social.crm.domain.content.ContentPublishResult" useGeneratedKeys="true" keyProperty="id">
+        insert into content_publish_result (
+            job_id, article_id, target_code, external_id, external_url, site_url,
+            payload_json, result_json, create_by, update_by, remark, del_flag
+        ) values (
+            #{jobId}, #{articleId}, #{targetCode}, #{externalId}, #{externalUrl}, #{siteUrl},
+            #{payloadJson}, #{resultJson}, #{createBy}, #{updateBy}, #{remark}, '0'
+        )
+    </insert>
+
+    <select id="selectById" resultMap="ContentPublishResultResult">
+        select id, job_id, article_id, target_code, external_id, external_url, site_url,
+               payload_json, result_json, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_publish_result
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <select id="selectByArticleId" resultMap="ContentPublishResultResult">
+        select id, job_id, article_id, target_code, external_id, external_url, site_url,
+               payload_json, result_json, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_publish_result
+        where article_id = #{articleId}
+          and del_flag = '0'
+        order by create_time desc, id desc
+    </select>
+
+    <select id="selectByJobId" resultMap="ContentPublishResultResult">
+        select id, job_id, article_id, target_code, external_id, external_url, site_url,
+               payload_json, result_json, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_publish_result
+        where job_id = #{jobId}
+          and del_flag = '0'
+        order by create_time desc, id desc
+    </select>
+
+    <select id="selectList" resultMap="ContentPublishResultResult">
+        select id, job_id, article_id, target_code, external_id, external_url, site_url,
+               payload_json, result_json, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_publish_result
+        where del_flag = '0'
+        <if test="articleId != null">
+            and article_id = #{articleId}
+        </if>
+        <if test="jobId != null">
+            and job_id = #{jobId}
+        </if>
+        <if test="targetCode != null and targetCode != ''">
+            and target_code = #{targetCode}
+        </if>
+        <if test="beginTime != null">
+            and create_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and create_time &lt;= #{endTime}
+        </if>
+        order by create_time desc, id desc
+    </select>
+
+    <update id="update" parameterType="com.txwx.social.crm.domain.content.ContentPublishResult">
+        update content_publish_result
+        <trim prefix="set" suffixOverrides=",">
+            update_time = CURRENT_TIMESTAMP,
+            <if test="externalId != null">external_id = #{externalId},</if>
+            <if test="externalUrl != null">external_url = #{externalUrl},</if>
+            <if test="siteUrl != null">site_url = #{siteUrl},</if>
+            <if test="payloadJson != null">payload_json = #{payloadJson},</if>
+            <if test="resultJson != null">result_json = #{resultJson},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+</mapper>

@@ -89,7 +89,8 @@ public class TxwxUserController extends BaseController {
      * 获取当前用户信息
      */
     @PutMapping("/resetPwd")
-    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password) throws Exception {
+    public R<Boolean> resetPwd(@RequestParam("accountName") String accountName, @RequestParam("password") String password)
+    {
         String username = processUserName(accountName);
         if (StringUtils.isNull(username))
         {

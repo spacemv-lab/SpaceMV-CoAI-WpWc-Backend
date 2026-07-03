@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.txwx.social.crm.mapper.content.ContentArticleMapper">
+
+    <resultMap id="ContentArticleResult" type="com.txwx.social.crm.domain.content.ContentArticle">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="slug" column="slug"/>
+        <result property="summary" column="summary"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="tags" column="tags"/>
+        <result property="authorId" column="author_id"/>
+        <result property="authorName" column="author_name"/>
+        <result property="contentHtml" column="content_html"/>
+        <result property="contentMarkdown" column="content_markdown"/>
+        <result property="contentJson" column="content_json"/>
+        <result property="status" column="status"/>
+        <result property="visibility" column="visibility"/>
+        <result property="isPaid" column="is_paid"/>
+        <result property="seoTitle" column="seo_title"/>
+        <result property="seoDescription" column="seo_description"/>
+        <result property="seoKeywords" column="seo_keywords"/>
+        <result property="canonicalUrl" column="canonical_url"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="wechatMediaId" column="wechat_media_id"/>
+        <result property="wechatAccountId" column="wechat_account_id"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="ContentArticleResult">
+        select id, title, slug, summary, cover_url, tags, author_id, author_name,
+               content_html, content_markdown, content_json, status, visibility, is_paid,
+               seo_title, seo_description, seo_keywords, canonical_url, published_at,
+               wechat_media_id, wechat_account_id, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_article
+        where id = #{id}
+          and del_flag = '0'
+    </select>
+
+    <insert id="insert" parameterType="com.txwx.social.crm.domain.content.ContentArticle" useGeneratedKeys="true" keyProperty="id">
+        insert into content_article (
+            title, slug, summary, cover_url, tags, author_id, author_name,
+            content_html, content_markdown, content_json, status, visibility, is_paid,
+            seo_title, seo_description, seo_keywords, canonical_url,
+            published_at, wechat_media_id, wechat_account_id, create_by, update_by, remark, del_flag
+        ) values (
+            #{title}, #{slug}, #{summary}, #{coverUrl}, #{tags}, #{authorId}, #{authorName},
+            #{contentHtml}, #{contentMarkdown}, #{contentJson}, #{status}, #{visibility}, #{isPaid},
+            #{seoTitle}, #{seoDescription}, #{seoKeywords}, #{canonicalUrl},
+            #{publishedAt}, #{wechatMediaId}, #{wechatAccountId}, #{createBy}, #{updateBy}, #{remark}, '0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.txwx.social.crm.domain.content.ContentArticle">
+        update content_article
+        <trim prefix="set" suffixOverrides=",">
+            update_time = CURRENT_TIMESTAMP,
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="slug != null and slug != ''">slug = #{slug},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="authorName != null">author_name = #{authorName},</if>
+            <if test="contentHtml != null">content_html = #{contentHtml},</if>
+            <if test="contentMarkdown != null">content_markdown = #{contentMarkdown},</if>
+            <if test="contentJson != null">content_json = #{contentJson},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="visibility != null and visibility != ''">visibility = #{visibility},</if>
+            <if test="isPaid != null and isPaid != ''">is_paid = #{isPaid},</if>
+            <if test="seoTitle != null">seo_title = #{seoTitle},</if>
+            <if test="seoDescription != null">seo_description = #{seoDescription},</if>
+            <if test="seoKeywords != null">seo_keywords = #{seoKeywords},</if>
+            <if test="canonicalUrl != null">canonical_url = #{canonicalUrl},</if>
+            <if test="publishedAt != null">published_at = #{publishedAt},</if>
+            <if test="wechatMediaId != null">wechat_media_id = #{wechatMediaId},</if>
+            <if test="wechatAccountId != null">wechat_account_id = #{wechatAccountId},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+          and del_flag = '0'
+    </update>
+
+    <select id="selectBySlug" resultMap="ContentArticleResult">
+        select id, title, slug, summary, cover_url, tags, author_id, author_name,
+               content_html, content_markdown, content_json, status, visibility, is_paid,
+               seo_title, seo_description, seo_keywords, canonical_url, published_at,
+               wechat_media_id, wechat_account_id, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_article
+        where slug = #{slug}
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="selectList" resultMap="ContentArticleResult">
+        select id, title, slug, summary, cover_url, tags, author_id, author_name,
+               null as content_html, null as content_markdown, null as content_json, status, visibility, is_paid,
+               seo_title, seo_description, seo_keywords, canonical_url, published_at,
+               wechat_media_id, wechat_account_id, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_article
+        where del_flag = '0'
+        <if test="title != null and title != ''">
+            and title like concat('%', #{title}, '%')
+        </if>
+        <if test="slug != null and slug != ''">
+            and slug = #{slug}
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="visibility != null and visibility != ''">
+            and visibility = #{visibility}
+        </if>
+        <if test="tags != null and tags != ''">
+            and tags like concat('%', #{tags}, '%')
+        </if>
+        <if test="beginPublishedAt != null">
+            and published_at &gt;= #{beginPublishedAt}
+        </if>
+        <if test="endPublishedAt != null">
+            and published_at &lt;= #{endPublishedAt}
+        </if>
+        order by update_time desc, id desc
+    </select>
+
+    <select id="selectPublicList" resultMap="ContentArticleResult">
+        select id, title, slug, summary, cover_url, tags, author_id, author_name,
+               null as content_html, null as content_markdown, null as content_json, status, visibility, is_paid,
+               seo_title, seo_description, seo_keywords, canonical_url, published_at,
+               wechat_media_id, wechat_account_id, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_article
+        where del_flag = '0'
+          and status = 'PUBLISHED'
+          and visibility = 'PUBLIC'
+        <if test="title != null and title != ''">
+            and title like concat('%', #{title}, '%')
+        </if>
+        <if test="slug != null and slug != ''">
+            and slug = #{slug}
+        </if>
+        order by published_at desc, id desc
+    </select>
+
+    <select id="selectPublicBySlug" resultMap="ContentArticleResult">
+        select id, title, slug, summary, cover_url, tags, author_id, author_name,
+               content_html, content_markdown, content_json, status, visibility, is_paid,
+               seo_title, seo_description, seo_keywords, canonical_url, published_at,
+               wechat_media_id, wechat_account_id, create_by, create_time, update_by, update_time, remark, del_flag
+        from content_article
+        where slug = #{slug}
+          and status = 'PUBLISHED'
+          and visibility = 'PUBLIC'
+          and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="selectWendaoSiteList" resultMap="ContentArticleResult">
+        select distinct a.id, a.title, a.slug, a.summary, a.cover_url, a.tags, a.author_id, a.author_name,
+               null as content_html, null as content_markdown, null as content_json, a.status, a.visibility, a.is_paid,
+               a.seo_title, a.seo_description, a.seo_keywords, a.canonical_url, a.published_at,
+               a.create_by, a.create_time, a.update_by, a.update_time, a.remark, a.del_flag
+        from content_article a
+        inner join content_publish_job j on j.article_id = a.id
+            and j.target_code = 'SITE_WENDAO'
+            and j.status = 'SUCCESS'
+            and j.del_flag = '0'
+        inner join content_publish_result r on r.job_id = j.id
+            and r.target_code = 'SITE_WENDAO'
+            and r.site_url is not null
+            and r.site_url != ''
+            and r.del_flag = '0'
+        where a.del_flag = '0'
+          and a.status = 'PUBLISHED'
+          and a.visibility = 'PUBLIC'
+        <if test="title != null and title != ''">
+            and a.title like concat('%', #{title}, '%')
+        </if>
+        <if test="slug != null and slug != ''">
+            and a.slug = #{slug}
+        </if>
+        <if test="tags != null and tags != ''">
+            and a.tags like concat('%', #{tags}, '%')
+        </if>
+        order by a.published_at desc, a.id desc
+    </select>
+
+    <select id="selectWendaoSiteBySlug" resultMap="ContentArticleResult">
+        select a.id, a.title, a.slug, a.summary, a.cover_url, a.tags, a.author_id, a.author_name,
+               a.content_html, a.content_markdown, a.content_json, a.status, a.visibility, a.is_paid,
+               a.seo_title, a.seo_description, a.seo_keywords, a.canonical_url, a.published_at,
+               a.create_by, a.create_time, a.update_by, a.update_time, a.remark, a.del_flag
+        from content_article a
+        inner join content_publish_job j on j.article_id = a.id
+            and j.target_code = 'SITE_WENDAO'
+            and j.status = 'SUCCESS'
+            and j.del_flag = '0'
+        inner join content_publish_result r on r.job_id = j.id
+            and r.target_code = 'SITE_WENDAO'
+            and r.site_url is not null
+            and r.site_url != ''
+            and r.del_flag = '0'
+        where a.slug = #{slug}
+          and a.status = 'PUBLISHED'
+          and a.visibility = 'PUBLIC'
+          and a.del_flag = '0'
+        order by j.finished_at desc, j.id desc
+        limit 1
+    </select>
+
+    <select id="selectWendaoSiteTags" resultType="com.txwx.social.crm.domain.content.TagCount">
+        select trim(substring_index(substring_index(a.tags, ',', n.n), ',', -1)) as tag_name,
+               count(*) as article_count
+        from content_article a
+        inner join content_publish_job j on j.article_id = a.id
+            and j.target_code = 'SITE_WENDAO'
+            and j.status = 'SUCCESS'
+            and j.del_flag = '0'
+        inner join content_publish_result r on r.job_id = j.id
+            and r.target_code = 'SITE_WENDAO'
+            and r.site_url is not null
+            and r.site_url != ''
+            and r.del_flag = '0'
+        cross join (
+            select 1 n union select 2 union select 3 union select 4
+            union select 5 union select 6 union select 7 union select 8
+            union select 9 union select 10
+        ) n
+        where a.del_flag = '0'
+          and a.status = 'PUBLISHED'
+          and a.visibility = 'PUBLIC'
+          and char_length(a.tags) - char_length(replace(a.tags, ',', '')) &gt;= n.n - 1
+          and trim(a.tags) != ''
+        group by tag_name
+        order by article_count desc, tag_name asc
+    </select>
+
+    <select id="selectWendaoSiteHotList" resultMap="ContentArticleResult">
+        select a.id, a.title, a.slug, a.summary, a.cover_url, a.tags, a.author_id, a.author_name,
+               null as content_html, null as content_markdown, null as content_json, a.status, a.visibility, a.is_paid,
+               a.seo_title, a.seo_description, a.seo_keywords, a.canonical_url, a.published_at,
+               a.create_by, a.create_time, a.update_by, a.update_time, a.remark, a.del_flag
+        from content_article a
+        inner join content_publish_job j on j.article_id = a.id
+            and j.target_code = 'SITE_WENDAO'
+            and j.status = 'SUCCESS'
+            and j.del_flag = '0'
+        inner join content_publish_result r on r.job_id = j.id
+            and r.target_code = 'SITE_WENDAO'
+            and r.site_url is not null
+            and r.site_url != ''
+            and r.del_flag = '0'
+        where a.del_flag = '0'
+          and a.status = 'PUBLISHED'
+          and a.visibility = 'PUBLIC'
+        order by a.published_at desc, a.id desc
+        limit #{limit}
+    </select>
+
+    <update id="deleteById">
+        update content_article
+        set del_flag = '1',
+            update_by = #{updateBy},
+            update_time = CURRENT_TIMESTAMP
+        where id = #{id}
+    </update>
+</mapper>

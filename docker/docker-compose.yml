@@ -7,6 +7,10 @@ services:
       context: ./nacos
     environment:
       - MODE=standalone
+      # ⚠️ 安全配置：部署前必须设置以下密钥！
+      # NACOS_AUTH_TOKEN_SECRET_KEY=Base64编码的32字节密钥（生成：openssl rand -base64 32）
+      # NACOS_AUTH_SERVER_IDENTITY_KEY=your-custom-identity-key
+      # NACOS_AUTH_SERVER_IDENTITY_VALUE=your-custom-identity-value
     volumes:
       - ./nacos/logs/:/home/nacos/logs
       - ./nacos/conf/application.properties:/home/nacos/conf/application.properties

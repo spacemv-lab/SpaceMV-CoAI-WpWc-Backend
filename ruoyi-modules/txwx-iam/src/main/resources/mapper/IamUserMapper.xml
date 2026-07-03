@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.iam.mapper.IamUserMapper">
+
+    <resultMap type="com.ruoyi.iam.entity.IamUser" id="IamUserResult">
+        <id     property="id"              column="id"              />
+        <result property="username"         column="username"        />
+        <result property="passwordHash"     column="password_hash"   />
+        <result property="displayName"      column="display_name"    />
+        <result property="productLine"     column="product_line"     />
+        <result property="userFrom"        column="user_from"       />
+        <result property="avatarUrl"        column="avatar_url"      />
+        <result property="status"           column="status"          />
+        <result property="deleteStatus"     column="delete_status"   />
+        <result property="deleteScheduledAt" column="delete_scheduled_at" />
+        <result property="deleteApplyTime"  column="delete_apply_time" />
+        <result property="lastLoginIp"      column="last_login_ip"   />
+        <result property="lastLoginTime"    column="last_login_time" />
+        <result property="createTime"       column="create_time"     />
+        <result property="updateTime"       column="update_time"     />
+        <result property="delFlag"          column="del_flag"        />
+    </resultMap>
+
+    <sql id="selectIamUserVo">
+        SELECT id, username, password_hash, display_name, product_line, user_from,
+               avatar_url, status,
+               delete_status, delete_scheduled_at, delete_apply_time,
+               last_login_ip, last_login_time, create_time, update_time, del_flag
+        FROM iam_user
+    </sql>
+
+    <select id="selectById" resultMap="IamUserResult">
+        <include refid="selectIamUserVo"/>
+        WHERE id = #{id} AND del_flag = '0'
+    </select>
+
+    <select id="selectByUsername" resultMap="IamUserResult">
+        <include refid="selectIamUserVo"/>
+        WHERE username = #{username} AND del_flag = '0'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO iam_user (
+            username, password_hash, display_name, product_line, user_from,
+            avatar_url, status,
+            delete_scheduled_at, delete_apply_time,
+            last_login_ip, last_login_time, del_flag
+        ) VALUES (
+            #{username}, #{passwordHash}, #{displayName}, #{productLine}, #{userFrom},
+            #{avatarUrl}, #{status},
+            #{deleteScheduledAt}, #{deleteApplyTime},
+            #{lastLoginIp}, #{lastLoginTime}, '0'
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE iam_user SET
+            password_hash = #{passwordHash},
+            display_name = #{displayName},
+            avatar_url = #{avatarUrl},
+            status = #{status},
+            delete_status = #{deleteStatus},
+            delete_scheduled_at = #{deleteScheduledAt},
+            delete_apply_time = #{deleteApplyTime},
+            del_flag = #{delFlag},
+            last_login_ip = #{lastLoginIp},
+            last_login_time = #{lastLoginTime}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateLastLogin">
+        UPDATE iam_user SET
+            last_login_ip = #{ip},
+            last_login_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateDeactivateExpired">
+        UPDATE iam_user SET
+            delete_status = '2',
+            del_flag = '1'
+        WHERE id = #{id}
+    </update>
+
+</mapper>

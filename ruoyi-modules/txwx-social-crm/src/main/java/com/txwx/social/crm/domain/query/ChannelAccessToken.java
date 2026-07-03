@@ -27,4 +27,10 @@ public class ChannelAccessToken {
 
     @Schema(description = "渠道名称")
     private String channel;
+
+    @Schema(description = "微信返回的错误码")
+    private Integer errcode;
+
+    @Schema(description = "微信返回的错误信息")
+    private String errmsg;
 }

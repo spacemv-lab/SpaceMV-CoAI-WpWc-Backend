@@ -2,7 +2,7 @@
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: Industrial Planet Operations AI Agent Server-side</h1>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
 <br>
-<strong>Version: v1.2.0</strong> &nbsp;|&nbsp; <strong>Last Updated: 2026-05-16</strong>
+<strong>Version: v1.2.1</strong> &nbsp;|&nbsp; <strong>Last Updated: 2026-05-22</strong>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README_EN.md"><strong>English</strong></a>
@@ -27,7 +27,9 @@
 * [Technical Architecture](#technical-architecture)
 * [Features](#features)
 * [Quick Start](#quick-start)
-* [Contribution Guide](#contribution-guide)'
+* [Contribution Guide](#contribution-guide)
+* [Version History](#version-history)
+* [Pressure Test Report](#pressure-test-report)
 * [License](#license)
 * [Contact](#contact)
 * [Contributors](#contributors)
@@ -36,7 +38,7 @@
 
 ## **Core Modules**
 
-SpaceMV-CoAI-Wp/Wc Backend is developed based on the master branch of [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud). Building upon the Ruoyi framework, we have expanded the following four modules:
+SpaceMV-CoAI-Wp/Wc Backend is developed based on the master branch of [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud). Building upon the Ruoyi framework, we have expanded the following modules:
 
 | Module | Directory | Description |
 | :---- | :---- | :---- |
@@ -44,6 +46,8 @@ SpaceMV-CoAI-Wp/Wc Backend is developed based on the master branch of [RuoYi-Clo
 | **http public service** | ruoyi-common\_ruoyi-common-http | http invoke integration |
 | **Official Website Content Management** | ruoyi-modules\_txwx-website | Customize the official website content based on the design of Tianxun Micro Company's website. |
 | **WeChat Official Account Content Management** | ruoyi-modules\_txwx-social-crm | Content editing, review, and publishing for WeChat Official Account. |
+| **Operations Data Dashboard** | ruoyi-modules\_txwx-social-dashboard | Operations data sync, user profile analysis, traffic data analysis. |
+| **Unified Authentication Service** | ruoyi-modules\_txwx-iam | Unified auth layer supporting phone/email registration, SMS login, 7-day cooldown account deletion. |
 
 ## **Technical Architecture**
 
@@ -121,7 +125,16 @@ server
 * **Image-Text Materials**: Manage image-text combined material content.  
 * **Permanent Materials**: Manage reusable permanent materials.  
 * **Material Upload**: Support multiple format material uploads.
- 
+
+
+## **Version History**
+
+See [VERSION.md](./VERSION.md) for detailed changelog.
+
+
+## **Pressure Test Report**
+
+See [SpaceMV运营数据同步压测报告.md](./SpaceMV运营数据同步压测报告.md) for the operations data sync performance evaluation report.
 
 
 ## **Quick Start**
@@ -238,6 +251,8 @@ For more information, you can follow the company's WeChat official account:
   <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvpy" title="spacemvpy" />
   &nbsp;
   <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvwnn" title="spacemvwnn" />
+  &nbsp;
+  <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="SpaceMV-lyt" title="SpaceMV-lyt" />
 </div>
 
 ## **To-Do List**

@@ -22,15 +22,18 @@ import com.ruoyi.system.api.domain.SysOperLog;
 @Service
 public class AsyncLogService
 {
-    @Autowired
+    @Autowired(required = false)
     private RemoteLogService remoteLogService;
 
     /**
      * 保存系统日志记录
      */
     @Async
-    public void saveSysLog(SysOperLog sysOperLog) throws Exception
-    {
+    public void saveSysLog(SysOperLog sysOperLog) throws Exception {
+        if (remoteLogService == null)
+        {
+            return;
+        }
         remoteLogService.saveLog(sysOperLog, SecurityConstants.INNER);
     }
 }

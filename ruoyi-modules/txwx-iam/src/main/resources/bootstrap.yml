@@ -1,0 +1,26 @@
+# Tomcat
+server:
+  port: 19001
+
+# Spring
+spring:
+  application:
+    name: txwx-iam
+  profiles:
+    active: @spring.profile@
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+        namespace: @nacos.namespace@
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+        namespace: @nacos.namespace@
+        file-extension: yml
+        # 白名单配置：extension-configs + 独立 Group（物理隔离，不影响已有业务配置）
+        extension-configs:
+          - data-id: register-whitelist.yml
+            group: WHITELIST_GROUP
+            refresh: true
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}

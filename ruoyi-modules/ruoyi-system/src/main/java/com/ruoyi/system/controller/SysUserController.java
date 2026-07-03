@@ -160,6 +160,45 @@ public class SysUserController extends BaseController
     }
 
     /**
+     * IAM 注册同步 — 将 IAM 用户同步写入 sys_user
+     * <p>
+     * IAM 负责认证，system 只需管理后台兼容记录。
+     * sys_user.userId 由自增生成，通过返回值传递。
+     * 不处理密码/RSA 加密，直接创建用户并绑定默认角色。
+     * IAM 端需通过返回值获取 sys_user.userId 写入 iam_user_product 映射表。
+     */
+    @InnerAuth
+    @PostMapping("/inner/syncIamUser")
+    public R<Long> syncIamUser(@RequestBody SysUser sysUser)
+    {
+        if (sysUser.getUserName() == null)
+        {
+            return R.fail("缺少必填参数：userName");
+        }
+        if (!userService.checkUserNameUnique(sysUser))
+        {
+            // 已存在则返回现有 userId（幂等）
+            SysUser existing = userService.selectUserByUserName(sysUser.getUserName());
+            if (existing != null)
+            {
+                return R.ok(existing.getUserId());
+            }
+            return R.fail("用户已存在但查询失败");
+        }
+        // 设置必要默认值
+        if (sysUser.getStatus() == null) sysUser.setStatus("0");
+        if (sysUser.getDelFlag() == null) sysUser.setDelFlag("0");
+        userService.registerUser(sysUser);
+        // 返回自增生成的 userId
+        SysUser created = userService.selectUserByUserName(sysUser.getUserName());
+        if (created != null)
+        {
+            return R.ok(created.getUserId());
+        }
+        return R.fail("创建用户后查询失败");
+    }
+
+    /**
      * 检查用户名称是否唯一
      */
     @InnerAuth
@@ -362,6 +401,44 @@ public class SysUserController extends BaseController
         user.setPassword(SecurityUtils.encryptPassword(RsaUtils.decryptByPrivateKey(user.getPassword())));
         user.setUpdateBy(SecurityUtils.getUsername());
         return R.ok(userService.resetPwd(user) > 0);
+    }
+
+    /**
+     * IAM 用户注销同步 — 按 userId 删除 sys_user
+     */
+    @InnerAuth
+    @DeleteMapping("/inner/deleteIamUser/{productUserId}")
+    public R<Boolean> deleteIamUser(@PathVariable Long productUserId)
+    {
+        return R.ok(userService.deleteUserById(productUserId) > 0);
+    }
+
+    /**
+     * IAM 通道绑定/解绑同步 — 更新 sys_user 基本信息（手机号/邮箱等）
+     */
+    @InnerAuth
+    @PutMapping("/inner/updateProfile")
+    public R<Boolean> updateProfile(@RequestBody SysUser sysUser)
+    {
+        return R.ok(userService.updateUserProfile(sysUser));
+    }
+
+    /**
+     * IAM 密码变更同步 — 直接写入 BCrypt 密码密文
+     * <p>
+     * 密码已由 IAM 模块 BCrypt 加密，system 模块无需再次加密，
+     * 直接调用 resetPwd 写入数据库。
+     */
+    @InnerAuth
+    @Log(title = "IAM密码同步", businessType = BusinessType.UPDATE)
+    @PutMapping("/inner/syncIamUserPassword")
+    public R<Boolean> syncIamUserPassword(@RequestBody SysUser sysUser)
+    {
+        if (sysUser.getUserId() == null)
+        {
+            return R.fail("缺少必填参数：userId");
+        }
+        return R.ok(userService.resetPwd(sysUser) > 0);
     }
 
     /**

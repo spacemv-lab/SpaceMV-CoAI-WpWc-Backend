@@ -53,10 +53,22 @@ public class AuthFilter implements GlobalFilter, Ordered
         ServerHttpRequest.Builder mutate = request.mutate();
 
         String url = request.getURI().getPath();
-        // 跳过不需要验证的路径
+        // 跳过不需要验证的路径（ant 模式白名单）
         if (StringUtils.matches(url, ignoreWhite.getWhites()))
         {
             return chain.filter(exchange);
+        }
+        // 按模块前缀放行（如 /txwx-iam，匹配该前缀下所有路径，无需写完整 ant 模式）
+        if (ignoreWhite.getModules() != null)
+        {
+            for (String module : ignoreWhite.getModules())
+            {
+                if (url.startsWith(module))
+                {
+                    log.debug("模块前缀放行: {}", url);
+                    return chain.filter(exchange);
+                }
+            }
         }
         String token = getToken(request);
         if (StringUtils.isEmpty(token))

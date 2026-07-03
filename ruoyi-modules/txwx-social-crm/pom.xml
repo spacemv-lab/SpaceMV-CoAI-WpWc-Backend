@@ -52,6 +52,12 @@
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
+        <!-- PostgreSQL Connector -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
         <!-- RuoYi Common DataSource -->
         <dependency>
             <groupId>com.ruoyi</groupId>

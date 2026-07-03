@@ -9,17 +9,17 @@ spring:
     name: ruoyi-gateway
   profiles:
     # 环境配置
-    active: dev
+    active: @spring.profile@
   cloud:
     nacos:
       discovery:
         # 服务注册地址
-        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
-        namespace: ${NACOS_NAMESPACE:-public}
+        server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+        namespace: @nacos.namespace@
       config:
         # 配置中心地址
-        server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
-        namespace: ${NACOS_NAMESPACE:-public}
+        server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+        namespace: @nacos.namespace@
         # 配置文件格式
         file-extension: yml
         # 共享配置
@@ -35,8 +35,8 @@ spring:
       datasource:
         ds1:
           nacos:
-            server-addr: ${NACOS_SERVER_ADDR:-nacos-server:8848}
-            namespace: ${NACOS_NAMESPACE:-public}
+            server-addr: ${NACOS_SERVER_ADDR:-YOUR_NACOS_SERVER_ADDR}
+            namespace: ${SENTINEL_NACOS_NAMESPACE:@nacos.namespace@}
             dataId: sentinel-ruoyi-gateway
             groupId: DEFAULT_GROUP
             data-type: json

@@ -2,7 +2,7 @@
 <h1 style="margin: 30px 0 30px; font-weight: bold;">SpaceMV-CoAI-Wp/Wc Backend: 产业星球运营智能体服务端</h1>
 <a href="./LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="License"></a> <a href="https://github.com/spacemv-lab/SpaceMV-CoAI-WpWc-Backend"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a> 
 <br>
-<strong>版本: v1.2.0</strong> &nbsp;|&nbsp; <strong>最后更新: 2026-05-16</strong>
+<strong>版本: v1.2.1</strong> &nbsp;|&nbsp; <strong>最后更新: 2026-05-22</strong>
 </div>
 <div align="center">
 <a href="./README.md"><strong>简体中文</strong></a> | <a href="./README-EN.md"><strong>English</strong></a>
@@ -26,6 +26,8 @@
 * [功能特性](#-功能特性)
 * [快速开始](#-快速开始)
 * [贡献指南](#-贡献指南)
+* [版本历史](#-版本历史)
+* [压测报告](#-压测报告)
 * [许可证](#-许可证)
 * [联系方式](#-联系方式)
 * [贡献者](#-贡献者)
@@ -33,7 +35,7 @@
 
 ## **🧩 核心模块**
 
-SpaceMV-CoAI-Wp/Wc Backend 基于 [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud)的master分支开发，在若依框架基础上，我们拓展了以下四个模块：
+SpaceMV-CoAI-Wp/Wc Backend 基于 [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud)的master分支开发，在若依框架基础上，我们拓展了以下模块：
 
 | 模块 | 目录 | 说明 |
 | :---- | :---- | :---- |
@@ -41,6 +43,8 @@ SpaceMV-CoAI-Wp/Wc Backend 基于 [RuoYi-Cloud](https://gitee.com/y_project/RuoY
 | **http公共服务** | ruoyi-common\_ruoyi-common-http | http调用集成。 |
 | **官网网页内容管理** | ruoyi-modules\_txwx-website | 按照天巡微小公司官网样式进行官网网页内容自定义。 |
 | **微信公众号内容管理** | ruoyi-modules\_txwx-social-crm | 微信公众号内容编辑、审核和发布。 |
+| **运营数据看板** | ruoyi-modules\_txwx-social-dashboard | 运营数据同步、用户画像分析、流量数据分析。 |
+| **统一账号认证服务** | ruoyi-modules\_txwx-iam | 统一认证层，支持手机/邮箱注册登录、短信验证码、7天冷静期注销。 |
 
 ## **🏗 技术架构**
 
@@ -118,6 +122,16 @@ server
 * **图文素材**: 管理图文结合的素材内容。  
 * **永久素材**: 管理可重复使用的永久素材。  
 * **素材上传**: 支持多种格式的素材上传。  
+
+
+## **📜 版本历史**
+
+详细的版本变更记录请参见 [VERSION.md](./VERSION.md)。
+
+
+## **📊 压测报告**
+
+运营数据同步模块的性能评估报告请参见 [SpaceMV运营数据同步压测报告.md](./SpaceMV运营数据同步压测报告.md)。
 
 
 ## **🚀 快速开始**
@@ -234,6 +248,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvpy" title="spacemvpy" />
   &nbsp;
   <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="spacemvwnn" title="spacemvwnn" />
+  &nbsp;
+  <img src="./public/github.png" style="cursor: pointer;" width="50" height="50" alt="SpaceMV-lyt" title="SpaceMV-lyt" />
 </div>
 
 ## ✅ 待办事项

@@ -61,6 +61,34 @@ public class RemoteUserFallbackFactory implements FallbackFactory<RemoteUserServ
             {
                 return R.fail("校验登录账号唯一性失败：" + throwable.getMessage());
             }
+
+            @Override
+            public R<Long> syncIamUser(SysUser sysUser, String source)
+            {
+                log.warn("IAM 用户同步降级: userName={}", sysUser.getUserName());
+                return R.fail("IAM 用户同步失败:" + throwable.getMessage());
+            }
+
+            @Override
+            public R<Boolean> deleteIamUser(Long productUserId, String source)
+            {
+                log.warn("IAM 用户删除同步降级: productUserId={}", productUserId);
+                return R.fail("IAM 用户删除同步失败:" + throwable.getMessage());
+            }
+
+            @Override
+            public R<Boolean> updateProfile(SysUser sysUser, String source)
+            {
+                log.warn("IAM 用户资料同步降级: userId={}", sysUser.getUserId());
+                return R.fail("IAM 用户资料同步失败:" + throwable.getMessage());
+            }
+
+            @Override
+            public R<Boolean> syncIamUserPassword(SysUser sysUser, String source)
+            {
+                log.warn("IAM 密码同步降级: userId={}", sysUser.getUserId());
+                return R.fail("IAM 密码同步失败:" + throwable.getMessage());
+            }
         };
     }
 }
