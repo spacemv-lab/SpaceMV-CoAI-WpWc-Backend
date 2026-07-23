@@ -15,7 +15,7 @@ public class ArticleHtmlSanitizer {
         allowed.put("img", Arrays.asList("src", "width", "height", "alt", "style", "data-chart-slug", "data-wechat-src"));
         allowed.put("span", Arrays.asList("style", "data-chart-slug", "data-map-token", "class"));
         allowed.put("section", Arrays.asList("style", "data-tools", "data-id", "data-role", "data-pm-slice", "class"));
-        allowed.put("div", Arrays.asList("style", "class"));
+        allowed.put("div", Arrays.asList("style", "class", "data-chart-slug", "data-map-token"));
 
         allowed.put("p", Collections.singletonList("style"));
         allowed.put("h1", Collections.singletonList("style"));

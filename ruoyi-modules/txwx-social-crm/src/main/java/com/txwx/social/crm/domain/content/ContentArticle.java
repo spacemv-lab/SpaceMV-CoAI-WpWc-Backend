@@ -47,6 +47,9 @@ public class ContentArticle extends BaseEntity {
     @Schema(description = "HTML正文")
     private String contentHtml;
 
+    @Schema(description = "问道站点专用HTML正文（不含图表图片）")
+    private String wenDaoContentHtml;
+
     @Schema(description = "Markdown正文")
     private String contentMarkdown;
 

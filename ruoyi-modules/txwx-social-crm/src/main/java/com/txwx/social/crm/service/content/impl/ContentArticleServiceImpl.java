@@ -162,6 +162,9 @@ public class ContentArticleServiceImpl implements IContentArticleService {
         if (article.getContentHtml() != null) {
             article.setContentHtml(ArticleHtmlSanitizer.sanitizeContentHtml(article.getContentHtml()));
         }
+        if (article.getWenDaoContentHtml() != null) {
+            article.setWenDaoContentHtml(ArticleHtmlSanitizer.sanitizeContentHtml(article.getWenDaoContentHtml()));
+        }
         if (article.getTitle() != null) {
             article.setTitle(ArticleHtmlSanitizer.stripAllTags(article.getTitle()));
         }

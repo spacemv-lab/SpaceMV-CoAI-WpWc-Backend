@@ -10,62 +10,66 @@ import java.util.Map;
 @Postgres
 public interface IndicatorsMapper {
 
-    @Select("SELECT slug, name, unit, region, category, tags " +
-            "FROM indicators WHERE enabled = true " +
-            "ORDER BY name ASC")
+    @Select("SELECT ds.slug, ds.name, ds.unit, ds.region, ds.category, ds.tags, ds.type " +
+            "FROM data_sources ds WHERE ds.enabled = true " +
+            "ORDER BY ds.name ASC")
     List<Map<String, Object>> listAll();
 
-    @Select({"SELECT i.slug, i.name, i.unit, i.region, i.category, i.tags, " +
+    @Select({"SELECT ds.slug, ds.name, ds.unit, ds.region, ds.category, ds.tags, ds.type, " +
             "id.date AS latest_date, id.value AS latest_value " +
-            "FROM indicators i " +
+            "FROM data_sources ds " +
             "LEFT JOIN LATERAL (SELECT date, value FROM indicator_data " +
-            "  WHERE slug = i.slug ORDER BY date DESC LIMIT 1) id ON true " +
-            "WHERE i.enabled = true " +
-            "ORDER BY i.name ASC"})
+            "  WHERE slug = ds.slug ORDER BY date DESC LIMIT 1) id ON true " +
+            "WHERE ds.enabled = true " +
+            "ORDER BY ds.name ASC"})
     List<Map<String, Object>> listWithValues();
 
-    @Select("SELECT slug, name, unit, region, category, tags " +
-            "FROM indicators WHERE slug = #{slug}")
+    @Select("SELECT ds.slug, ds.name, ds.unit, ds.region, ds.category, ds.tags, ds.type " +
+            "FROM data_sources ds WHERE ds.slug = #{slug}")
     Map<String, Object> findBySlug(@Param("slug") String slug);
 
     @Select("SELECT date, value FROM indicator_data " +
             "WHERE slug = #{slug} ORDER BY date DESC LIMIT #{limit}")
     List<Map<String, Object>> findSeriesBySlug(@Param("slug") String slug, @Param("limit") int limit);
 
-    @Select({"SELECT i.slug, i.name, i.unit, i.region, i.category, i.tags, " +
+    @Select({"SELECT ds.slug, ds.name, ds.unit, ds.region, ds.category, ds.tags, ds.type, " +
             "id.date AS latest_date, id.value AS latest_value " +
-            "FROM indicators i " +
+            "FROM data_sources ds " +
             "LEFT JOIN LATERAL (SELECT date, value FROM indicator_data " +
-            "  WHERE slug = i.slug ORDER BY date DESC LIMIT 1) id ON true " +
-            "WHERE i.enabled = true " +
+            "  WHERE slug = ds.slug ORDER BY date DESC LIMIT 1) id ON true " +
+            "WHERE ds.enabled = true " +
             "AND (#{keyword,jdbcType=VARCHAR} IS NULL OR #{keyword,jdbcType=VARCHAR} = '' OR " +
-            "  i.name ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%' OR " +
-            "  i.slug ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%') " +
+            "  ds.name ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%' OR " +
+            "  ds.slug ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%' OR " +
+            "  EXISTS (SELECT 1 FROM unnest(ds.tags) AS tag WHERE tag ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%')) " +
+            "AND (#{type,jdbcType=VARCHAR} IS NULL OR #{type,jdbcType=VARCHAR} = '' OR " +
+            "  ds.type = #{type,jdbcType=VARCHAR}) " +
             "AND (#{region,jdbcType=VARCHAR} IS NULL OR #{region,jdbcType=VARCHAR} = '' OR " +
-            "  i.region = #{region,jdbcType=VARCHAR} OR " +
-            "  i.region = (SELECT label FROM indicator_region WHERE code = #{region,jdbcType=VARCHAR})) " +
+            "  ds.region = #{region,jdbcType=VARCHAR}) " +
             "AND (#{category,jdbcType=VARCHAR} IS NULL OR #{category,jdbcType=VARCHAR} = '' OR " +
-            "  i.category = #{category,jdbcType=VARCHAR} OR " +
-            "  i.category = (SELECT label FROM indicator_category WHERE code = #{category,jdbcType=VARCHAR})) " +
-            "ORDER BY i.name ASC " +
+            "  ds.category = #{category,jdbcType=VARCHAR}) " +
+            "ORDER BY ds.name ASC " +
             "LIMIT #{limit} OFFSET #{offset}"})
     List<Map<String, Object>> searchWithValues(@Param("keyword") String keyword,
+                                                @Param("type") String type,
                                                 @Param("region") String region,
                                                 @Param("category") String category,
                                                 @Param("limit") int limit,
                                                 @Param("offset") int offset);
 
-    @Select("SELECT COUNT(*) FROM indicators WHERE enabled = true " +
+    @Select("SELECT COUNT(*) FROM data_sources ds WHERE ds.enabled = true " +
             "AND (#{keyword,jdbcType=VARCHAR} IS NULL OR #{keyword,jdbcType=VARCHAR} = '' OR " +
-            "  name ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%' OR " +
-            "  slug ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%') " +
+            "  ds.name ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%' OR " +
+            "  ds.slug ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%' OR " +
+            "  EXISTS (SELECT 1 FROM unnest(ds.tags) AS tag WHERE tag ILIKE '%' || #{keyword,jdbcType=VARCHAR} || '%')) " +
+            "AND (#{type,jdbcType=VARCHAR} IS NULL OR #{type,jdbcType=VARCHAR} = '' OR " +
+            "  ds.type = #{type,jdbcType=VARCHAR}) " +
             "AND (#{region,jdbcType=VARCHAR} IS NULL OR #{region,jdbcType=VARCHAR} = '' OR " +
-            "  region = #{region,jdbcType=VARCHAR} OR " +
-            "  region = (SELECT label FROM indicator_region WHERE code = #{region,jdbcType=VARCHAR})) " +
+            "  ds.region = #{region,jdbcType=VARCHAR}) " +
             "AND (#{category,jdbcType=VARCHAR} IS NULL OR #{category,jdbcType=VARCHAR} = '' OR " +
-            "  category = #{category,jdbcType=VARCHAR} OR " +
-            "  category = (SELECT label FROM indicator_category WHERE code = #{category,jdbcType=VARCHAR}))")
+            "  ds.category = #{category,jdbcType=VARCHAR})")
     int countSearch(@Param("keyword") String keyword,
+                    @Param("type") String type,
                     @Param("region") String region,
                     @Param("category") String category);
 

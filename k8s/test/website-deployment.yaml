@@ -1,0 +1,34 @@
+# gateway-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wpai-website
+  labels:
+    app: wpai-website
+  namespace: wpai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wpai-website
+  template:
+    metadata:
+      labels:
+        app: wpai-website
+    spec:
+      containers:
+      - name: wpai-website
+        image: wpai-website:v1.2.1
+        ports:
+        - containerPort: 9203
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "100m"
+          limits:
+            memory: "2048Mi"
+            cpu: "500m"
+        args:
+          ["nohup","java","-jar","/usr/local/wpai/txwx-website.jar", ">", "/usr/local/wpai/logs/txwx-website/nohup.log", "&"]
+
+

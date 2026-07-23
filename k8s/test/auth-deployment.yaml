@@ -1,0 +1,32 @@
+# gateway-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wpai-auth
+  labels:
+    app: wpai-auth
+  namespace: wpai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wpai-auth
+  template:
+    metadata:
+      labels:
+        app: wpai-auth
+    spec:
+      containers:
+      - name: wpai-auth
+        image: wpai-auth:v1.0.0
+        ports:
+        - containerPort: 9200
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        args:
+          ["nohup","java","-jar","/usr/local/wpai/ruoyi-auth.jar", ">", "/usr/local/wpai/logs/ruoyi-auth/nohup.log", "&"]

@@ -47,17 +47,14 @@ public class WebChatUtil {
         queryParams.put("appid", appId);
         queryParams.put("secret", RsaUtils.decryptByPrivateKey(secret));
 
-        // 测试不带请求头的带参数GET请求
-        String token = null;
-        try {
-            String paramResponse = HttpUtil.getWithParams("https://api.weixin.qq.com/cgi-bin/token", queryParams);
-            WebChatAccessToken webChatAccessToken = JSONObject.parseObject(paramResponse, WebChatAccessToken.class);
-            token = webChatAccessToken.getAccess_token();
-        } catch (Exception e) {
-            throw e;
+        String paramResponse = HttpUtil.getWithParams("https://api.weixin.qq.com/cgi-bin/token", queryParams);
+        WebChatAccessToken webChatAccessToken = JSONObject.parseObject(paramResponse, WebChatAccessToken.class);
+
+        if (webChatAccessToken.getErrcode() != null && webChatAccessToken.getErrcode() != 0) {
+            throw new RuntimeException("微信连通性检查失败: " + webChatAccessToken.getErrmsg() + " (errcode: " + webChatAccessToken.getErrcode() + ")");
         }
 
-        return token;
+        return webChatAccessToken.getAccess_token();
     }
 
     /**

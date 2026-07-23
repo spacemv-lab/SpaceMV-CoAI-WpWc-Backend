@@ -20,4 +20,14 @@ public class WebChatAccessToken {
      * @description: 凭证有效时间，单位：秒。目前是7200秒之内的值。
      */
     private int expires_in;
+
+    /**
+     * @description: 微信返回的错误码
+     */
+    private Integer errcode;
+
+    /**
+     * @description: 微信返回的错误信息
+     */
+    private String errmsg;
 }

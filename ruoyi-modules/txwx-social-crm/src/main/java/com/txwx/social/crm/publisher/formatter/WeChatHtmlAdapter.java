@@ -14,12 +14,16 @@ public class WeChatHtmlAdapter {
     private static final Pattern CHART_SHORTCODE_PATTERN = Pattern.compile("\\{\\{chart:([a-zA-Z0-9-_]+)}}");
     private static final Pattern MAP_SHORTCODE_PATTERN = Pattern.compile("\\{\\{map:([a-zA-Z0-9-_]+)}}");
     private static final Pattern CHART_SPAN_PATTERN = Pattern.compile(
-            "<span[^>]*data-chart-slug\\s*=\\s*[\"']([a-zA-Z0-9-_]+)[\"'][^>]*>.*?</span>",
+            "<(?:span|div)[^>]*data-chart-slug\\s*=\\s*[\"']([a-zA-Z0-9-_]+)[\"'][^>]*>.*?</(?:span|div)>",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL
     );
     private static final Pattern MAP_SPAN_PATTERN = Pattern.compile(
-            "<span[^>]*data-map-token\\s*=\\s*[\"']([a-zA-Z0-9-_]+)[\"'][^>]*>.*?</span>",
+            "<(?:span|div)[^>]*data-map-token\\s*=\\s*[\"']([a-zA-Z0-9-_]+)[\"'][^>]*>.*?</(?:span|div)>",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL
+    );
+    private static final Pattern IMG_SRC_PATTERN = Pattern.compile(
+            "<img[^>]*src\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>",
+            Pattern.CASE_INSENSITIVE
     );
     private static final Pattern STYLE_ATTR_PATTERN = Pattern.compile("style\\s*=\\s*(['\"])(.*?)\\1", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private static final Pattern EMPTY_STYLE_PATTERN = Pattern.compile("\\sstyle\\s*=\\s*(['\"])\\s*\\1", Pattern.CASE_INSENSITIVE);
@@ -35,9 +39,10 @@ public class WeChatHtmlAdapter {
         adapted = replaceChartShortcodes(adapted, chartImageMap);
         adapted = replaceMapSpans(adapted, mapImageMap);
         adapted = replaceMapShortcodes(adapted, mapImageMap);
-        adapted = normalizeInlineStyles(adapted);
-        adapted = ArticleHtmlSanitizer.sanitizeContentHtml(adapted);
-        return wrapSection(adapted);
+        // Skip: normalizeInlineStyles — 135 编辑器的 CSS 白名单过滤会破坏 1:1
+        // Skip: sanitizeContentHtml — HTML 标签/属性过滤会破坏 1:1
+        // Skip: wrapSection — 外层包装会改变布局
+        return adapted;
     }
 
     private String replaceChartSpans(String html, Map<String, String> chartImageMap) {
@@ -45,7 +50,12 @@ public class WeChatHtmlAdapter {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String slug = matcher.group(1);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(buildChartHtml(slug, chartImageMap.get(slug))));
+            String imageUrl = resolveImageUrl(chartImageMap, slug, matcher.group(0));
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(buildChartHtml(slug, imageUrl)));
+            } else {
+                matcher.appendReplacement(sb, "");
+            }
         }
         matcher.appendTail(sb);
         return sb.toString();
@@ -56,7 +66,12 @@ public class WeChatHtmlAdapter {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String slug = matcher.group(1);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(buildChartHtml(slug, chartImageMap.get(slug))));
+            String imageUrl = chartImageMap.get(slug);
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(buildChartHtml(slug, imageUrl)));
+            } else {
+                matcher.appendReplacement(sb, "");
+            }
         }
         matcher.appendTail(sb);
         return sb.toString();
@@ -67,7 +82,12 @@ public class WeChatHtmlAdapter {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String token = matcher.group(1);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(buildMapHtml(token, mapImageMap.get(token))));
+            String imageUrl = resolveImageUrl(mapImageMap, token, matcher.group(0));
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(buildMapHtml(token, imageUrl)));
+            } else {
+                matcher.appendReplacement(sb, "");
+            }
         }
         matcher.appendTail(sb);
         return sb.toString();
@@ -78,10 +98,28 @@ public class WeChatHtmlAdapter {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String token = matcher.group(1);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(buildMapHtml(token, mapImageMap.get(token))));
+            String imageUrl = mapImageMap.get(token);
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(buildMapHtml(token, imageUrl)));
+            } else {
+                matcher.appendReplacement(sb, "");
+            }
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    private String resolveImageUrl(Map<String, String> imageMap, String key, String matchedHtml) {
+        String imageUrl = imageMap.get(key);
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            return imageUrl;
+        }
+        // Fallback: extract img src from inside the matched HTML element
+        Matcher matcher = IMG_SRC_PATTERN.matcher(matchedHtml);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     private String buildMapHtml(String token, String imageUrl) {
@@ -91,10 +129,7 @@ public class WeChatHtmlAdapter {
                     "style=\"max-width:100%;height:auto;display:block;margin:0 auto;border-radius:4px;\">" +
                     "</section>";
         }
-        return "<section style=\"border:1px solid #e8e8e8;border-radius:8px;padding:16px;text-align:center;margin:16px 0\">" +
-                "<span style=\"color:#548DD4;font-weight:600\">查看地图</span>" +
-                "<br><span style=\"color:#999;font-size:12px\">" + escapeHtml(token) + "</span>" +
-                "</section>";
+        return "";
     }
 
     private String buildChartHtml(String slug, String imageUrl) {
@@ -104,10 +139,7 @@ public class WeChatHtmlAdapter {
                     "style=\"max-width:100%;height:auto;display:block;margin:0 auto;border-radius:4px;\">" +
                     "</section>";
         }
-        return "<section style=\"border:1px solid #e8e8e8;border-radius:8px;padding:16px;text-align:center;margin:16px 0\">" +
-                "<span style=\"color:#548DD4;font-weight:600\">查看图表</span>" +
-                "<br><span style=\"color:#999;font-size:12px\">" + escapeHtml(slug) + "</span>" +
-                "</section>";
+        return "";
     }
 
     private String normalizeInlineStyles(String html) {

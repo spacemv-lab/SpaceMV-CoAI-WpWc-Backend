@@ -148,6 +148,12 @@
         </dependency>
 
 
+        <!-- EasyExcel (版本由父POM管理) -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+        </dependency>
+
         <!-- txwx-social-api 契约模块 -->
         <dependency>
             <groupId>com.ruoyi</groupId>

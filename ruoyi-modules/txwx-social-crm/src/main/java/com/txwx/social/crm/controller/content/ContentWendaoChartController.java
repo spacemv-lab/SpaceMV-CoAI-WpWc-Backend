@@ -22,6 +22,7 @@ public class ContentWendaoChartController extends BaseController {
     @Operation(summary = "查询公开指标列表")
     public AjaxResult listIndicators(
         @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String type,
         @RequestParam(required = false) String region,
         @RequestParam(required = false) String category,
         @RequestParam(defaultValue = "name") String sort,
@@ -29,8 +30,8 @@ public class ContentWendaoChartController extends BaseController {
         @RequestParam(defaultValue = "50") int pageSize
     ) {
         int offset = (page - 1) * pageSize;
-        List<Map<String, Object>> items = indicatorsMapper.searchWithValues(keyword, region, category, pageSize, offset);
-        int total = indicatorsMapper.countSearch(keyword, region, category);
+        List<Map<String, Object>> items = indicatorsMapper.searchWithValues(keyword, type, region, category, pageSize, offset);
+        int total = indicatorsMapper.countSearch(keyword, type, region, category);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("items", items);
@@ -65,20 +66,32 @@ public class ContentWendaoChartController extends BaseController {
     }
 
     @GetMapping("/filter-options")
-    @Operation(summary = "获取指标筛选选项（地区+分类）")
+    @Operation(summary = "获取指标筛选选项（地区+分类+类型）")
     public AjaxResult getFilterOptions() {
-        List<Map<String, Object>> regionRows = indicatorsMapper.selectRegions();
-        List<Map<String, Object>> categoryRows = indicatorsMapper.selectCategories();
-
-        List<Map<String, String>> regions = new ArrayList<>();
-        for (Map<String, Object> row : regionRows) {
-            regions.add(Map.of("label", (String) row.get("label"), "value", (String) row.get("code")));
-        }
+        List<Map<String, String>> regions = List.of(
+            Map.of("label", "中国", "value", "cn"),
+            Map.of("label", "美国", "value", "us"),
+            Map.of("label", "全球", "value", "global")
+        );
 
         List<Map<String, String>> categories = new ArrayList<>();
-        for (Map<String, Object> row : categoryRows) {
-            categories.add(Map.of("label", (String) row.get("label"), "value", (String) row.get("code")));
-        }
+        categories.add(Map.of("label", "物价", "value", "price"));
+        categories.add(Map.of("label", "就业", "value", "employment"));
+        categories.add(Map.of("label", "制造业", "value", "manufacturing"));
+        categories.add(Map.of("label", "贸易", "value", "trade"));
+        categories.add(Map.of("label", "货币", "value", "monetary"));
+        categories.add(Map.of("label", "市场", "value", "market"));
+        categories.add(Map.of("label", "World Indices", "value", "World Indices"));
+        categories.add(Map.of("label", "Bonds", "value", "Bonds"));
+        categories.add(Map.of("label", "Currencies", "value", "Currencies"));
+        categories.add(Map.of("label", "Options", "value", "Options"));
+        categories.add(Map.of("label", "Sectors", "value", "Sectors"));
+        categories.add(Map.of("label", "Stocks", "value", "Stocks"));
+        categories.add(Map.of("label", "Crypto", "value", "Crypto"));
+        categories.add(Map.of("label", "Private Companies", "value", "Private Companies"));
+        categories.add(Map.of("label", "ETFs", "value", "ETFs"));
+        categories.add(Map.of("label", "Futures", "value", "Futures"));
+        categories.add(Map.of("label", "Mutual Funds", "value", "Mutual Funds"));
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("regions", regions);

@@ -14,6 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="authorId" column="author_id"/>
         <result property="authorName" column="author_name"/>
         <result property="contentHtml" column="content_html"/>
+        <result property="wenDaoContentHtml" column="wen_dao_content_html"/>
         <result property="contentMarkdown" column="content_markdown"/>
         <result property="contentJson" column="content_json"/>
         <result property="status" column="status"/>
@@ -47,12 +48,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insert" parameterType="com.txwx.social.crm.domain.content.ContentArticle" useGeneratedKeys="true" keyProperty="id">
         insert into content_article (
             title, slug, summary, cover_url, tags, author_id, author_name,
-            content_html, content_markdown, content_json, status, visibility, is_paid,
+            content_html, wen_dao_content_html, content_markdown, content_json, status, visibility, is_paid,
             seo_title, seo_description, seo_keywords, canonical_url,
             published_at, wechat_media_id, wechat_account_id, create_by, update_by, remark, del_flag
         ) values (
             #{title}, #{slug}, #{summary}, #{coverUrl}, #{tags}, #{authorId}, #{authorName},
-            #{contentHtml}, #{contentMarkdown}, #{contentJson}, #{status}, #{visibility}, #{isPaid},
+            #{contentHtml}, #{wenDaoContentHtml}, #{contentMarkdown}, #{contentJson}, #{status}, #{visibility}, #{isPaid},
             #{seoTitle}, #{seoDescription}, #{seoKeywords}, #{canonicalUrl},
             #{publishedAt}, #{wechatMediaId}, #{wechatAccountId}, #{createBy}, #{updateBy}, #{remark}, '0'
         )
@@ -70,6 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="authorId != null">author_id = #{authorId},</if>
             <if test="authorName != null">author_name = #{authorName},</if>
             <if test="contentHtml != null">content_html = #{contentHtml},</if>
+            <if test="wenDaoContentHtml != null">wen_dao_content_html = #{wenDaoContentHtml},</if>
             <if test="contentMarkdown != null">content_markdown = #{contentMarkdown},</if>
             <if test="contentJson != null">content_json = #{contentJson},</if>
             <if test="status != null and status != ''">status = #{status},</if>
@@ -194,7 +196,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectWendaoSiteBySlug" resultMap="ContentArticleResult">
         select a.id, a.title, a.slug, a.summary, a.cover_url, a.tags, a.author_id, a.author_name,
-               a.content_html, a.content_markdown, a.content_json, a.status, a.visibility, a.is_paid,
+               coalesce(a.wen_dao_content_html, a.content_html) as content_html, a.content_markdown, a.content_json, a.status, a.visibility, a.is_paid,
                a.seo_title, a.seo_description, a.seo_keywords, a.canonical_url, a.published_at,
                a.create_by, a.create_time, a.update_by, a.update_time, a.remark, a.del_flag
         from content_article a

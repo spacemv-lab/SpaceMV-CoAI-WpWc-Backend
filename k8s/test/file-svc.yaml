@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ruoyi-file
+  namespace: wpai
+spec:
+  selector:
+    app: wpai-file
+  ports:
+    - port: 9300
+      targetPort: 9300
